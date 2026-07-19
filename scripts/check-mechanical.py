@@ -119,6 +119,14 @@ Modes:
                 emit-v-slices, so loading them here too would double-load SPEC.md
                 and re-hit the Read token cap on a large spec. The id list lets
                 the consumer size the classification batch from the row count.
+  emit-residue — read SPEC.md, print the condenser's prong-4 history-residue
+                candidate set: every live §V/§T/§B row hit by the shared HR_*
+                patterns (or oversized §T task / §B cause cells), after the
+                same pre-filters as audit_history_residue. Prints a
+                `section|id|pattern|line` table the condenser consumes in place
+                of a per-run LLM regex paraphrase. Empty body (header only) =
+                no residue = prong 4 skip. Single source with the audit path —
+                never a second spelling of the freshness-contract pattern set.
   fix-sembr   — rewrite flagged multi-sentence prose lines one sentence per
                 line, in place, over the sembr file set (`--files <comma-list>`
                 overrides discovery). Shares the audit scan's exemption walk +
@@ -713,30 +721,59 @@ def oversized_cell_sha(cell_ids):
     return hashlib.sha256(",".join(sorted(set(cell_ids))).encode("utf-8")).hexdigest()
 
 
-def audit_history_residue(v_rows, t_rows, b_rows, full=False, oversized_ack=None):
-    by_section = {"V": [], "T": [], "B": []}
+# pattern names shared by audit + emit-residue (freshness-contract invariant)
+HR_PATTERN_ORDER = ("amendment-counter", "dated-retirement", "supersession-narration")
+HR_PATTERN_FUNCS = (
+    ("amendment-counter", HR_AMEND),
+    ("dated-retirement", HR_DATED),
+    ("supersession-narration", HR_SUPERSEDE),
+)
+OVERSIZE_PATTERN = "oversized-cell"
+
+
+def collect_residue_rows(v_rows, t_rows, b_rows):
+    """Per-row residue hits — single source for audit_history_residue +
+    emit-residue. Returns list of dicts {section, id, pattern, line}.
+    Pre-filters: retired-in-place §V, backtick-wrapped tokens, cite-modifier
+    `§V.<n>(∆)`. Oversized §T/§B cells use pattern oversized-cell."""
+    out = []
 
     def scan(rid, body, line, kind):
         # retired-in-place §V row exempt (pending reorganize archival)
         if kind == "V" and PF_RETIRED_INPLACE.match(f"{rid}: {body}"):
             return
         residue = PF_CITE_MOD.sub('', strip_backticks(body))
-        if HR_AMEND.search(residue):
-            by_section[kind].append(("amendment-counter", rid, line))
-        if HR_DATED.search(residue):
-            by_section[kind].append(("dated-retirement", rid, line))
-        if HR_SUPERSEDE.search(residue):
-            by_section[kind].append(("supersession-narration", rid, line))
+        for name, rx in HR_PATTERN_FUNCS:
+            if rx.search(residue):
+                out.append({"section": kind, "id": rid,
+                            "pattern": name, "line": line})
 
     for r in v_rows:
-        scan(r["id"], r["body"], r["line"], "V")
+        scan(r["id"], r["body"] or "", r["line"], "V")
     for r in t_rows:
         scan(r["id"], r["body"] or "", r["line"], "T")
     for r in b_rows:
         scan(r["id"], r["body"] or "", r["line"], "B")
 
+    for r in t_rows + b_rows:
+        if len(r["body"] or "") > OVERSIZE_CELL:
+            kind = "T" if r["id"].startswith("T") else "B"
+            out.append({"section": kind, "id": r["id"],
+                        "pattern": OVERSIZE_PATTERN, "line": r["line"]})
+    return out
+
+
+def audit_history_residue(v_rows, t_rows, b_rows, full=False, oversized_ack=None):
+    """Verdict-table form of residue hits. Consumes collect_residue_rows so
+    pattern set + pre-filters stay byte-shared with emit-residue."""
+    hits = collect_residue_rows(v_rows, t_rows, b_rows)
+    by_section = {"V": [], "T": [], "B": []}
+    for h in hits:
+        if h["pattern"] == OVERSIZE_PATTERN:
+            continue
+        by_section[h["section"]].append((h["pattern"], h["id"], h["line"]))
+
     out = []
-    pattern_order = ("amendment-counter", "dated-retirement", "supersession-narration")
     for kind in ("V", "T", "B"):
         items = by_section[kind]
         if not items:
@@ -746,7 +783,7 @@ def audit_history_residue(v_rows, t_rows, b_rows, full=False, oversized_ack=None
             for pattern, _, _ in items:
                 counts[pattern] = counts.get(pattern, 0) + 1
             breakdown = ", ".join(f"{counts[p]} {p}"
-                                  for p in pattern_order if p in counts)
+                                  for p in HR_PATTERN_ORDER if p in counts)
             out.append(("history", "VIOLATE",
                         f"§{kind}: {len(items)} rows ({breakdown}) "
                         f"→ /sdd:condense body-trim"))
@@ -1981,6 +2018,23 @@ def cmd_emit_token_estimate(args):
     return 0
 
 
+def cmd_emit_residue(args):
+    """emit-residue mode (freshness-contract + mechanical-realization): print
+    section|id|pattern|line for every residue hit. Condense prong 4 consumes
+    this table; empty body (header only) means skip. Shares collect_residue_rows
+    with audit_history_residue — no second pattern spelling."""
+    text, _, _ = load_spec(args.repo_root, args.spec)
+    sections, _ = parse_sections(text)
+    v_rows = parse_v_rows(sections)
+    t_rows = parse_pipe_rows(sections, "T", T_ROW)
+    b_rows = parse_pipe_rows(sections, "B", B_ROW)
+    rows = collect_residue_rows(v_rows, t_rows, b_rows)
+    print("section|id|pattern|line")
+    for r in rows:
+        print(f"{r['section']}|{r['id']}|{r['pattern']}|{r['line']}")
+    return 0
+
+
 def cmd_fix_sembr(args):
     """fix-sembr mode (sembr + mechanical-realization invariants): rewrite
     flagged multi-sentence prose lines one sentence per line, in place, over
@@ -2263,6 +2317,43 @@ def selftest():
     check(collect_oversized_cells(big, []) == [f"T{9}"]
           and collect_oversized_cells([{"id": f"T{3}", "body": "ok"}], []) == [],
           "collect_oversized_cells: only > OVERSIZE_CELL")
+
+    # emit-residue: same hit set as audit (full) + oversized-cell rows; empty clean
+    clean_res = collect_residue_rows(
+        [{"id": f"V{1}", "body": "clean axiom", "line": 1}],
+        [{"id": f"T{1}", "body": "x|short", "line": 2}],
+        [])
+    check(clean_res == [], "emit-residue: clean rows → empty table body")
+    res_v = collect_residue_rows(flag_v, [], [])
+    check(len(res_v) == 1 and res_v[0]["pattern"] == "dated-retirement"
+          and res_v[0]["section"] == "V" and res_v[0]["id"] == f"V{8}",
+          "emit-residue: dated-retirement row")
+    res_mix = collect_residue_rows(amend_v + flag_v, big, [])
+    res_patterns = {(r["id"], r["pattern"]) for r in res_mix}
+    check((f"V{8}", "amendment-counter") in res_patterns
+          and (f"V{8}", "dated-retirement") in res_patterns
+          and (f"T{9}", OVERSIZE_PATTERN) in res_patterns,
+          "emit-residue: HR patterns + oversized-cell")
+    # emit set of (section,id,pattern) for non-oversize equals audit full VIOLATE set
+    audit_full = audit_history_residue(amend_v + flag_v, big, [], full=True)
+    audit_keys = set()
+    for _, v, e in audit_full:
+        if v != "VIOLATE":
+            continue
+        # evidence: §V.V8 VIOLATE: history: amendment-counter @ SPEC.md:1
+        m = re.search(r'§([VTB])\.(\w+) VIOLATE: history: (\S+)', e)
+        if m:
+            audit_keys.add((m.group(1), m.group(2), m.group(3)))
+    emit_keys = {(r["section"], r["id"], r["pattern"]) for r in res_mix
+                 if r["pattern"] != OVERSIZE_PATTERN}
+    check(emit_keys == audit_keys, "emit-residue: HR hits agree with audit full")
+    # pre-filters: emit empty when audit empty
+    check(collect_residue_rows(bt_v, [], []) == [],
+          "emit-residue: backtick pre-filter")
+    check(collect_residue_rows(cm_v, [], []) == [],
+          "emit-residue: cite-modifier pre-filter")
+    check(collect_residue_rows(rip_v, [], []) == [],
+          "emit-residue: retired-in-place pre-filter")
 
     # §T flipped-since-clean: `x` now and not `x` before (pure over parsed rows)
     old_t = [{"id": f"T{1}", "body": ".|task"}, {"id": f"T{2}", "body": "x|done"}]
@@ -2872,7 +2963,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 203
+    return 211
 
 
 # --- entry -------------------------------------------------------------------
@@ -2887,7 +2978,7 @@ def main(argv=None):
                                          "emit-v-slices", "emit-superseded",
                                          "emit-fold-seeds", "emit-v-weights",
                                          "emit-row-ids", "emit-overview",
-                                         "emit-token-estimate"])
+                                         "emit-token-estimate", "emit-residue"])
     parser.add_argument("--repo-root", default=os.environ.get("CHECK_REPO_ROOT", "."))
     parser.add_argument("--spec", default="SPEC.md")
     parser.add_argument("--no-hook", action="store_true",
@@ -2928,6 +3019,8 @@ def main(argv=None):
         return cmd_emit_overview(args)
     if args.mode == "emit-token-estimate":
         return cmd_emit_token_estimate(args)
+    if args.mode == "emit-residue":
+        return cmd_emit_residue(args)
     return cmd_write_memo(args)
 
 

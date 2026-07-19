@@ -127,7 +127,7 @@ T46|x|sweep prose → semantic line breaks (sembr)|V70
 T47|x|script: sembr multi-sentence-line advisory + self-test|V70,V40
 T48|x|script: fix-sembr mode rewrite multi-sentence lines|V70,V40
 T49|x|build: auto-send Grok Build feedback for upstream-FR §T rows|V62
-T50|.|script emit-residue mode (section|id|pattern|line; share HR_*/pre-filter/oversized w/ audit_history_residue; self-test emit=audit); condense prong 4 consumes table (empty → skip)|V28,V40,V48
+T50|x|script emit-residue mode (section|id|pattern|line; share HR_*/pre-filter/oversized w/ audit_history_residue; self-test emit=audit); condense prong 4 consumes table (empty → skip)|V28,V40,V48
 
 ## §B BUGS
 

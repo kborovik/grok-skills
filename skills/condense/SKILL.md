@@ -66,18 +66,19 @@ Archive carries verbatim row text. /sdd:check cite-DAG sweep eager-probes archiv
 ### Prong 4 — history-residue prune
 
 Prune history residue across live §V/§T/§B row bodies — SPEC.md is clean current design; history lives in commit log + archive.
-Pattern set single-sourced by freshness-contract invariant (shared w/ /sdd:check audit + /sdd:spec write-time prune):
+Candidates script-computed: `check-mechanical.py emit-residue` emits `section|id|pattern|line` table — every live row hit by the shared HR_* patterns (amendment-counter, dated-retirement, supersession-narration) or oversized §T `task` / §B `cause` cells (`oversized-cell`), after the same pre-filters as the audit path.
+Empty body (header only) → prong 4 skip.
+Consume table; not hand regex / per-run pattern paraphrase (freshness-contract + mechanical-realization invariants — single source with `audit_history_residue`).
 
-- amendment-counter `(∆)` markers → drop.
-- `retired YYYY-MM-DD` clause inlined in live row → drop (wholesale-retired row is reorganize archival job).
-- supersession-narration → drop: `pre-amend …`, `prior … retired/dropped/superseded`, recurrence-class lineage, surfaced-by prose.
+Per-hit prune by `pattern`:
+
+- `amendment-counter` → drop `(∆)` markers.
+- `dated-retirement` → drop inlined `retired YYYY-MM-DD` clause (wholesale-retired row is reorganize archival job).
+- `supersession-narration` → drop `pre-amend …`, `prior … retired/dropped/superseded`, recurrence-class lineage, surfaced-by prose.
   Commit msg + `§B.cause`/`§T.cites` cite-DAG preserve narrative.
-- standalone `Closes §B.<x>` sentence → `(closes §B.<x>)` suffix on prior clause.
+- `oversized-cell` → §T body-trim / §B cause one-line trim (owned here because /sdd:build flips status cell only, so §T body not reachable by /sdd:spec write-time prune); surplus → commit-msg body.
 
-**§T body-trim** — owned here because /sdd:build flips status cell only, so §T body not reachable by /sdd:spec write-time prune: oversized `task` cell carrying step-by-step transcript → one-line goal; surplus → commit-msg body.
-Mirrors §B `cause` one-line trim.
-
-Pre-filters (match exempt): backtick-wrapped tokens (pattern-definition rows not self-flag); cite-modifier `§V.<n>(∆)`; wholesale-retired `V<n>: retired YYYY-MM-DD` rows pending reorganize.
+Standalone `Closes §B.<x>` sentence → `(closes §B.<x>)` suffix on prior clause (apply when body still carries it after pattern prune).
 Verbatim-preservation holds: code, paths, URLs, identifiers, error strings, regex.
 
 ### Prong 5 — §V prose → telegraph rewrite
