@@ -52,7 +52,7 @@ V27: backprop-protocol — → `.spec/check-extras.md §V27`
 V28: freshness-contract — → `.spec/check-extras.md §V28`
 V29: fold-first — new §V row vs amend of closest existing row ! operator gate; split justification = §B recurrence cite or declared orthogonal concept; "mirrors existing row" alone insufficient.
 V30: sweep-scope — sweep-class §T row ! declare scope as grep pattern or vocab table; named-procedure + named-site lists rejected.
-V31: design-lifecycle — /sdd:design writes `designs/<slug>.md` only (write-new); fold-in mutates SPEC.md only; draft persists in working tree, operator disposes.
+V31: design-lifecycle — /sdd:design writes `designs/<slug>.md` only (write-new); slash-only (`disable-model-invocation: true` on `skills/design`, not bundled `/design` auto-route); fold-in mutates SPEC.md only; draft persists in working tree, operator disposes.
 V40: mechanical-realization — → `.spec/check-extras.md §V40`
 V41: parametric-recipe — → `.spec/check-extras.md §V41`
 V42: scope-set — → `.spec/check-extras.md §V42`
