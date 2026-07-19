@@ -1,7 +1,12 @@
 ---
 name: design
 description: |
-  Propose-then-critique structural design loop → draft to `designs/<slug>.md`. Distinct from socratic (which sharpens vague intent). Use when user wants to design a structural change, weigh tradeoffs between named alternatives, propose an architecture, or shape a subsystem before implementation. Triggers: "/sdd:design", "design the X", "shape the X subsystem", "tradeoffs between A and B", "how should we structure", "propose an architecture for".
+  Slash-only sdd structural design: propose-then-critique → `designs/<slug>.md` for later `/sdd:spec` fold-in.
+  Invoke only via `/sdd:design <topic>`.
+  Not the bundled `/design` write-review-revise design-doc loop (PR plan, temp scratch artifacts).
+  Distinct from socratic (intent "enough") — this skill exhausts structural Open Questions.
+  Model auto-invocation off (`disable-model-invocation: true`) so bare "design …" prose cannot steal the bundled skill.
+disable-model-invocation: true
 allowed-tools: ask_user_question, read_file, grep, write
 ---
 
@@ -12,9 +17,10 @@ Design file body user-reviewed pre-fold → steno: spell out `→ ≥ ≤ &` as 
 
 ## POSITION IN FUNNEL
 
-`/sdd:design` is front door — caller named the layer mentally, wants to commit a shape.
+`/sdd:design` is front door — slash-only (`disable-model-invocation: true`); no natural-language auto-route.
+Caller named the layer mentally, wants to commit a shape.
 Layer / shape-space unclear → loop step 2 questions narrow.
-No auto-route — user-driven only.
+Bundled Grok `/design` is a different skill (write→review→revise design doc + PR plan); never treat bare "design …" as this skill.
 
 ## LOOP
 

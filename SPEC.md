@@ -16,7 +16,7 @@ LLM writes code faster than humans read → standards + logic drift unchecked; c
 
 external surface — what operator + consuming repo see.
 
-- design: `/sdd:design <topic>` → propose-critique loop → `designs/<slug>.md` (SPEC.md untouched)
+- design: `/sdd:design <topic>` → propose-critique loop → `designs/<slug>.md` (SPEC.md untouched; slash-only via `disable-model-invocation`, not bundled `/design`)
 - spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit
 - build: `/sdd:build [§T.n|--next|--all]` → plan → edit → verify → flip §T `.`→`x` + commit per task
 - check: `/sdd:check [--full]` → read-only drift REPORT (severity blocks, checkpoint, advisory, summary) + Next block

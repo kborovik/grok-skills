@@ -146,14 +146,19 @@ Backticks OK.
 ### `/sdd:design` — propose-then-critique
 
 Use when there's a structural choice to weigh — tradeoffs, named alternatives, subsystem shape.
+**Slash-only:** run `/sdd:design <topic>`.
+The model does not auto-start this skill from bare "design …" prose.
+That keeps it clear of the bundled Grok `/design` skill (write, then review, then revise a design doc with a PR plan).
 The model proposes a shape, you critique, the loop converges only when `## Open Questions` is empty.
-Persists to `designs/<slug>.md`. `/sdd:spec` later folds the converged design into `§V` / `§T` rows; the draft file stays in the working tree for you to remove or keep.
+Persists to `designs/<slug>.md`.
+`/sdd:spec` later folds the converged design into `§V` / `§T` rows; the draft file stays in the working tree for you to remove or keep.
 
 ```bash
 /sdd:design how should the release pipeline split monorepo plugins?
 ```
 
 Distinct from `/sdd:spec`'s socratic gate: socratic converges on **enough** (sharpen vague intent); design converges on **exhausted** (every structural question has a decision).
+Distinct from bundled `/design`: that skill is a general design-doc loop; `/sdd:design` is the SDD funnel step that writes `designs/<slug>.md` for fold-in.
 
 ### `/sdd:spec` — mutate the spec
 
@@ -236,7 +241,7 @@ Renumber history persists to `.spec/spec-renumber-map.json` so old citations sti
 Each skill dir surfaces directly as a slash command (e.g. `skills/spec/` becomes `/sdd:spec`).
 SKILL.md frontmatter (`description`, `allowed-tools`, `model`) is honored on dispatch.
 
-- `design` — propose-then-critique writes `designs/<slug>.md`
+- `design` — slash-only `/sdd:design`; propose-then-critique writes `designs/<slug>.md` (not bundled `/design`)
 - `spec` — sole mutator
 - `build` — plan, then execute loop
 - `check` — drift report
