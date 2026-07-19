@@ -126,7 +126,7 @@ T45|x|re-anchor steno + clarity carrier on simple technical language|V67,V2
 T46|x|sweep prose → semantic line breaks (sembr)|V70
 T47|x|script: sembr multi-sentence-line advisory + self-test|V70,V40
 T48|x|script: fix-sembr mode rewrite multi-sentence lines|V70,V40
-T49|.|build: auto-send Grok Build feedback for upstream-FR §T rows|V62
+T49|x|build: auto-send Grok Build feedback for upstream-FR §T rows|V62
 
 ## §B BUGS
 
