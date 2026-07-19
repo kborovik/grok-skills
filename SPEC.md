@@ -89,7 +89,7 @@ T8|x|script: admit MATCH clean verdict on §I rows|V43,V40
 T9|x|script write-memo --from-audit; check drops hand-merge|V44,V40
 T10|x|script write-memo dirty → exit 1; self-test exit codes|V44
 T11|x|sweep frontmatter Bash grants: drop zero-use; pin script python3|V62
-T12|.|open upstream FR: env-var expansion in allowed-tools|V62
+T12|x|open upstream FR: env-var expansion in allowed-tools|V62
 T13|x|monitor: assert gh --repo == manifest .repository pre-write|V65,B11
 T14|x|sweep skill auto-commits to path-scoped git commit -- <paths>|V20,B12
 T15|x|sweep body rg → builtin Grep / grep -v -E invert|V62,V3
