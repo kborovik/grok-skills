@@ -2,7 +2,7 @@
   "name": "sdd",
   "displayName": "Spec-Driven Development (SDD)",
   "description": "Compressed spec-driven development for Grok. Seven skills (/sdd:design, /sdd:spec, /sdd:build, /sdd:check, /sdd:explain, /sdd:condense, /sdd:reorganize) over one SPEC.md. Telegraph encoding cuts tokens about 40% vs prose re-expansion.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": {
     "name": "Konstantin Borovik",
     "email": "github@lab5.ca"
