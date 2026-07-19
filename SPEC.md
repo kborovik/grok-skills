@@ -78,7 +78,7 @@ V70: sembr — repo `.md` prose source lines ! semantic line breaks (sembr.org):
 ## §T TASKS
 
 id|status|task|cites
-T1|.|add CI: script --self-test + audit dirty-verdict gate on push/PR|V40,V62
+T1|x|add CI: script --self-test + audit dirty-verdict gate on push/PR|V40,V62
 T2|.|bump plugin version 1.1.0 + sync manifest description|-
 T3|.|create REPO-LOCAL release skill (gh release flow)|V24,V41,V42
 T4|x|add script emit-overview mode; check LOAD uses it|V64,V40

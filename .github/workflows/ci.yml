@@ -1,0 +1,28 @@
+# T1: script --self-test + audit dirty-verdict gate on push/PR
+# Mechanical only — write-memo --from-audit owns DIRTY_VERDICTS (exit 1 dirty).
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  mechanical:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: self-test
+        run: python3 scripts/check-mechanical.py --self-test
+
+      - name: audit dirty-verdict gate
+        run: |
+          # Empty behavioral table + --from-audit = mechanical rows only.
+          # Exit 0 clean / 1 dirty (memo untouched) / 2 invalid vocab.
+          # Memo write on clean is gitignored (.spec/check-state.json).
+          printf 'id|verdict|evidence\n' \
+            | python3 scripts/check-mechanical.py write-memo --from-audit
