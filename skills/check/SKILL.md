@@ -52,13 +52,13 @@ Checklist = ephemeral harness UI: never repo state, never the memo, never substi
 Deterministic audit set — SPEC-FORMAT structural rules (section catalog + order, row grammar, rightmost-`|` column extraction, archive markers + sibling shape), `§T` cite / `§B` fix grammar, monotonic-ID, cite-DAG resolution + edge-type, history-residue patterns + pre-filters + oversized-cell advisory, pinned-invariant-header grep, MECHANIZE-block byte-identity across the user-invocable SKILL.md set, auto-fire sub-skill slash-dispatch ban, allowed-tools grant-use (no zero-body-use grant), AGENTS.md presence + direct-instruction marker block, human-facing naked-symbol + banned-idiom scan, sembr multi-sentence-line scan, memo bookkeeping, token estimate — owned by `${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py`.
 Script regex is single source of truth; per-run paraphrase not permitted (mirrors canonical-agent-block verbatim contract) — the MECHANIZE-block check supersedes any hand-run `awk|md5|uniq` block sweep, the dispatch-target check any hand-run skill-body slash grep, the grant-use check any hand-run `allowed-tools` grant sweep, the human-facing scan any hand-run symbol or idiom grep.
 
-Run at audit start (`${GROK_PLUGIN_ROOT}` doesn't expand in frontmatter `allowed-tools` → script-path pin uses mid-glob `Bash(python3 */check-mechanical.py *)`; leading `*` absorbs the unexpanded plugin-root prefix, per tooling-preference invariant. git stays unused — all rev-parse/show/diff run inside the script):
+Run at audit start (`${GROK_PLUGIN_ROOT}` doesn't expand in frontmatter `allowed-tools` → script-path pin uses mid-glob `run_terminal_command(python3 */check-mechanical.py *)`; leading `*` absorbs the unexpanded plugin-root prefix, per tooling-preference invariant. git stays unused — all rev-parse/show/diff run inside the script):
 
 ```
 python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py audit [--full]
 ```
 
-Reads `SPEC.md` (+ `SPEC.archive.md` sibling if exists) from cwd; discovers PUBLISHED scope from `.claude-plugin/marketplace.json`; probes `.spec/scripts/check-extras.sh` (exists + executable → run, append its `id|verdict|evidence` rows — language-agnostic contract).
+Reads `SPEC.md` (+ `SPEC.archive.md` sibling if exists) from cwd; discovers PUBLISHED scope from `.grok-plugin/plugin.json` (or marketplace.json); probes `.spec/scripts/check-extras.sh` (exists + executable → run, append its `id|verdict|evidence` rows — language-agnostic contract).
 Emits pipe-table `id|verdict|evidence`:
 
 - `format|VIOLATE|format: <detail>` — SPEC-FORMAT breach.
@@ -70,7 +70,7 @@ Emits pipe-table `id|verdict|evidence`:
 - `dispatch|VIOLATE|<path:line> … slash-dispatches auto-fire sub-skill <cmd>` — a skill body names an auto-fire sub-skill (`user-invocable: false`) in `/<plugin>:<sub-skill>` slash form per response-shape invariant; the slash form is never a valid dispatch target (backtick-wrapped exempt).
   Sub-skill set derived frontmatter-only, plugin name from manifest — script-owned, never hand-grep skill bodies per run (closes §B.14).
 - `grant|VIOLATE|<path:line> grants <tool> zero body use …` — a frontmatter `allowed-tools` grant the skill body never invokes per tooling-preference invariant (zero-body-use grant banned, nothing to pre-approve).
-  Sound by construction: flagged only on total body-absence — canonical token, alias (`Explore` for the sub-agent spawner), the operation verb a body uses for the tool (`rewrite` for the editor), or a `Bash` command anchor; `Glob` matched case-sensitively so wildcard prose (`mid-glob`) never masks a missing grant.
+  Sound by construction: flagged only on total body-absence — canonical token, alias (`Explore` for the sub-agent spawner), the operation verb a body uses for the tool (`rewrite` for the editor), or a `run_terminal_command` command anchor.
   Spans the PUBLISHED + REPO-LOCAL skill set — script-owned, never hand-run the grant sweep per run (a manual sweep misses rows).
 - `agents-md|MISSING|AGENTS.md absent …` / `agents-md|VIOLATE|AGENTS.md missing … marker block …` — repo-root `AGENTS.md` (the human-clarity carrier) present + carries the `sdd:direct-instruction` begin/end marker block per human-clarity invariant; MISSING = absent file, VIOLATE = block absent or mis-ordered.
   Symbol-cleanliness rides the `symbols` row (AGENTS.md in the human-facing scan set), not re-checked here.
@@ -249,7 +249,7 @@ V<n> UNVERIFIABLE: no test covers every req path.
 §T.<n> VIOLATE: history: dated-retirement in task body — prune per freshness-contract invariant.
 mechanize DRIFT: skills/explain/SKILL.md MECHANIZE block diverges from canonical.
 dispatch VIOLATE: skills/build/SKILL.md:96 slash-dispatches auto-fire sub-skill /<plugin>:<sub-skill>.
-grant VIOLATE: skills/explain/SKILL.md:8 grants Grep zero body use.
+grant VIOLATE: skills/explain/SKILL.md:8 grants grep zero body use.
 idiom VIOLATE: README.md:25 banned idiom load-bearing in human-facing prose.
 
 ## cite drift

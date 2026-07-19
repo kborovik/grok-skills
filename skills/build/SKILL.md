@@ -47,7 +47,7 @@ Per task in order:
 1. Edit code per plan.
    Stage explicit `git add <listed-paths>` (feeds step-3 staged-diff probe); step-4 commit path-scoped so pre-existing dirty tree never bundled (write-ownership invariant).
 2. Run verification cmd.
-   Frontmatter `Bash` grant stays broad — verification cmd is consumer-defined per repo (`<test>` / `<build>` / `<lint>`), unpinnable; broad grant = prompt-control + intent-doc only per tooling-preference invariant, never an access boundary (real tool denial = `disallowed-tools`).
+   Frontmatter `run_terminal_command` grant stays broad — verification cmd is consumer-defined per repo (`<test>` / `<build>` / `<lint>`), unpinnable; broad grant = prompt-control + intent-doc only per tooling-preference invariant, never an access boundary (real tool denial = `disallowed-tools`).
 3. Staged diff touches PUBLISHED → probe `.spec/check-extras.md`; exists → run its audit recipes, bail per recipe msg every surviving match, no commit until match-free.
    No file → no-op.
 4. **Pass** (cmd exits 0 + planned tests added + full-suite re-run shows no §V regress) → flip §T.n `.` → `x`; auto-commit path-scoped `git commit -m <subject> [-m <body>] -- <listed-paths> SPEC.md` (`-m` flags ! precede `--`), no prompt, msg `T<n>: <goal line>` + §V cites.

@@ -33,13 +33,13 @@ No deviation → no fire.
 ## PROTOCOL — ordered, stop on bail:
 
 1. **CAPTURE** — skill name + plugin version + expected (quoted skill-body line) vs actual + minimal excerpt.
-   Version ← `${GROK_PLUGIN_ROOT}/.claude-plugin/plugin.json` `.version` (jq; no jq → python3 — JSON parse not script-sole → frontmatter `Bash(python3 *)` stays broad per tooling-preference invariant, no single script path to pin).
+   Version ← `${GROK_PLUGIN_ROOT}/.grok-plugin/plugin.json` `.version` (jq; no jq → python3 — JSON parse not script-sole → frontmatter `run_terminal_command(python3 *)` stays broad per tooling-preference invariant, no single script path to pin).
 2. **REDACT** — strip consumer-repo paths, code, identifiers, URLs; only the sdd skill-body text + deviation description survive.
    Mandatory pre-publish (monitor-protocol invariant) — excerpts originate in third-party repos.
 3. **ROUTE** — cwd == plugin repo? `git remote get-url origin` resolves to manifest `.repository` → dev repo → hand off to backprop (backprop-protocol invariant): §B row, no issue filed.
    Stop.
    Else consumer repo → continue.
-4. **TARGET** — issue repo ← `${GROK_PLUGIN_ROOT}/.claude-plugin/plugin.json` `.repository`, parsed to `owner/repo` (jq).
+4. **TARGET** — issue repo ← `${GROK_PLUGIN_ROOT}/.grok-plugin/plugin.json` `.repository`, parsed to `owner/repo` (jq).
    No hardcoded slug in this body (parametric-recipe invariant — the plugin-internal file owns the slug).
 5. **DEDUP** — `gh issue list --repo <target> --search "<skill> <keywords>"`.
    Hit → comment path.
@@ -64,7 +64,7 @@ Ordered, stop on bail:
 
 1. **REDACT** — strip consumer-repo paths, code, identifiers, URLs; only the observed pattern + proposed script mode survive.
    Mandatory pre-publish (monitor-protocol invariant) — candidate originates in a third-party repo.
-2. **TARGET** — issue repo ← `${GROK_PLUGIN_ROOT}/.claude-plugin/plugin.json` `.repository`, parsed to `owner/repo` (jq).
+2. **TARGET** — issue repo ← `${GROK_PLUGIN_ROOT}/.grok-plugin/plugin.json` `.repository`, parsed to `owner/repo` (jq).
    Same resolve as the auto-fire path — plugin-internal file owns the slug (parametric-recipe invariant), no hardcoded slug.
 3. **DEDUP** — `gh issue list --repo <target> --search "<skill> mech candidate <keywords>"`.
    Hit → comment path.

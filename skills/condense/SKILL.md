@@ -38,7 +38,7 @@ Checklist = ephemeral harness UI: never repo state, never substitutes the `## Ne
 Six prongs, execution order 1 → 6.
 Per prong: scan SPEC.md for trigger match; emit firing-set + skip-set w/ 1-line rationale each.
 
-Script modes below run `python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py <mode>`; `${GROK_PLUGIN_ROOT}` no-expand in frontmatter → python3 grant pinned mid-glob `Bash(python3 */check-mechanical.py *)` (script-sole use, leading `*` absorbs the plugin-root prefix) per tooling-preference invariant.
+Script modes below run `python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py <mode>`; `${GROK_PLUGIN_ROOT}` no-expand in frontmatter → python3 grant pinned mid-glob `run_terminal_command(python3 */check-mechanical.py *)` (script-sole use, leading `*` absorbs the plugin-root prefix) per tooling-preference invariant.
 
 ### Prong 1 — §V fold-first sweep
 

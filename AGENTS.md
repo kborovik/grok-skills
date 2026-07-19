@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 This file governs human-facing output in the sdd Grok skills plugin repo: chat replies, the README, GitHub issues and pull requests, and commit-message bodies.
 SPEC.md and the skill bodies use the compressed telegraph register instead, so these rules do not apply there.

@@ -39,8 +39,8 @@ Checklist = ephemeral harness UI: never repo state, never substitutes the PROPOS
 2. Read `${GROK_PLUGIN_ROOT}/SPEC-FORMAT.md` every row schema and section catalog.
 3. Parse `$ARGUMENTS`: empty → full cluster + renumber + sweep propose; `--taxonomy-only` → PROPOSE report only, not mutation.
 4. Discovery probe — repo-agnostic plugin scope per published-scope invariant:
-   - (a) `<repo>/.claude-plugin/marketplace.json` → parse `plugins[].source` via `jq` (fallback `python3` per tooling-preference invariant; python3 here = arbitrary JSON parse, not script-sole → frontmatter `Bash(python3 *)` stays broad, no single script path to pin) → {dir-name → plugin-name} map per plugin-name-vs-dir invariant; PUBLISHED = `{<dir>/**}` over each `source` value.
-   - (b) else `<repo>/.claude-plugin/plugin.json` → single-plugin map; PUBLISHED = `{<repo>/**}` minus REPO-LOCAL.
+   - (a) `<repo>/.grok-plugin/marketplace.json` → parse `plugins[].source` via `jq` (fallback `python3` per tooling-preference invariant; python3 here = arbitrary JSON parse, not script-sole → frontmatter `run_terminal_command(python3 *)` stays broad, no single script path to pin) → {dir-name → plugin-name} map per plugin-name-vs-dir invariant; PUBLISHED = `{<dir>/**}` over each `source` value.
+   - (b) else `<repo>/.grok-plugin/plugin.json` → single-plugin map; PUBLISHED = `{<repo>/**}` minus REPO-LOCAL.
    - (c) else → empty map; sweep targets REPO-LOCAL + SPEC.md internal only.
 5. Load `.spec/spec-clusters.json` if exists, else cold-start.
    Shape `[{cluster:<name>, rows:[{fingerprint:<hash>, current_id:V<n>}, ...]}, ...]`.

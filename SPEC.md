@@ -6,7 +6,7 @@ LLM writes code faster than humans read → standards + logic drift unchecked; c
 
 ## §C CONSTRAINTS
 
-- installable Grok skills plugin; root-source plugin `sdd` (`.grok-plugin/plugin.json` + `.claude-plugin/` dual-compat marketplace, source `./`)
+- installable Grok skills plugin; root-source plugin `sdd` (`.grok-plugin/plugin.json`, optional `.grok-plugin/marketplace.json` source `./`)
 - skills-only: every surface = `skills/<name>/SKILL.md`; no commands/ tree, no hooks
 - `scripts/check-mechanical.py` single-file, stdlib-only python3
 - no orchestrator, no swarm: main Grok agent executes; sub-agents read-only
@@ -73,7 +73,7 @@ V66: mechanize-scan — → `.spec/check-extras.md §V66`
 V67: human-clarity — → `.spec/check-extras.md §V67`
 V68: table-use — → `.spec/check-extras.md §V68`
 V69: github-workflow — → `.spec/check-extras.md §V69`
-V70: sembr — repo `.md` prose source lines ! semantic line breaks (sembr.org): one sentence per line, clause-boundary break OK; source-format only — rendered output unchanged; scope: README.md, CLAUDE.md, `designs/*.md`, `skills/**/SKILL.md`; exempt: pipe-row files (SPEC.md, SPEC.archive.md, `.spec/check-extras.md`), fenced blocks, `|`-tables, frontmatter; GitHub issue/PR/comment bodies out of scope (GFM renders single newline as hard break); register-orthogonal — sibling to table-use.
+V70: sembr — repo `.md` prose source lines ! semantic line breaks (sembr.org): one sentence per line, clause-boundary break OK; source-format only — rendered output unchanged; scope: README.md, AGENTS.md, `designs/*.md`, `skills/**/SKILL.md`; exempt: pipe-row files (SPEC.md, SPEC.archive.md, `.spec/check-extras.md`), fenced blocks, `|`-tables, frontmatter; GitHub issue/PR/comment bodies out of scope (GFM renders single newline as hard break); register-orthogonal — sibling to table-use.
 
 ## §T TASKS
 

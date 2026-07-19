@@ -64,7 +64,7 @@ Then in any consumer repo:
 /check
 ```
 
-Plugin layout is Grok-native (`.grok-plugin/plugin.json` + `skills/*/SKILL.md`). A Claude-compatible `.claude-plugin/` manifest ships for dual discovery.
+Plugin layout is Grok-native (`.grok-plugin/plugin.json` + `skills/*/SKILL.md` + `AGENTS.md`).
 
 ## The mental model
 
@@ -360,8 +360,6 @@ Optional in syntax, expensive in practice.
 
 ```
 .grok-plugin/plugin.json         Grok-native plugin manifest (name: sdd)
-.claude-plugin/plugin.json       Claude-compatible dual-discovery manifest
-.claude-plugin/marketplace.json  marketplace entry (source ./)
 AGENTS.md                        human-facing output rules (Grok project rules)
 skills/design/                   /sdd:design — propose-then-critique → designs/<slug>.md
 skills/spec/                     /sdd:spec — sole SPEC.md mutator

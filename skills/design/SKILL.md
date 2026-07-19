@@ -107,7 +107,7 @@ slug: short kebab-case (`<noun-phrase>` or `<scope>-<noun>`), ≤ 5 words, ≤ 5
 
 ## PERSIST
 
-write-new only — never append to existing design file. `Write` auto-creates `designs/` @ repo root (no `Bash` mkdir).
+write-new only — never append to existing design file. `write` auto-creates `designs/` @ repo root (no shell mkdir).
 
 1. derive slug per § above
 2. write steno body per template → `designs/<slug>.md`

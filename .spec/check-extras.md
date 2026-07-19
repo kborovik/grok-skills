@@ -8,7 +8,7 @@ V3: verbatim-preservation — code, backticked text, paths, URLs, identifiers, n
 
 ## §V4 symbol-set
 
-V4: symbol-set — telegraph (LLM-facing: SPEC.md, skill bodies) keeps `→ ≥ ≤ ! ? §`; human-facing prose (steno surfaces, CLAUDE.md, chat) spells out `→ ≥ ≤ &` as words, retains `|` for list/table separators + `§` for cites only; heavier math operators ! ASCII words.
+V4: symbol-set — telegraph (LLM-facing: SPEC.md, skill bodies) keeps `→ ≥ ≤ ! ? §`; human-facing prose (steno surfaces, AGENTS.md, chat) spells out `→ ≥ ≤ &` as words, retains `|` for list/table separators + `§` for cites only; heavier math operators ! ASCII words.
 
 ## §V20 write-ownership
 
@@ -40,7 +40,7 @@ V41: parametric-recipe — published recipes + script name no repo-literal paths
 
 ## §V42 scope-set
 
-V42: scope-set — audit scopes: PUBLISHED (marketplace source dirs; root `./` → repo root), REPO-LOCAL (`.spec/**`, `.claude/**`, README.md, CLAUDE.md), SPEC-ADJACENT (SPEC.md, skill bodies, SPEC-FORMAT.md), GITHUB-FACING (README, issues, PRs, commit bodies); each audit names its scope.
+V42: scope-set — audit scopes: PUBLISHED (marketplace source dirs; root `./` → repo root), REPO-LOCAL (`.spec/**`, `.grok/**`, README.md, AGENTS.md), SPEC-ADJACENT (SPEC.md, skill bodies, SPEC-FORMAT.md), GITHUB-FACING (README, issues, PRs, commit bodies); each audit names its scope.
 
 ## §V43 drift-verdict-vocab
 
@@ -72,11 +72,11 @@ V61: sub-skill-flags — auto-fire sub-skills (telegraph, backprop, socratic, st
 
 ## §V62 tooling-preference
 
-V62: tooling-preference — pattern scans builtin Grep (harness-bundled ripgrep; consumer-installed `rg` never assumed); invert/exclusion scans (Grep lacks `-v`) → POSIX `grep -v -E` or two-pass Grep line-subtract; recipe patterns Rust-regex-expressible only — no lookaround/backref; JSON parse `jq`, fallback python3; audit core single-file stdlib-only python3; `allowed-tools` grant = pre-approval (auto-run listed tool sans prompt, never a restriction — unlisted tools stay callable per session perms), so narrowest pattern over body-prescribed invocations for prompt-control + intent-doc, zero-body-use grant banned (nothing to pre-approve); script-sole-use interpreter grant pins script path (mid-glob `Bash(python3 */check-mechanical.py *)` form); pin inexpressible (`${CLAUDE_PLUGIN_ROOT}` no-expand in frontmatter) → broad grant + inline note citing upstream limit; real tool denial = `disallowed-tools` (drops from pool, clears next user turn) — documented zero-writes (/sdd:check, /sdd:explain per §V.20) enforced via `disallowed-tools: Edit, Write`, not `allowed-tools` omission (omission only prompts) (closes §B.10).
+V62: tooling-preference — pattern scans builtin grep tool (harness-bundled ripgrep; consumer-installed `rg` never assumed); invert/exclusion scans (Grep lacks `-v`) → POSIX `grep -v -E` or two-pass Grep line-subtract; recipe patterns Rust-regex-expressible only — no lookaround/backref; JSON parse `jq`, fallback python3; audit core single-file stdlib-only python3; `allowed-tools` grant = pre-approval (auto-run listed tool sans prompt, never a restriction — unlisted tools stay callable per session perms), so narrowest pattern over body-prescribed invocations for prompt-control + intent-doc, zero-body-use grant banned (nothing to pre-approve); script-sole-use interpreter grant pins script path (mid-glob `run_terminal_command(python3 */check-mechanical.py *)` form); pin inexpressible (`${GROK_PLUGIN_ROOT}` no-expand in frontmatter) → broad grant + inline note citing upstream limit; real tool denial = `disallowed-tools` (drops from pool, clears next user turn) — documented zero-writes (/sdd:check, /sdd:explain per §V.20) enforced via `disallowed-tools: search_replace, write`, not `allowed-tools` omission (omission only prompts) (closes §B.10).
 
 ## §V63 plugin-shape
 
-V63: plugin-shape — PUBLISHED discovery parses `.claude-plugin/marketplace.json` `plugins[].source` (root `./` → repo root, nested path → subdir); plugin name from manifest, never assumed equal to dir name.
+V63: plugin-shape — PUBLISHED discovery parses `.grok-plugin/marketplace.json` (else `.grok-plugin/plugin.json`) `plugins[].source` (root `./` → repo root, nested path → subdir); plugin name from manifest, never assumed equal to dir name.
 
 ## §V64 single-load
 
@@ -92,11 +92,11 @@ V66: mechanize-scan — user-invocable recipe ({design, spec, build, check, expl
 
 ## §V67 human-clarity
 
-V67: human-clarity — human-facing prose (steno surfaces, CLAUDE.md, chat) ! simple technical language: clarity primary, compression subordinate — a word that aids the skim stays; one idea/sentence, short sentences; plain words, no idiom/slang (per steno BOUNDARIES); symbols spelled out per symbol-set rule; technical term defined on first use or avoided; main point first, detail after; operator-asks-Claude-to-decide → state choice (1 sentence), options plainly, recommend (1 sentence). Canonical detail-carriers: steno skill body (register mechanics) + `CLAUDE.md` @ root (plain-imperative restatement governing chat/human-facing output, no telegraph). Sync obligation: any V1/V4/V67 amend ! same-commit re-sync of both carriers + sweep of skill-body register notes/examples. Spans GITHUB-FACING + REPO-LOCAL human surfaces; orthogonal to register-assignment + symbol-set rules.
+V67: human-clarity — human-facing prose (steno surfaces, AGENTS.md, chat) ! simple technical language: clarity primary, compression subordinate — a word that aids the skim stays; one idea/sentence, short sentences; plain words, no idiom/slang (per steno BOUNDARIES); symbols spelled out per symbol-set rule; technical term defined on first use or avoided; main point first, detail after; operator-asks-Grok-to-decide → state choice (1 sentence), options plainly, recommend (1 sentence). Canonical detail-carriers: steno skill body (register mechanics) + `AGENTS.md` @ root (plain-imperative restatement governing chat/human-facing output, no telegraph). Sync obligation: any V1/V4/V67 amend ! same-commit re-sync of both carriers + sweep of skill-body register notes/examples. Spans GITHUB-FACING + REPO-LOCAL human surfaces; orthogonal to register-assignment + symbol-set rules.
 
 ## §V68 table-use
 
-V68: table-use — info presented as prose or short list, never `|`-table; `|`-table reserved for keyed fixed-schema data rows (§T/§B/§I row schema, spec-skill audit table, similar id-keyed sets); prose-comparison or concept table → bullet list. Spans skill bodies (telegraph) + human-facing surfaces (steno, CLAUDE.md, README, chat); register-orthogonal — sibling to symbol-set + human-clarity rows, not subordinate.
+V68: table-use — info presented as prose or short list, never `|`-table; `|`-table reserved for keyed fixed-schema data rows (§T/§B/§I row schema, spec-skill audit table, similar id-keyed sets); prose-comparison or concept table → bullet list. Spans skill bodies (telegraph) + human-facing surfaces (steno, AGENTS.md, README, chat); register-orthogonal — sibling to symbol-set + human-clarity rows, not subordinate.
 
 ## §V69 github-workflow
 

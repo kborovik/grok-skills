@@ -28,19 +28,19 @@ Modes:
                 grant-use rule: no frontmatter `allowed-tools` grant is
                 zero-body-use (a granted tool the skill body never invokes).
                 Sound by construction — flagged only on total body-absence
-                (token, alias, operation verb, or Bash command anchor), spanning
+                (token, alias, operation verb, or run_terminal_command anchor), spanning
                 the PUBLISHED + REPO-LOCAL skill set — realized once here so the
                 drift-detector retires its hand-run allowed-tools grant sweep
                 (a manual sweep misses rows).
                 Emits `symbols|VIOLATE|…` — the symbol-set + human-clarity
                 invariants' spell-out rule: no human-facing surface (README,
-                CLAUDE.md, the plugin manifest) carries a naked `→ ≥ ≤ & ~`
+                AGENTS.md, the plugin manifest) carries a naked `→ ≥ ≤ & ~`
                 symbol outside a backtick span or fenced block. SPEC-adjacent
                 telegraph keeps the set, so it is never scanned. Sound (fenced
                 prose treated exempt too) — realized once here so the
                 drift-detector retires its hand-run symbol grep.
                 Emits `idiom|VIOLATE|…` — the human-clarity invariant's
-                idiom-ban rule: no human-facing surface (README, CLAUDE.md, the
+                idiom-ban rule: no human-facing surface (README, AGENTS.md, the
                 plugin manifest) carries a banned idiom / jargon-idiom phrase from
                 a curated low-false-positive subset of the steno BOUNDARIES ban
                 list (multi-word idiom + hyphenated jargon-idiom only; ambiguous
@@ -49,7 +49,7 @@ Modes:
                 idiom grep, a fixed-pattern sweep a manual pass forgets to re-run.
                 Emits `sembr|ADVISORY|…` — the sembr invariant's
                 one-sentence-per-line rule: a prose source line in the sembr
-                file set (README, CLAUDE.md, designs drafts, skill bodies)
+                file set (README, AGENTS.md, designs drafts, skill bodies)
                 holds ≥ 2 sentences. Fenced blocks, `|`-table rows,
                 frontmatter, blockquoted example copy, and backtick spans are
                 exempt; pipe-row files never enter the set. Advisory only
@@ -832,7 +832,7 @@ def audit_human_symbols(human_files):
 
 
 # --- human-facing banned-idiom audit -----------------------------------------
-# human-clarity invariant: human-facing prose (README, CLAUDE.md, manifest) carries
+# human-clarity invariant: human-facing prose (README, AGENTS.md, manifest) carries
 # no banned idiom / jargon-idiom. The phrase set is a CURATED low-false-positive
 # subset of the steno BOUNDARIES ban list — multi-word idiom + hyphenated
 # jargon-idiom exact phrases only. Ambiguous single words ("smell", "bite") are
@@ -841,7 +841,7 @@ def audit_human_symbols(human_files):
 # (mechanical-realization invariant) so the drift-detector retires the hand-run
 # idiom grep — a fixed-pattern sweep a manual pass forgets to re-run (the recurrence
 # class this guards). Backtick-span + fenced-block exempt (verbatim-preservation
-# invariant): a code-span or fenced example naming a banned phrase (CLAUDE.md
+# invariant): a code-span or fenced example naming a banned phrase (AGENTS.md
 # enumerates the ban list) is fine; a live non-exempt prose use is VIOLATE.
 
 BANNED_IDIOM = [
@@ -1036,25 +1036,20 @@ def audit_sembr(sembr_files):
 
 
 # --- AGENTS.md presence + direct-instruction marker block -------------------
-# human-clarity invariant: repo-root AGENTS.md (Grok) or CLAUDE.md (alias)
-# carries the plain-imperative restatement of the clarity standard governing
-# chat + human-facing output, wrapped in a stable marker block.
+# human-clarity invariant: repo-root AGENTS.md carries the plain-imperative
+# restatement of the clarity standard governing chat + human-facing output,
+# wrapped in a stable marker block.
 
-# Grok native: AGENTS.md; CLAUDE.md kept as alias for dual-compat consumer repos.
 AGENTS_MD = "AGENTS.md"
-CLAUDE_MD = "CLAUDE.md"  # alias — still accepted when AGENTS.md absent
 AGENTS_MARKER_BEGIN = "<!-- sdd:direct-instruction:begin -->"
 AGENTS_MARKER_END = "<!-- sdd:direct-instruction:end -->"
-# backwards-compat names used by self-tests
-CLAUDE_MARKER_BEGIN = AGENTS_MARKER_BEGIN
-CLAUDE_MARKER_END = AGENTS_MARKER_END
 
 
 def classify_agents_md(text, carrier_name=AGENTS_MD):
-    """AGENTS.md (or CLAUDE.md alias) presence + marker-block audit core
-    (human-clarity invariant). `text` is file content, or None when absent.
-    MISSING when carrier absent; VIOLATE when present but marker block absent
-    or mis-ordered. Present + well-formed → no row."""
+    """AGENTS.md presence + marker-block audit core (human-clarity invariant).
+    `text` is file content, or None when absent. MISSING when carrier absent;
+    VIOLATE when present but marker block absent or mis-ordered.
+    Present + well-formed → no row."""
     if text is None:
         return [("agents-md", "MISSING",
                  f"agents-md MISSING: {carrier_name} absent @ repo root — "
@@ -1069,23 +1064,11 @@ def classify_agents_md(text, carrier_name=AGENTS_MD):
     return []
 
 
-# back-compat alias for self-tests that still call classify_claude_md
-def classify_claude_md(text):
-    return classify_agents_md(text, carrier_name=CLAUDE_MD)
-
-
 def audit_agents_md(repo_root):
-    """Prefer AGENTS.md; fall back to CLAUDE.md for dual-compat repos."""
-    for name in (AGENTS_MD, CLAUDE_MD):
-        path = os.path.join(repo_root, name)
-        if os.path.isfile(path):
-            return classify_agents_md(read_text(path), carrier_name=name)
-    return classify_agents_md(None, carrier_name=AGENTS_MD)
-
-
-def audit_claude_md(repo_root):
-    """Alias → audit_agents_md (human-clarity invariant)."""
-    return audit_agents_md(repo_root)
+    """Read repo-root AGENTS.md and run the marker-block audit."""
+    path = os.path.join(repo_root, AGENTS_MD)
+    text = read_text(path) if os.path.isfile(path) else None
+    return classify_agents_md(text, carrier_name=AGENTS_MD)
 
 
 # --- mechanize-block identity ------------------------------------------------
@@ -1265,14 +1248,13 @@ def audit_dispatch_targets(skill_md, plugins):
 # flagged only when the body carries NO reference of any kind — the canonical
 # token, an alias (Explore for the sub-agent spawner), the operation verb a body
 # uses in place of the tool name (skills name operations: "rewrite" for the editor,
-# "spawn" for the agent), or (Bash) a command anchor. Generous sets never
+# "spawn" for the agent), or (run_terminal_command) a command anchor. Generous sets never
 # false-positive a genuine use; the accepted cost is a false negative on a tool
 # whose reference word saturates every body (the skill-dispatcher — "skill" is
 # ubiquitous). The wildcard-pattern tool matches case-sensitively so wildcard prose
 # ("mid-glob") never masks a missing grant for it.
 
 GRANT_REFERENCE = {
-    # Grok-native tool names
     "read_file": [(r'\bread', re.I)],
     "search_replace": [(r'\bedit|\brewrite|\bpatch\b|\bprune|\btrim|\brenumber|\boverwrite|search_replace',
                re.I)],
@@ -1280,24 +1262,11 @@ GRANT_REFERENCE = {
     "grep": [(r'\bgrep', re.I)],
     "spawn_subagent": [(r'\bagent|\bExplore\b|spawn_subagent|subagent', re.I)],
     "skill": [(r'\bskill', re.I)],
-    "todo_write": [(r'todo_write|TaskCreate|TaskUpdate|todo', re.I)],
-    "ask_user_question": [(r'ask_user_question|AskUserQuestion|\bask\b|\bquestion', re.I)],
+    "todo_write": [(r'todo_write|\btodo\b', re.I)],
+    "ask_user_question": [(r'ask_user_question|\bask\b|\bquestion', re.I)],
     "run_terminal_command": [(r'run_terminal_command|\bbash\b|```', re.I)],
-    # Claude Code aliases (dual-compat skill bodies / residual grants)
-    "Read":  [(r'\bread', re.I)],
-    "Edit":  [(r'\bedit|\brewrite|\bpatch\b|\bprune|\btrim|\brenumber|\boverwrite',
-               re.I)],
-    "Write": [(r'\bwrite', re.I)],
-    "Grep":  [(r'\bgrep', re.I)],
-    "Glob":  [(r'\bGlob\b', 0)],
-    "Agent": [(r'\bagent|\bExplore\b', re.I)],
-    "Skill": [(r'\bskill', re.I)],
-    "TaskCreate": [(r'TaskCreate|todo_write', 0)],
-    "TaskUpdate": [(r'TaskUpdate|todo_write', 0)],
-    "AskUserQuestion": [(r'AskUserQuestion|ask_user_question|\bask\b|\bquestion', re.I)],
-    "Bash": [(r'```|\b(?:git|python3|gh|jq|grep|rg)', re.I)],
 }
-# bare `run_terminal_command` / `Bash` grant pre-approves any command — body
+# bare `run_terminal_command` grant pre-approves any command — body
 # prescribes a command (fenced block or a known command token).
 BARE_BASH_CMD = re.compile(r'```|\b(?:git|python3|gh|jq|grep|rg|npm|make|cargo'
                            r'|sed|awk|cat|test)\b')
@@ -1306,7 +1275,7 @@ ALLOWED_TOOLS_LINE = re.compile(r'^allowed-tools:\s*(.*)$')
 
 def split_grant_tokens(value):
     """Split an `allowed-tools` value into grant tokens on top-level commas only —
-    paren-depth-aware so a `Bash(...)` arg pattern keeps any inner comma and stays
+    paren-depth-aware so a `run_terminal_command(...)` arg pattern keeps any inner comma and stays
     a single token."""
     toks, depth, cur = [], 0, ""
     for ch in value:
@@ -1353,12 +1322,12 @@ def body_after_frontmatter(text):
 
 def grant_used(token, body):
     """True when the skill body prescribes an invocation of the granted tool
-    (tooling-preference invariant). `Bash(<pattern>)` → any literal command anchor
-    of the pattern is present; bare `Bash` → any command token / fenced block;
+    (tooling-preference invariant). `run_terminal_command(<pattern>)` → any literal command anchor
+    of the pattern is present; bare `run_terminal_command` → any command token / fenced block;
     a catalogued tool → its body-reference set; an uncatalogued tool → its bare
     token (case-insensitive, so a never-mentioned future grant still flags)."""
     base = token.split("(", 1)[0].strip()
-    if base in ("Bash", "run_terminal_command"):
+    if base == "run_terminal_command":
         inner = token[token.find("(") + 1:token.rfind(")")] if "(" in token else ""
         if not inner.strip():
             return bool(BARE_BASH_CMD.search(body))
@@ -1704,26 +1673,19 @@ def plugin_source_dirs(repo_root, plugins):
 
 def _manifest_paths(repo_root):
     """Return (marketplace.json path or None, plugin.json path or None).
-    Prefer Grok-native `.grok-plugin/`, then Claude-compat `.claude-plugin/`."""
-    for base in (".grok-plugin", ".claude-plugin"):
-        mp = os.path.join(repo_root, base, "marketplace.json")
-        pj = os.path.join(repo_root, base, "plugin.json")
-        if os.path.exists(mp) or os.path.exists(pj):
-            return (mp if os.path.exists(mp) else None,
-                    pj if os.path.exists(pj) else None)
-    return None, None
+    Grok-native `.grok-plugin/` only."""
+    base = ".grok-plugin"
+    mp = os.path.join(repo_root, base, "marketplace.json")
+    pj = os.path.join(repo_root, base, "plugin.json")
+    return (mp if os.path.exists(mp) else None,
+            pj if os.path.exists(pj) else None)
 
 
 def plugin_dirs(repo_root):
-    """PUBLISHED plugin source dirs — from the marketplace manifest
-    (`plugins[].source`, root `./` → repo root), else a single plugin.json repo
-    root, else empty. Prefers `.grok-plugin/`, falls back to `.claude-plugin/`."""
+    """PUBLISHED plugin source dirs from `.grok-plugin/marketplace.json`
+    (`plugins[].source`, root `./` → repo root), else single
+    `.grok-plugin/plugin.json` → repo root, else empty."""
     mp, pj = _manifest_paths(repo_root)
-    # marketplace may still live under .claude-plugin even when plugin.json is grok
-    if mp is None:
-        alt = os.path.join(repo_root, ".claude-plugin", "marketplace.json")
-        if os.path.exists(alt):
-            mp = alt
     if mp:
         try:
             data = json.loads(read_text(mp))
@@ -1736,13 +1698,8 @@ def plugin_dirs(repo_root):
 
 
 def plugin_names(repo_root):
-    """PUBLISHED plugin names — from marketplace or single plugin.json.
-    Prefers `.grok-plugin/`, falls back to `.claude-plugin/`."""
+    """PUBLISHED plugin names from `.grok-plugin/` marketplace or plugin.json."""
     mp, pj = _manifest_paths(repo_root)
-    if mp is None:
-        alt = os.path.join(repo_root, ".claude-plugin", "marketplace.json")
-        if os.path.exists(alt):
-            mp = alt
     if mp:
         try:
             data = json.loads(read_text(mp))
@@ -1772,9 +1729,8 @@ def discover_published_md(repo_root):
 
 def discover_skill_md(repo_root):
     """PUBLISHED skill bodies — `<plugin-source>/skills/*/SKILL.md` for each
-    plugin source dir. The plugin skills dir is conventionally `skills/` (Claude
-    Code plugin layout), so REPO-LOCAL `.claude/skills/**` is excluded by
-    construction — it is not a plugin source skills dir. Repo-agnostic; feeds the
+    plugin source dir. Conventional `skills/` under the plugin root.
+    REPO-LOCAL `.grok/skills/**` excluded by construction. Feeds the
     mechanize-block audit's user-invocable set."""
     out = []
     for d in plugin_dirs(repo_root):
@@ -1789,29 +1745,29 @@ def discover_skill_md(repo_root):
 
 
 def discover_grant_skills(repo_root):
-    """SKILL.md set the grant-use audit spans: PUBLISHED `<src>/skills/*/SKILL.md`
-    plus REPO-LOCAL `.grok/skills` and `.claude/skills`."""
+    """SKILL.md set for grant-use audit: PUBLISHED skills plus REPO-LOCAL
+    `.grok/skills`."""
     paths = list(discover_skill_md(repo_root))
-    for rel in (".grok/skills", ".claude/skills"):
-        local = os.path.join(repo_root, rel)
-        if os.path.isdir(local):
-            for name in sorted(os.listdir(local)):
-                p = os.path.join(local, name, "SKILL.md")
-                if os.path.isfile(p):
-                    paths.append(p)
+    local = os.path.join(repo_root, ".grok", "skills")
+    if os.path.isdir(local):
+        for name in sorted(os.listdir(local)):
+            p = os.path.join(local, name, "SKILL.md")
+            if os.path.isfile(p):
+                paths.append(p)
     return sorted(set(paths))
 
 
 def discover_repo_local(repo_root):
     """REPO-LOCAL files holding pinned cites — conventional default set."""
     files = []
-    cl = os.path.join(repo_root, ".claude")
-    if os.path.isdir(cl):
-        for root, _, fns in os.walk(cl):
-            for fn in fns:
-                if fn.endswith(".md"):
-                    files.append(os.path.join(root, fn))
-    for name in ("README.md", "AGENTS.md", "CLAUDE.md"):
+    for rel in (".spec", ".grok"):
+        d = os.path.join(repo_root, rel)
+        if os.path.isdir(d):
+            for root, _, fns in os.walk(d):
+                for fn in fns:
+                    if fn.endswith(".md"):
+                        files.append(os.path.join(root, fn))
+    for name in ("README.md", "AGENTS.md"):
         p = os.path.join(repo_root, name)
         if os.path.exists(p):
             files.append(p)
@@ -1820,26 +1776,25 @@ def discover_repo_local(repo_root):
 
 def discover_human_facing(repo_root):
     """Human-facing prose surfaces (symbol-set + human-clarity invariants):
-    repo-root README.md + AGENTS.md (+ CLAUDE.md alias) plus plugin manifests.
+    repo-root README.md + AGENTS.md plus plugin manifests.
     Excludes SPEC-adjacent telegraph. Prefers Grok manifests."""
     out = []
-    for name in ("README.md", "AGENTS.md", "CLAUDE.md"):
+    for name in ("README.md", "AGENTS.md"):
         p = os.path.join(repo_root, name)
         if os.path.isfile(p):
             out.append(p)
     for d in plugin_dirs(repo_root):
-        for base in (".grok-plugin", ".claude-plugin"):
-            mani = os.path.join(d, base, "plugin.json")
-            if os.path.isfile(mani):
-                out.append(mani)
+        mani = os.path.join(d, ".grok-plugin", "plugin.json")
+        if os.path.isfile(mani):
+            out.append(mani)
     return sorted(set(out))
 
 
 def discover_sembr_files(repo_root):
     """Sembr-invariant prose file set: repo-root README.md + AGENTS.md
-    (+ CLAUDE.md alias), `designs/*.md` drafts, and PUBLISHED skill bodies."""
+    `designs/*.md` drafts, and PUBLISHED skill bodies."""
     out = []
-    for name in ("README.md", "AGENTS.md", "CLAUDE.md"):
+    for name in ("README.md", "AGENTS.md"):
         p = os.path.join(repo_root, name)
         if os.path.isfile(p):
             out.append(p)
@@ -1927,7 +1882,7 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
     findings += audit_grants(discover_grant_skills(repo_root))
     findings += audit_human_symbols(discover_human_facing(repo_root))
     findings += audit_human_idiom(discover_human_facing(repo_root))
-    findings += audit_claude_md(repo_root)
+    findings += audit_agents_md(repo_root)
     findings += audit_sembr(discover_sembr_files(repo_root))
     findings += audit_batch_advisory(v_rows, published_md)
     findings += audit_token_estimate(spec_bytes)
@@ -2683,49 +2638,43 @@ def selftest():
     def _gk(tools, body):
         return f"---\nname: s\nallowed-tools: {tools}\n---\n\n# s\n\n{body}\n"
 
-    # token split keeps a Bash arg pattern (commas inside parens) as one token
-    check(split_grant_tokens("Read, Bash(python3 */check-mechanical.py *), Grep")
-          == ["Read", "Bash(python3 */check-mechanical.py *)", "Grep"],
+    # token split keeps a run_terminal_command arg pattern as one token
+    check(split_grant_tokens(
+            "read_file, run_terminal_command(python3 */check-mechanical.py *), grep")
+          == ["read_file", "run_terminal_command(python3 */check-mechanical.py *)",
+              "grep"],
           "grant: paren-aware token split")
-    # find_allowed_tools: frontmatter-only, with line number; body line ignored
-    toks_g, ln_g = find_allowed_tools(_gk("Read, Grep", "allowed-tools: Edit here"))
-    check(toks_g == ["Read", "Grep"] and ln_g == 3,
+    toks_g, ln_g = find_allowed_tools(
+        _gk("read_file, grep", "allowed-tools: search_replace here"))
+    check(toks_g == ["read_file", "grep"] and ln_g == 3,
           "grant: allowed-tools parsed w/ lineno, body line ignored")
-    check(find_allowed_tools("no fence\nallowed-tools: Read\n") == (None, None),
+    check(find_allowed_tools("no fence\nallowed-tools: read_file\n") == (None, None),
           "grant: no frontmatter → no grants")
-    # grant_used: token / lowercase token / alias / operation verb / absence
-    check(grant_used("Read", "first Read `SPEC.md`"), "grant_used: token present")
-    check(grant_used("Grep", "we grep the files"), "grant_used: lowercase token")
-    check(grant_used("Agent", "spawn Explore sub-agents"),
+    check(grant_used("read_file", "first Read `SPEC.md`"), "grant_used: token present")
+    check(grant_used("grep", "we grep the files"), "grant_used: lowercase token")
+    check(grant_used("spawn_subagent", "spawn Explore sub-agents"),
           "grant_used: alias Explore → agent-spawner")
-    check(grant_used("Edit", "rewrite the rows in place"),
+    check(grant_used("search_replace", "rewrite the rows in place"),
           "grant_used: operation verb rewrite → editor")
-    check(not grant_used("Grep", "this body never searches"),
+    check(not grant_used("grep", "this body never searches"),
           "grant_used: absent tool → unused")
-    # wildcard-pattern tool matches case-sensitively: 'mid-glob' prose never masks
-    check(not grant_used("Glob", "the mid-glob `Bash(python3 *)` form"),
-          "grant_used: wildcard prose does not mask a missing pattern-lister grant")
-    check(grant_used("Glob", "the Glob tool lists files"),
-          "grant_used: PascalCase pattern-lister counts")
-    # Bash: arg-pattern anchor vs bare-Bash command presence
-    check(grant_used("Bash(git *)", "run `git commit -- paths`"),
-          "grant_used: Bash arg anchor present")
-    check(not grant_used("Bash(jq *)", "no json tooling here"),
-          "grant_used: Bash arg anchor absent → unused")
-    check(grant_used("Bash", "the recipe runs `python3 scripts/x.py`"),
-          "grant_used: bare Bash + command token")
-    check(not grant_used("Bash", "pure prose, no commands"),
-          "grant_used: bare Bash, no command → unused")
-    # dispatcher reference word is ubiquitous → generous (accepted false-negative)
-    check(grant_used("Skill", "follows the telegraph skill rules"),
+    check(grant_used("run_terminal_command(git *)", "run `git commit -- paths`"),
+          "grant_used: run_terminal_command arg anchor present")
+    check(not grant_used("run_terminal_command(jq *)", "no json tooling here"),
+          "grant_used: run_terminal_command arg anchor absent → unused")
+    check(grant_used("run_terminal_command", "the recipe runs `python3 scripts/x.py`"),
+          "grant_used: bare run_terminal_command + command token")
+    check(not grant_used("run_terminal_command", "pure prose, no commands"),
+          "grant_used: bare run_terminal_command, no command → unused")
+    check(grant_used("skill", "follows the telegraph skill rules"),
           "grant_used: dispatcher generous (any mention)")
-    # classify_grants: VIOLATE on the unused grant only, line-numbered
-    rows_g = classify_grants({"skills/x/SKILL.md": _gk("Read, Glob",
-                                                       "Read `SPEC.md` then bail")})
+    rows_g = classify_grants({"skills/x/SKILL.md": _gk(
+        "read_file, list_dir", "Read `SPEC.md` then bail")})
     check(len(rows_g) == 1 and rows_g[0][0] == "grant" and rows_g[0][1] == "VIOLATE"
-          and "Glob" in rows_g[0][2] and "skills/x/SKILL.md:3" in rows_g[0][2],
+          and "list_dir" in rows_g[0][2] and "skills/x/SKILL.md:3" in rows_g[0][2],
           "classify_grants: unused grant flagged, used grant silent, line-numbered")
-    check(classify_grants({"skills/y/SKILL.md": _gk("Read", "Read the file")}) == [],
+    check(classify_grants({"skills/y/SKILL.md": _gk("read_file", "Read the file")})
+          == [],
           "classify_grants: all-used → clean")
     check(classify_grants({"skills/z/SKILL.md": "# no frontmatter\nbody\n"}) == [],
           "classify_grants: no allowed-tools → no rows")
@@ -2781,7 +2730,7 @@ def selftest():
     # naked symbol in prose flagged; backtick span + fenced block exempt; clean
     # spelled-out prose silent; multi-symbol line → one row listing each;
     # scanning resumes after a fence closes
-    naked = "the loop is human → claude and a & b"
+    naked = "the loop is human → grok and a & b"
     check(any(v == "VIOLATE" for _, v, _ in scan_human_symbols("p", naked)),
           "human-symbols: naked arrow / ampersand flagged")
     bt = "the `a → b` mapping costs about 40 percent"
@@ -2798,20 +2747,20 @@ def selftest():
     check(any(v == "VIOLATE" for _, v, _ in scan_human_symbols("p", after_fence)),
           "human-symbols: scanning resumes after fence close")
 
-    # CLAUDE.md presence + direct-instruction marker block (human-clarity
+    # AGENTS.md presence + direct-instruction marker block (human-clarity
     # invariant): absent → MISSING, present-without-block → VIOLATE, present
     # with well-formed begin/end block → clean (silent); end-before-begin →
     # VIOLATE. Symbol-cleanliness rides the human-symbol scan, not re-checked.
-    check(classify_claude_md(None)[0][1] == "MISSING",
-          "claude-md: absent file → MISSING")
-    check(classify_claude_md("# CLAUDE.md\nno marker here")[0][1] == "VIOLATE",
-          "claude-md: present without marker block → VIOLATE")
-    well_formed = f"intro\n{CLAUDE_MARKER_BEGIN}\nrules\n{CLAUDE_MARKER_END}\nrest"
-    check(classify_claude_md(well_formed) == [],
-          "claude-md: well-formed marker block → clean")
-    end_first = f"{CLAUDE_MARKER_END}\nrules\n{CLAUDE_MARKER_BEGIN}"
-    check(classify_claude_md(end_first)[0][1] == "VIOLATE",
-          "claude-md: end-before-begin marker → VIOLATE")
+    check(classify_agents_md(None)[0][1] == "MISSING",
+          "agents-md: absent file → MISSING")
+    check(classify_agents_md("# AGENTS.md\nno marker here")[0][1] == "VIOLATE",
+          "agents-md: present without marker block → VIOLATE")
+    well_formed = f"intro\n{AGENTS_MARKER_BEGIN}\nrules\n{AGENTS_MARKER_END}\nrest"
+    check(classify_agents_md(well_formed) == [],
+          "agents-md: well-formed marker block → clean")
+    end_first = f"{AGENTS_MARKER_END}\nrules\n{AGENTS_MARKER_BEGIN}"
+    check(classify_agents_md(end_first)[0][1] == "VIOLATE",
+          "agents-md: end-before-begin marker → VIOLATE")
 
     # human-facing banned-idiom audit (human-clarity invariant): a banned idiom /
     # jargon-idiom phrase in prose flagged; backtick span + fenced block exempt;
