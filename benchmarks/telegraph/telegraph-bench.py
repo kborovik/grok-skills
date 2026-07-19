@@ -31,14 +31,17 @@ Run:
   ./telegraph-bench.py
   uv run benchmarks/telegraph/telegraph-bench.py
   BENCH_MODEL=claude-opus-4-8 uv run benchmarks/telegraph/telegraph-bench.py
+  BENCH_MODEL=grok-4.5 uv run benchmarks/telegraph/telegraph-bench.py
 
 Model:
   Default claude-opus-4-7. Override w/ $BENCH_MODEL (recorded per result record →
   cross-model runs stay comparable; same JSON, one record per run).
+  Provider auto-detected from model id: `grok*` → xAI, else Anthropic.
 
 Requires:
   uv (https://docs.astral.sh/uv/) — self-bootstraps python via the PEP 723 block above.
-  Anthropic API key in $ANTHROPIC_API_KEY or ~/.anthropic-api-key.
+  Anthropic models: $ANTHROPIC_API_KEY or ~/.anthropic-api-key.
+  Grok models: $XAI_API_KEY, ~/.xai-api-key, or Grok CLI session in ~/.grok/auth.json.
 """
 
 import datetime
@@ -53,6 +56,7 @@ import urllib.request
 from pathlib import Path
 
 MODEL = os.environ.get("BENCH_MODEL", "claude-opus-4-7")
+PROVIDER = "xai" if MODEL.lower().startswith("grok") else "anthropic"
 MINIMAL_SYSTEM = (
     "Expand to plain English. Preserve every fact. Output prose only, no preamble."
 )
@@ -76,6 +80,26 @@ SECTION_ROW_RE = {
 
 
 def resolve_api_key() -> str:
+    if PROVIDER == "xai":
+        key = os.environ.get("XAI_API_KEY")
+        if key:
+            return key
+        path = Path.home() / ".xai-api-key"
+        if path.is_file():
+            return path.read_text().strip()
+        auth_path = Path.home() / ".grok" / "auth.json"
+        if auth_path.is_file():
+            try:
+                auth = json.loads(auth_path.read_text())
+                for entry in auth.values():
+                    if isinstance(entry, dict) and entry.get("key"):
+                        return entry["key"]
+            except (json.JSONDecodeError, OSError):
+                pass
+        sys.exit(
+            "bail: XAI_API_KEY unset, ~/.xai-api-key absent, "
+            "and ~/.grok/auth.json has no session key"
+        )
     key = os.environ.get("ANTHROPIC_API_KEY")
     if key:
         return key
@@ -105,15 +129,11 @@ def extract_corpus(spec_md: Path) -> list[tuple[str, str, str]]:
     return rows
 
 
-def api_post(path: str, payload: dict, api_key: str) -> dict:
+def api_post(url: str, payload: dict, headers: dict) -> dict:
     req = urllib.request.Request(
-        f"https://api.anthropic.com{path}",
+        url,
         data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "x-api-key": api_key,
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json",
-        },
+        headers=headers,
         method="POST",
     )
     try:
@@ -121,32 +141,78 @@ def api_post(path: str, payload: dict, api_key: str) -> dict:
             return json.loads(resp.read())
     except urllib.error.HTTPError as e:
         body = e.read().decode(errors="replace")[:500]
-        sys.exit(f"bail: {path} -> HTTP {e.code}: {body}")
+        sys.exit(f"bail: {url} -> HTTP {e.code}: {body}")
     except urllib.error.URLError as e:
-        sys.exit(f"bail: {path} -> URLError: {e.reason}")
+        sys.exit(f"bail: {url} -> URLError: {e.reason}")
+
+
+def anthropic_headers(api_key: str) -> dict:
+    return {
+        "x-api-key": api_key,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+    }
+
+
+def xai_headers(api_key: str) -> dict:
+    return {
+        "authorization": f"Bearer {api_key}",
+        "content-type": "application/json",
+    }
 
 
 def count_tokens(text: str, api_key: str) -> int:
+    if PROVIDER == "xai":
+        out = api_post(
+            "https://api.x.ai/v1/tokenize-text",
+            {"model": MODEL, "text": text},
+            xai_headers(api_key),
+        )
+        return len(out["token_ids"])
     out = api_post(
-        "/v1/messages/count_tokens",
+        "https://api.anthropic.com/v1/messages/count_tokens",
         {"model": MODEL, "messages": [{"role": "user", "content": text}]},
-        api_key,
+        anthropic_headers(api_key),
     )
     return out["input_tokens"]
 
 
 def decode(system_prompt: str, user_content: str, api_key: str) -> str:
+    if PROVIDER == "xai":
+        out = api_post(
+            "https://api.x.ai/v1/chat/completions",
+            {
+                "model": MODEL,
+                "max_tokens": MAX_TOKENS,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_content},
+                ],
+            },
+            xai_headers(api_key),
+        )
+        content = out["choices"][0]["message"].get("content")
+        if not content:
+            sys.exit(f"bail: empty decode content from {MODEL}: {out!r}"[:500])
+        return content
     out = api_post(
-        "/v1/messages",
+        "https://api.anthropic.com/v1/messages",
         {
             "model": MODEL,
             "max_tokens": MAX_TOKENS,
+            # Sonnet 5 defaults to adaptive thinking; disable so decode
+            # tokens measure prose expansion, not reasoning budget.
+            "thinking": {"type": "disabled"},
             "system": system_prompt,
             "messages": [{"role": "user", "content": user_content}],
         },
-        api_key,
+        anthropic_headers(api_key),
     )
-    return out["content"][0]["text"]
+    # Prefer first text block (defensive if a thinking block still appears).
+    for block in out.get("content", []):
+        if block.get("type") == "text" and "text" in block:
+            return block["text"]
+    sys.exit(f"bail: no text block in Anthropic response: {out!r}"[:500])
 
 
 def canonical_user_msg(spec_md_text: str, section: str, rid_num: str) -> str:
@@ -261,6 +327,7 @@ def main() -> int:
     explain_system = explain_skill_md.read_text()
     spec_md_text = spec_md.read_text()
 
+    print(f"model={MODEL} provider={PROVIDER} rows={len(rows)}", flush=True)
     print(
         "| id  | sec | n_glyph | n_pmin | red_min | n_pcan | red_can |",
         flush=True,

@@ -1297,5 +1297,871 @@
         }
       }
     }
+  },
+  {
+    "timestamp": "2026-07-19T16:20:21Z",
+    "commit_sha": "7733090133b4e6369014cfcf0065f8090d951235",
+    "model": "grok-4.5",
+    "per_sample": [
+      {
+        "id": "V1",
+        "section": "V",
+        "body": "spec-adjacent-register \u2014 SPEC.md, `skills/**/SKILL.md`, SPEC-FORMAT.md, spec-referencing prose ! telegraph per telegraph skill; /sdd:explain decodes on demand.",
+        "n_glyph": 43,
+        "prose_minimal": "The spec-adjacent-register covers SPEC.md, skills/**/SKILL.md, SPEC-FORMAT.md, and spec-referencing prose. Do not telegraph these, per the telegraph skill. The /sdd:explain command decodes them on demand.",
+        "n_prose_minimal": 52,
+        "reduction_minimal": 0.1731,
+        "prose_canonical": "## \u00a7V.1 \u2014 spec-adjacent-register\n\n> V1: spec-adjacent-register \u2014 SPEC.md, `skills/**/SKILL.md`, SPEC-FORMAT.md, spec-referencing prose ! telegraph per telegraph skill; /sdd:explain decodes on demand.\n\nIn plain English: this invariant requires that every document that sits next to the spec\u2014SPEC.md itself, all skill files under `skills/**/SKILL.md`, SPEC-FORMAT.md, and any other prose that talks about the spec\u2014must be written in the compressed telegraph register defined by the telegraph skill. The `/sdd:explain` command is the on-demand decoder that turns any of those telegraph passages back into ordinary full-sentence English for a human reader.\n\nCited tasks: none. No \u00a7T row lists V1 in its cites column.\n\nCited bugs: none. No \u00a7B row names V1 as the broken invariant.\n\nRelated surfaces: the telegraph skill (encoder) and this explain skill (decoder) are the pair that keep the register enforceable and readable.\n\nBottom line: core plugin docs stay dense telegraph; humans reach for `/sdd:explain` when they need prose.\n\n## Next\n\n1. /sdd:explain --next \u2014 expand the next pending \u00a7T row\n2. /sdd:explain \u00a7V.2 \u2014 read the sibling github-facing-register invariant\n3. /sdd:check \u2014 audit whether live files still obey the telegraph register",
+        "n_prose_canonical": 299,
+        "reduction_canonical": 0.8562
+      },
+      {
+        "id": "V2",
+        "section": "V",
+        "body": "github-facing-register \u2014 README, issues, PRs, commit-msg bodies ! steno per steno skill; commit subjects = per-skill fixed templates, verbatim.",
+        "n_glyph": 36,
+        "prose_minimal": "GitHub-facing register covers README, issues, PRs, and commit-message bodies, which are not stenography per the steno skill; commit subjects equal per-skill fixed templates, used verbatim.",
+        "n_prose_minimal": 42,
+        "reduction_minimal": 0.1429,
+        "prose_canonical": "## \u00a7V.2 \u2014 github-facing-register\n\n```\nV2: github-facing-register \u2014 README, issues, PRs, commit-msg bodies ! steno per steno skill; commit subjects = per-skill fixed templates, verbatim.\n```\n\nIn plain English: this invariant defines the writing register for anything that faces GitHub or other humans outside the telegraph SPEC. README text, issue bodies, pull-request bodies, and commit-message bodies must be written in steno (the human-facing compressed prose style defined by the steno skill). Commit *subjects* are stricter still: each skill that creates commits owns a fixed subject template, and that template must appear verbatim\u2014no paraphrasing, no extra words.\n\nTasks that cite this invariant:\n- **\u00a7T.40** (complete) \u2014 initialized the `skills/github` passive gh-CLI workflow governor, which is one of the surfaces that must obey this register (also cites \u00a7V.69, \u00a7V.61, \u00a7V.41).\n- **\u00a7T.45** (complete) \u2014 re-anchored steno and the clarity carrier on simple technical language, directly tightening the steno side of this invariant (also cites \u00a7V.67).\n\nBugs referencing this invariant:\n- None in the live \u00a7B table point at \u00a7V.2 as their fix target.\n\nRelated context from the row itself:\n- \u201csteno per steno skill\u201d is the style contract for body prose.\n- \u201cper-skill fixed templates, verbatim\u201d is the contract for commit subjects only.\n\nStatus: active invariant (invariants have no `.`/`x` task status).\n\nBottom line: every GitHub-facing prose surface stays in steno, and every commit subject is an exact copy of the owning skill\u2019s template.\n\n## Hint\n\n\u00a7V.2 is already enforced by closed work (\u00a7T.40, \u00a7T.45). Typical follow-ups are reading the sibling clarity/symbol invariants or auditing whether the register still holds in the repo.\n\n## Next\n\n1. /sdd:explain \u00a7V.67 \u2014 read the human-clarity invariant that pairs with this register\n2. /sdd:explain \u00a7V.4 \u2014 read the symbol-set rules that steno must also obey\n3. /sdd:explain \u00a7T.40 \u2014 see how the github skill was stood up under this invariant\n4. /sdd:check \u2014 audit whether README/issues/PRs/commit subjects still match \u00a7V.2",
+        "n_prose_canonical": 516,
+        "reduction_canonical": 0.9302
+      },
+      {
+        "id": "V3",
+        "section": "V",
+        "body": "verbatim-preservation \u2014 \u2192 `.spec/check-extras.md \u00a7V3`",
+        "n_glyph": 16,
+        "prose_minimal": "Verbatim preservation is specified in section V3 of the file check-extras.md inside the .spec directory.",
+        "n_prose_minimal": 22,
+        "reduction_minimal": 0.2727,
+        "prose_canonical": "## \u00a7V.3 \u2014 verbatim-preservation\n\n> V3: verbatim-preservation \u2014 \u2192 `.spec/check-extras.md \u00a7V3`\n\nIn plain English: this invariant requires that certain content be preserved exactly as written \u2014 no paraphrasing, no \u201chelpful\u201d rewording, no normalization that changes the bytes or meaning of the protected text. The full rule body lives in the repo-local extras file (`.spec/check-extras.md \u00a7V3`), not inline in SPEC.md; SPEC only names the invariant and points there. That split is intentional under the extras-hook pattern: SPEC keeps the stable id and title; the detailed enforcement text can evolve in the extras file without bloating the main telegraph.\n\nTasks that cite it:\n- \u00a7T.15 (closed) \u2014 swept body `rg` usage toward builtin Grep / inverted grep, and cited V3 so the sweep would not rewrite protected verbatim spans.\n- \u00a7T.39 (closed) \u2014 swept prose pipe-tables into bullet lists under table-use, and cited V3 so verbatim-protected regions were left untouched.\n\nBugs that reference it:\n- None in \u00a7B list a V3 fix target directly.\n\nStatus: active invariant (body delegated to `.spec/check-extras.md`).\n\nBottom line: when you touch specs, skills, or sweeps, anything marked for verbatim preservation must be copied or left alone exactly \u2014 the authoritative detail is in the extras file under \u00a7V3.\n\n## Hint\n\nV3\u2019s body is not in SPEC.md. If you need the exact testable clauses, read the extras file next; otherwise move on to a pending task.\n\n## Next\n\n1. /sdd:explain --next \u2014 expand the next pending \u00a7T row\n2. /sdd:check \u2014 audit whether verbatim-preservation still holds in the tree\n3. /sdd:explain \u00a7T.15 \u2014 see how a closed sweep used V3 in context",
+        "n_prose_canonical": 396,
+        "reduction_canonical": 0.9596
+      },
+      {
+        "id": "V4",
+        "section": "V",
+        "body": "symbol-set \u2014 \u2192 `.spec/check-extras.md \u00a7V4`",
+        "n_glyph": 16,
+        "prose_minimal": "The symbol-set maps to section V4 of the file .spec/check-extras.md.",
+        "n_prose_minimal": 20,
+        "reduction_minimal": 0.2,
+        "prose_canonical": "## \u00a7V.4 \u2014 symbol-set\n\n> V4: symbol-set \u2014 \u2192 `.spec/check-extras.md \u00a7V4`\n\nIn plain English: this invariant defines the allowed symbol set for the project\u2019s written surfaces. The live rule body is not inlined in SPEC.md; it lives in the repo-local extras file at `.spec/check-extras.md` under the matching \u00a7V4 heading (the same extras-hook pattern used by several other invariants). From the tasks and bugs that cite it, the rule\u2019s practical effect is: on human-facing surfaces, do not leave \u201cnaked\u201d shorthand symbols such as \u2192, \u2265, \u2264, &, or ~ in prose\u2014spell them out in words instead. Enforcement is both editorial (sweeps of README, manifest, steno, and design copy) and mechanical (a naked-symbol audit mode in the check script).\n\nTasks that cite this invariant:\n- \u00a7T.31 \u2014 sweep human-facing surfaces so arrows, inequalities, ampersands, and tildes are spelled out rather than left as bare symbols (also cites \u00a7V.67, \u00a7B.19). Status: complete (`x`).\n- \u00a7T.32 \u2014 add a script audit that flags naked symbols on human-facing surfaces, with self-test coverage (also cites \u00a7V.67, \u00a7V.40, \u00a7B.19). Status: complete (`x`).\n- \u00a7T.34 \u2014 sweep steno and design skill bodies so they obey symbol-set together with human-clarity (also cites \u00a7V.67, \u00a7B.21). Status: complete (`x`).\n\nBugs that reference this invariant:\n- \u00a7B.19 \u2014 README and manifest predated \u00a7V.4 / \u00a7V.67; bare \u2192 and ~N% forms were never swept (fix pointed at \u00a7V.67).\n- \u00a7B.21 \u2014 steno/design copy and a missing clarity carrier predated the \u00a7V.4 / \u00a7V.67 sync (fix pointed at \u00a7V.67).\n\nRelated invariants (context, not direct cites from this row):\n- \u00a7V.1 (spec-adjacent-register) and \u00a7V.2 (github-facing-register) set which register each surface uses; \u00a7V.4 constrains the symbol vocabulary inside those registers.\n- \u00a7V.67 (human-clarity) is the usual partner cite on the same sweeps and audits.\n\nBottom line: \u00a7V.4 is the symbol-vocabulary rule for human-facing text\u2014no naked shorthand glyphs; full wording instead\u2014with its normative text housed in `.spec/check-extras.md` and policed by the T31/T32/T34 work.\n\n## Hint\n\nAll three citing tasks are already closed. For the full normative wording you need the extras file; this expansion only has the SPEC.md stub and the cite graph.\n\n## Next\n\n1. /sdd:explain \u00a7V.67 \u2014 read the paired human-clarity invariant in prose\n2. /sdd:explain \u00a7T.32 \u2014 see how the naked-symbol audit was specified\n3. /sdd:explain --next \u2014 move on to the next pending \u00a7T row\n4. /sdd:check \u2014 audit whether \u00a7V.4 still holds in the tree",
+        "n_prose_canonical": 678,
+        "reduction_canonical": 0.9764
+      },
+      {
+        "id": "V10",
+        "section": "V",
+        "body": "sole-source-of-truth \u2014 SPEC.md @ repo root is sole live spec; no docs/ tree, no sidecars; SPEC.archive.md sibling carries immutable archived rows only.",
+        "n_glyph": 39,
+        "prose_minimal": "SPEC.md at the repository root is the sole source of truth and the only live specification. There is no docs/ tree and there are no sidecars. SPEC.archive.md, a sibling file, carries immutable archived rows only.",
+        "n_prose_minimal": 47,
+        "reduction_minimal": 0.1702,
+        "prose_canonical": "## \u00a7V.10 \u2014 sole-source-of-truth\n\n> V10: sole-source-of-truth \u2014 SPEC.md @ repo root is sole live spec; no docs/ tree, no sidecars; SPEC.archive.md sibling carries immutable archived rows only.\n\nIn plain English: the only living specification for this repository is the file `SPEC.md` sitting at the repo root. There must be no parallel `docs/` tree, no side-car spec files, and no other live authority that agents or humans are expected to consult for current requirements. The one allowed companion is `SPEC.archive.md` next to it; that file holds rows that have been archived or retired, and those rows are immutable \u2014 they can still be cited for history, but they are never edited in place and they never act as the live source of truth.\n\nCited siblings:\n- No \u00a7T tasks currently cite \u00a7V.10.\n- No \u00a7B bugs currently reference \u00a7V.10.\n\nRelated invariants (for orientation, not direct cites):\n- \u00a7V.11 (shape-semantics-split) keeps format rules out of SPEC.md so the sole-source file stays about meaning, not layout.\n- \u00a7V.12 / \u00a7V.15 / \u00a7V.16 govern how ids move and how retired rows land in the archive sibling without creating a second live spec.\n- \u00a7V.13 requires every cite to resolve to a live or archived row, which only works if there is exactly one live catalog.\n\nStatus: active invariant (no status column on \u00a7V rows).\n\nBottom line: if it is not in root `SPEC.md`, it is not the live spec; the archive sibling is history only.\n\n## Hint\n\n\u00a7V.10 is structural \u2014 it constrains where truth lives, not a pending implementation task. Useful follow-ups are reading the archive/renumber cluster or auditing whether the tree still honors the sole-source rule.\n\n## Next\n\n1. /sdd:explain \u00a7V.16 \u2014 how archived rows move to SPEC.archive.md\n2. /sdd:explain \u00a7V.15 \u2014 renumber-chain walk and the archive sentinel\n3. /sdd:explain \u00a7V.11 \u2014 shape vs semantics split that keeps SPEC.md lean\n4. /sdd:check \u2014 audit whether the repo still has only one live spec surface",
+        "n_prose_canonical": 483,
+        "reduction_canonical": 0.9193
+      },
+      {
+        "id": "V11",
+        "section": "V",
+        "body": "shape-semantics-split \u2014 SPEC-FORMAT.md binds row shape + section catalog + citation grammar; \u00a7V rows bind semantics + enforcement; neither restates the other.",
+        "n_glyph": 34,
+        "prose_minimal": "The design follows a shape-semantics split. SPEC-FORMAT.md binds row shape together with the section catalog and the citation grammar. Section V rows bind semantics together with enforcement. Neither restates the other.",
+        "n_prose_minimal": 41,
+        "reduction_minimal": 0.1707,
+        "prose_canonical": "## \u00a7V.11 \u2014 shape-semantics-split\n\n> V11: shape-semantics-split \u2014 SPEC-FORMAT.md binds row shape + section catalog + citation grammar; \u00a7V rows bind semantics + enforcement; neither restates the other.\n\nIn plain English: this invariant draws a hard line between two documents. SPEC-FORMAT.md owns the structural contract \u2014 what a row looks like, which sections exist, and how citations are written. The \u00a7V rows in SPEC.md own the meaning and the rules that must hold. Neither document is allowed to repeat the other\u2019s job: the format file does not redefine what an invariant means, and invariant rows do not restate how rows are shaped or how citations are parsed.\n\nCited by tasks:\n- (none in the current \u00a7T table)\n\nReferenced by bugs:\n- (none in the current \u00a7B table)\n\nRelated interface:\n- \u00a7I.format \u2014 `SPEC-FORMAT.md` is the row-shape + section-catalog contract loaded by spec, check, condense, and reorganize.\n\nStatus: live invariant (must hold).\n\nBottom line: structure lives in SPEC-FORMAT.md; meaning and enforcement live in \u00a7V; the two never duplicate each other.\n\n## Hint\n\nAll \u00a7T rows are currently closed. This invariant is definitional \u2014 usually read before amending format or invariant text, not before a build.\n\n## Next\n\n1. /sdd:explain --next \u2014 read the next pending \u00a7T row (none open; will report clear)\n2. /sdd:explain \u00a7I.format \u2014 see the format interface this invariant splits from \u00a7V\n3. /sdd:check \u2014 audit whether shape and semantics have drifted together",
+        "n_prose_canonical": 341,
+        "reduction_canonical": 0.9003
+      },
+      {
+        "id": "V12",
+        "section": "V",
+        "body": "monotonic-numbering \u2014 V/T/B ids strictly increasing in section order; gaps OK, reuse banned; sole renumber path = /sdd:reorganize (map append + cite sweep, same commit).",
+        "n_glyph": 44,
+        "prose_minimal": "Monotonic numbering requires that V, T, and B identifiers are strictly increasing in section order. Gaps are allowed, but reuse is banned. The sole renumbering path is /sdd:reorganize, which performs a map append plus a cite sweep in the same commit.",
+        "n_prose_minimal": 56,
+        "reduction_minimal": 0.2143,
+        "prose_canonical": "## \u00a7V.12 \u2014 monotonic-numbering\n\n> V12: monotonic-numbering \u2014 V/T/B ids strictly increasing in section order; gaps OK, reuse banned; sole renumber path = /sdd:reorganize (map append + cite sweep, same commit).\n\nIn plain English: identifiers for invariants (\u00a7V), tasks (\u00a7T), and bugs (\u00a7B) must only ever go up as you read down the section. Numbers may skip (gaps are fine and expected after clustering or archival), but a number that has already been used must never be handed out again to a different row. The only allowed way to renumber is the `/sdd:reorganize` skill, which in one commit both appends the old-to-new mapping and rewrites every citation that pointed at the old ids.\n\nCited by tasks: none currently open or closed cite V12 directly.\n\nReferenced by bugs: none.\n\nRelated invariants (for context, not direct cites):\n- \u00a7V.13 (cite-resolution) \u2014 every citation must still resolve after any renumber.\n- \u00a7V.15 (renumber-chain-walk) \u2014 historical ids are followed newest-first through the append-only map until they land on a live id or the archive sentinel.\n- \u00a7V.16 (archive-semantics) \u2014 retired rows move verbatim to SPEC.archive.md and stay resolvable.\n\nStatus: invariant (always in force).\n\nBottom line: ids only increase, never reuse; the single legal renumber door is `/sdd:reorganize` with map + cite sweep in the same commit.\n\n## Hint\n\nV12 is structural law, not a work item. Typical follow-ups are reading the renumber/archive companions or checking whether the live SPEC still obeys monotonic ids.\n\n## Next\n\n1. /sdd:explain \u00a7V.15 \u2014 how historical ids walk the renumber map\n2. /sdd:explain \u00a7V.13 \u2014 citation resolution rules after renumber\n3. /sdd:explain --next \u2014 next pending \u00a7T row\n4. /sdd:check \u2014 audit whether live V/T/B ids still obey monotonic numbering",
+        "n_prose_canonical": 445,
+        "reduction_canonical": 0.9011
+      },
+      {
+        "id": "V13",
+        "section": "V",
+        "body": "cite-resolution \u2014 every cite ! resolve: `cites` tokens \u2192 live/archived V/T/B row or live \u00a7I kind, `fix` tokens \u2192 \u00a7V row, free-text `\u00a7<S>.<n>` \u2192 \u00a7<S> row; renumber sweeps citers same commit.",
+        "n_glyph": 65,
+        "prose_minimal": "Cite-resolution requires that every citation must resolve. Tokens of the cites kind resolve to a live or archived V, T, or B row or to a live section I kind. Tokens of the ref kind resolve to a section V row. Free-text references of the form section S point n resolve to a section S row. Renumbering sweeps update citers in the same commit.",
+        "n_prose_minimal": 78,
+        "reduction_minimal": 0.1667,
+        "prose_canonical": "## \u00a7V.13 \u2014 cite-resolution\n\n> V13: cite-resolution \u2014 every cite ! resolve: `cites` tokens \u2192 live/archived V/T/B row or live \u00a7I kind, `fix` tokens \u2192 \u00a7V row, free-text `\u00a7<S>.<n>` \u2192 \u00a7<S> row; renumber sweeps citers same commit.\n\nIn plain English: every citation that appears anywhere in the spec must point at something that actually exists. There are three kinds of citation tokens, each with its own resolution rule:\n\n- Tokens in a task\u2019s `cites` column must resolve to a live or archived \u00a7V, \u00a7T, or \u00a7B row, or to a live \u00a7I interface kind.\n- Tokens in a bug\u2019s `fix` column must resolve to a \u00a7V invariant row.\n- Free-text references written as `\u00a7<S>.<n>` (for example in prose or other fields) must resolve to a real row in section \u00a7S.\n\nWhen rows are renumbered, every place that cited the old numbers must be updated in the same commit so nothing is left dangling.\n\nTasks that cite this invariant: none currently.\n\nBugs that reference this invariant: none currently.\n\nClosely related invariants (for context):\n- \u00a7V.12 \u2014 ids only ever increase; the only legal renumber path is `/sdd:reorganize`.\n- \u00a7V.14 \u2014 published text may not contain placeholder or pinned digit cites.\n- \u00a7V.15 \u2014 historical ids walk an append-only renumber map to a live id or an archive sentinel.\n- \u00a7V.16 \u2014 archived rows stay cite-resolvable forever and are never edited.\n\nStatus: active invariant (no status column on \u00a7V rows).\n\nBottom line: no citation may dangle; every cite token must resolve, and renumbers must fix all citers in the same commit.\n\n## Hint\n\nNo open \u00a7T row implements or audits this invariant directly. Typical next steps are to inspect a related numbering/cite rule or to move to the next pending task.\n\n## Next\n\n1. /sdd:explain \u00a7V.12 \u2014 read the monotonic-numbering rule that feeds renumber\n2. /sdd:explain \u00a7V.15 \u2014 read how historical ids walk the renumber map\n3. /sdd:explain --next \u2014 expand the next pending \u00a7T row\n4. /sdd:check \u2014 audit whether any live cites currently fail to resolve",
+        "n_prose_canonical": 509,
+        "reduction_canonical": 0.8723
+      },
+      {
+        "id": "V14",
+        "section": "V",
+        "body": "pinned-cite-ban \u2014 PUBLISHED bodies ! placeholder (`\u00a7V.<n>`) or named-invariant form, never pinned \u00a7-digit cites; SPEC.md-narrative + REPO-LOCAL pinned cites ! resolve live.",
+        "n_glyph": 47,
+        "prose_minimal": "Pinned-cite-ban means that published bodies must not use placeholder citations in the form \u00a7V.<n> or named-invariant form, and must never use pinned section-digit cites; SPEC.md narrative and repo-local pinned cites must not resolve live.",
+        "n_prose_minimal": 52,
+        "reduction_minimal": 0.0962,
+        "prose_canonical": "## \u00a7V.14 \u2014 pinned-cite-ban\n\n> V14: pinned-cite-ban \u2014 PUBLISHED bodies ! placeholder (`\u00a7V.<n>`) or named-invariant form, never pinned \u00a7-digit cites; SPEC.md-narrative + REPO-LOCAL pinned cites ! resolve live.\n\nIn plain English: this invariant bans hard-coded numeric section citations in anything that ships to the public. Published bodies (README, issues, PRs, commit messages, and other outward-facing prose) may only refer to invariants by the placeholder form `\u00a7V.<n>` or by the invariant\u2019s stable name (for example \u201cpinned-cite-ban\u201d). They must never embed a concrete digit cite such as `\u00a7V.14`, because renumbering would silently break those links. Inside SPEC.md itself and in repo-local files under `.spec/`, pinned numeric cites are allowed, but every one of them must still resolve to a currently live row.\n\nRelated invariants:\n- \u00a7V.12 \u2014 monotonic-numbering: ids only increase; the sole renumber path is `/sdd:reorganize`, which is exactly why published text cannot pin digits.\n- \u00a7V.13 \u2014 cite-resolution: every cite token must resolve to a live or archived row; V14 specializes that rule for the published-versus-internal split.\n- \u00a7V.15 \u2014 renumber-chain-walk: the append-only renumber map lets historical ids walk forward to a live id or the `archive` sentinel, which is what keeps internal pinned cites honest after a renumber.\n\nCited by tasks: none currently open or closed list V14 in their `cites` field.\n\nCited by bugs: none.\n\nBottom line: public prose stays renumber-safe by using names or placeholders; only SPEC.md and `.spec/` may pin digits, and those pins must still point at live rows.\n\n## Hint\n\nV14 is an always-on invariant, not a task. If you want to see how renumbering actually rewrites cites, read V12/V15 next; if you want to verify the rule still holds in the tree, run a check.\n\n## Next\n\n1. /sdd:explain \u00a7V.12 \u2014 read the monotonic-numbering rule that forces this ban\n2. /sdd:explain \u00a7V.15 \u2014 read how historical pins walk the renumber map\n3. /sdd:check \u2014 audit whether any published body currently embeds pinned digit cites\n4. /sdd:explain --next \u2014 move to the lowest-numbered pending \u00a7T row",
+        "n_prose_canonical": 529,
+        "reduction_canonical": 0.9112
+      },
+      {
+        "id": "V15",
+        "section": "V",
+        "body": "renumber-chain-walk \u2014 `.spec/spec-renumber-map.json` append-only; historical id resolves newest-first to live id or `archive` sentinel (\u2192 SPEC.archive.md \u00a7V.retired block, never live row).",
+        "n_glyph": 52,
+        "prose_minimal": "Renumber-chain-walk uses the append-only file `.spec/spec-renumber-map.json`. A historical id is resolved newest-first to either a live id or the `archive` sentinel, which points to the \u00a7V.retired block in SPEC.archive.md and never to a live row.",
+        "n_prose_minimal": 64,
+        "reduction_minimal": 0.1875,
+        "prose_canonical": "## \u00a7V.15 \u2014 renumber-chain-walk\n\n> V15: renumber-chain-walk \u2014 `.spec/spec-renumber-map.json` append-only; historical id resolves newest-first to live id or `archive` sentinel (\u2192 SPEC.archive.md \u00a7V.retired block, never live row).\n\nIn plain English: whenever an invariant, task, or bug id is renumbered, the old id is never erased from history. Instead an append-only map file (`.spec/spec-renumber-map.json`) records every old-to-new mapping. Anyone who still holds a historical citation walks that chain from newest entry backward until they land on either the current live id in SPEC.md or the special sentinel `archive`. The archive sentinel means the row has been retired and now lives only inside SPEC.archive.md under the \u00a7V.retired block; it must never be treated as a live row again.\n\nCited by tasks:\n- \u00a7T.44 \u2014 move spec-owned files from `.claude/` to `.spec/` (already complete). That move placed the renumber map under the new `.spec/` location that this invariant names.\n\nReferenced by bugs:\n- None directly.\n\nRelated invariants that give this rule its force:\n- \u00a7V.12 \u2014 ids are strictly monotonic; the only legal renumber path is `/sdd:reorganize`, which must append to the map and sweep all citers in the same commit.\n- \u00a7V.13 \u2014 every citation must resolve; the chain walk is how historical cites still satisfy that rule after a renumber.\n- \u00a7V.16 \u2014 archived or retired rows migrate verbatim to SPEC.archive.md and stay cite-resolvable forever.\n\nBottom line: old citations never break; you always walk the append-only renumber map newest-first until you hit a live id or the archive sentinel.\n\n## Hint\n\n\u00a7V.15 is a permanent resolution rule, not a task. The map file itself is read-only for explain; only `/sdd:reorganize` is allowed to append to it.\n\n## Next\n\n1. /sdd:explain \u00a7V.12 \u2014 read the monotonic-numbering rule that authorizes renumbers\n2. /sdd:explain \u00a7V.16 \u2014 read how archived rows stay cite-resolvable\n3. /sdd:explain \u00a7T.44 \u2014 see the completed task that relocated the map under `.spec/`\n4. /sdd:explain --next \u2014 move to the next pending task",
+        "n_prose_canonical": 517,
+        "reduction_canonical": 0.8994
+      },
+      {
+        "id": "T1",
+        "section": "T",
+        "body": "x|add CI: script --self-test + audit dirty-verdict gate on push/PR|V40,V62",
+        "n_glyph": 27,
+        "prose_minimal": "Add continuous integration that runs the script with the self-test option together with an audit dirty-verdict gate, triggered on push and pull-request events, covering V40 and V62.",
+        "n_prose_minimal": 39,
+        "reduction_minimal": 0.3077,
+        "prose_canonical": "## \u00a7T.1 \u2014 add CI: script --self-test + audit dirty-verdict gate on push/PR\n\n> T1|x|add CI: script --self-test + audit dirty-verdict gate on push/PR|V40,V62\n\nIn plain English: this task added continuous integration so that on every push and pull request the mechanical check script runs its self-test, and the audit mode is used as a gate that fails the pipeline when it reports a dirty verdict. That keeps the plugin\u2019s mechanical invariants from regressing unnoticed.\n\nCited invariants:\n- \u00a7V.40 \u2014 mechanical-realization (body in `.spec/check-extras.md`): mechanical rules must be realized as script modes rather than left as prose-only checks; this CI task is how that realization is enforced in the pipeline.\n- \u00a7V.62 \u2014 tooling-preference (body in `.spec/check-extras.md`): prefer the plugin\u2019s stdlib script and pinned tooling over ad-hoc shell; the CI gate runs `scripts/check-mechanical.py` rather than one-off commands.\n\nCited interfaces: none directly (no \u00a7I keys on this row). Related surface from \u00a7I: `script: python3 \u2026/check-mechanical.py <mode>` with modes including `audit` and `--self-test`.\n\nStatus: complete (`x`).\n\nBottom line: pushes and PRs already gate on `check-mechanical.py --self-test` plus audit dirty-verdict, enforcing \u00a7V.40 and \u00a7V.62 in CI.\n\n## Hint\n\nClosed rows are historical. All \u00a7T rows in this SPEC are `x`; there is no pending `.` task for `--next`. `run 1` re-reads the next citation family; `run 2` audits whether this closed CI task still holds in the repo.\n\n## Next\n\n1. /sdd:explain \u00a7V.40 \u2014 read the mechanical-realization invariant in prose\n2. /sdd:check \u2014 audit whether the closed CI gate still holds\n3. /sdd:explain \u00a7V.62 \u2014 read the tooling-preference invariant in prose",
+        "n_prose_canonical": 440,
+        "reduction_canonical": 0.9386
+      },
+      {
+        "id": "T2",
+        "section": "T",
+        "body": "x|bump plugin version 1.1.0 + sync manifest description|-",
+        "n_glyph": 16,
+        "prose_minimal": "Bump the plugin version to 1.1.0 and sync the manifest description.",
+        "n_prose_minimal": 17,
+        "reduction_minimal": 0.0588,
+        "prose_canonical": "## \u00a7T.2 \u2014 bump plugin version 1.1.0 + sync manifest description\n\n> T2|x|bump plugin version 1.1.0 + sync manifest description|-\n\nIn plain English: this task bumps the plugin\u2019s version number to 1.1.0 and keeps the manifest description in sync with that version (and any related wording).\n\nCited invariants: none (`-`).\n\nCited interfaces: none.\n\nStatus: complete (`x`).\n\nBottom line: the plugin was released as 1.1.0 with a matching manifest description under this closed task.\n\n## Hint\n\nClosed rows are historical. `run 1` skips to live work; `run 2` audits whether the closed task drifted out of code.\n\n## Next\n\n1. /sdd:explain --next \u2014 read the next pending \u00a7T row\n2. /sdd:check \u2014 audit whether the closed task still holds",
+        "n_prose_canonical": 190,
+        "reduction_canonical": 0.9158
+      },
+      {
+        "id": "T3",
+        "section": "T",
+        "body": "x|create REPO-LOCAL release skill (gh release flow)|V24,V41,V42",
+        "n_glyph": 22,
+        "prose_minimal": "Create a repository-local release skill that implements the GitHub (gh) release flow, covering V24, V41, and V42.",
+        "n_prose_minimal": 29,
+        "reduction_minimal": 0.2414,
+        "prose_canonical": "## \u00a7T.3 \u2014 create REPO-LOCAL release skill (gh release flow)\n\n> T3|x|create REPO-LOCAL release skill (gh release flow)|V24,V41,V42\n\nIn plain English: this task creates a repository-local release skill that drives the GitHub (`gh`) release flow. It is not a published plugin surface for consumers; it lives in this repo to cut releases of the sdd plugin itself.\n\nCited invariants:\n- \u00a7V.24 \u2014 response-shape (body lives in `.spec/check-extras.md`). Governs how the skill\u2019s operator-facing output is structured (including Next blocks and related response contracts).\n- \u00a7V.41 \u2014 parametric-recipe (body lives in `.spec/check-extras.md`). The release flow is expressed as a parameterized recipe rather than one-off prose steps.\n- \u00a7V.42 \u2014 scope-set (body lives in `.spec/check-extras.md`). Bounds what paths and concerns the release skill may touch.\n\nNo \u00a7I interfaces are cited by this row.\n\nStatus: complete (`x`).\n\nBottom line: a REPO-LOCAL release skill was added so plugin releases go through a `gh`-based flow that respects response-shape, parametric-recipe, and scope-set rules.\n\n## Hint\n\nClosed rows are historical. All \u00a7T rows in this SPEC are currently `x`, so `--next` has no pending task to open. `run 2` audits whether the closed work still holds in the tree.\n\n## Next\n\n1. /sdd:explain --next \u2014 attempt next pending \u00a7T row (none open in this SPEC)\n2. /sdd:check \u2014 audit whether the closed task still holds\n3. /sdd:explain \u00a7V.24 \u2014 read response-shape in prose (extras body)\n4. /sdd:explain \u00a7V.41 \u2014 read parametric-recipe in prose (extras body)",
+        "n_prose_canonical": 400,
+        "reduction_canonical": 0.945
+      },
+      {
+        "id": "T4",
+        "section": "T",
+        "body": "x|add script emit-overview mode; check LOAD uses it|V64,V40",
+        "n_glyph": 19,
+        "prose_minimal": "Add a script for emit-overview mode and check that LOAD uses it, covering V64 and V40.",
+        "n_prose_minimal": 22,
+        "reduction_minimal": 0.1364,
+        "prose_canonical": "## \u00a7T.4 \u2014 add script emit-overview mode; check LOAD uses it\n\n> T4|x|add script emit-overview mode; check LOAD uses it|V64,V40\n\nIn plain English: this task added an `emit-overview` mode to the mechanical check script (`scripts/check-mechanical.py`), and updated the `/sdd:check` skill\u2019s LOAD phase so it consumes that mode\u2019s output instead of reading the whole SPEC.md itself.\n\nCited invariants:\n- \u00a7V.64 \u2014 single-load: check (and related surfaces) should load SPEC.md once through a script emit path, not via repeated whole-file reads that duplicate work or drift from a single source parse.\n- \u00a7V.40 \u2014 mechanical-realization: deterministic SPEC.md parsing and overview extraction belong in the stdlib Python script, not in ad-hoc LLM-side reads.\n\nRelated context from the bug list (not a direct cite, but the motivation):\n- \u00a7B.6 recorded that check LOAD used a whole-file Read plus `emit-v-slices`, which double-loaded SPEC.md and violated the single-load idea.\n\nStatus: complete (`x`).\n\nBottom line: overview loading for check is a script mode (`emit-overview`) under \u00a7V.40, and check LOAD is wired to that path so \u00a7V.64 holds.\n\n## Hint\n\nClosed rows are historical. `run 1` skips to live work; `run 2` audits whether the closed task drifted out of code. Every \u00a7T row in this SPEC is already `x`, so `--next` has no pending task to expand.\n\n## Next\n\n1. /sdd:explain --next \u2014 read the next pending \u00a7T row\n2. /sdd:check \u2014 audit whether the closed task still holds\n3. /sdd:explain \u00a7V.64 \u2014 read the single-load invariant in prose\n4. /sdd:explain \u00a7V.40 \u2014 read the mechanical-realization invariant in prose",
+        "n_prose_canonical": 413,
+        "reduction_canonical": 0.954
+      },
+      {
+        "id": "T5",
+        "section": "T",
+        "body": "x|add PROGRESS checklist to multi-phase recipes|V24,V62",
+        "n_glyph": 17,
+        "prose_minimal": "Add a PROGRESS checklist to multi-phase recipes. This applies to V24 and V62.",
+        "n_prose_minimal": 20,
+        "reduction_minimal": 0.15,
+        "prose_canonical": "## \u00a7T.5 \u2014 add PROGRESS checklist to multi-phase recipes\n\n> T5|x|add PROGRESS checklist to multi-phase recipes|V24,V62\n\nIn plain English: this task added a PROGRESS checklist to every multi-phase recipe so the agent (and the operator) can see which phase is done and which is next while a long skill run is in flight.\n\nCited invariants:\n- \u00a7V.24 \u2014 response-shape (body lives in `.spec/check-extras.md`). Governs how skill responses are structured; the PROGRESS checklist is part of that shape for multi-phase work.\n- \u00a7V.62 \u2014 tooling-preference (body lives in `.spec/check-extras.md`). Prefers concrete, mechanical tooling patterns; a checklist is the preferred way to track multi-phase progress over free-form prose.\n\nStatus: complete (`x`).\n\nBottom line: multi-phase recipes now carry an explicit PROGRESS checklist so response shape stays scannable and tooling stays mechanical, per \u00a7V.24 and \u00a7V.62.\n\n## Hint\n\nClosed rows are historical. `run 1` skips to live work; `run 2` audits whether the closed task drifted out of code.\n\n## Next\n\n1. /sdd:explain --next \u2014 read the next pending \u00a7T row\n2. /sdd:check \u2014 audit whether the closed task still holds\n3. /sdd:explain \u00a7V.24 \u2014 read the cited response-shape invariant in prose\n4. /sdd:explain \u00a7V.62 \u2014 read the cited tooling-preference invariant in prose",
+        "n_prose_canonical": 334,
+        "reduction_canonical": 0.9491
+      },
+      {
+        "id": "T6",
+        "section": "T",
+        "body": "x|script batch-advisory row; check consumes it|V46,V40",
+        "n_glyph": 17,
+        "prose_minimal": "The x script handles the batch-advisory row and the check consumes it in V46 and V40.",
+        "n_prose_minimal": 21,
+        "reduction_minimal": 0.1905,
+        "prose_canonical": "## \u00a7T.6 \u2014 script batch-advisory row; check consumes it\n\n> T6|x|script batch-advisory row; check consumes it|V46,V40\n\nIn plain English: this task added a script mode (or row emission) that produces a batch-advisory verdict row, and wired `/sdd:check` to consume that row instead of deciding batch scope by hand.\n\nCited invariants:\n- \u00a7V.46 \u2014 batch (details live in `.spec/check-extras.md \u00a7V46`; the task implements mechanical support for that invariant\u2019s batching rules).\n- \u00a7V.40 \u2014 mechanical-realization (details live in `.spec/check-extras.md \u00a7V40`; the work belongs to the \u201cpush judgment into the script\u201d family).\n\nRelated bug:\n- \u00a7B.7 \u2014 batch narrow-scope override used an LLM-eyeballed file count as a proxy (fixed under the same \u00a7V.46 umbrella).\n\nStatus: complete (`x`).\n\nBottom line: batch advisory is now a script-emitted row that check reads, so batch scope is mechanical rather than LLM-estimated.\n\n## Hint\n\nClosed rows are historical. `run 1` skips to live work; `run 2` audits whether the closed task drifted out of code.\n\n## Next\n\n1. /sdd:explain --next \u2014 read the next pending \u00a7T row\n2. /sdd:check \u2014 audit whether the closed task still holds\n3. /sdd:explain \u00a7V.46 \u2014 read the batch invariant in prose (extras)\n4. /sdd:explain \u00a7B.7 \u2014 read the bug this task addressed",
+        "n_prose_canonical": 341,
+        "reduction_canonical": 0.9501
+      },
+      {
+        "id": "T7",
+        "section": "T",
+        "body": "x|init skills/monitor auto-fire deviation capture|V65,V61",
+        "n_glyph": 17,
+        "prose_minimal": "Initialize the skills monitor for auto-fire deviation capture using V65 and V61.",
+        "n_prose_minimal": 17,
+        "reduction_minimal": 0.0,
+        "prose_canonical": "## \u00a7T.7 \u2014 init skills/monitor auto-fire deviation capture\n\n> T7|x|init skills/monitor auto-fire deviation capture|V65,V61\n\nIn plain English: this task created the `skills/monitor` skill so the plugin can automatically capture deviations (when live behavior drifts from what the spec requires). The monitor is an auto-fire sub-skill: it is meant to run as a side effect of other work, not as something the operator types as a top-level slash command.\n\nCited invariants:\n- \u00a7V.65 \u2014 monitor-protocol (full body lives in `.spec/check-extras.md \u00a7V65`). This is the contract for how the monitor skill behaves: when it fires, what it may write, and how it reports deviations. Related later work under the same invariant includes asserting the correct GitHub repo before any `gh` write (see \u00a7T.13 / \u00a7B.11) and routing mechanization candidates through the monitor (see \u00a7T.17).\n- \u00a7V.61 \u2014 sub-skill-flags (full body lives in `.spec/check-extras.md \u00a7V61`). This governs frontmatter flags that separate user-invocable skills from auto-fire sub-skills (for example `disable-model-invocation`), so the monitor is engaged by callers rather than offered as a standalone `/sdd:monitor` surface. \u00a7B.1 recorded an earlier inversion of these flags that hid auto-fire skills from the Skill tool.\n\nStatus: complete (`x`).\n\nBottom line: the monitor skill exists as an auto-fire deviation-capture path under \u00a7V.65, wired with the correct sub-skill flags per \u00a7V.61.\n\n## Hint\n\nClosed rows are historical. `run 1` skips to live work; `run 2` audits whether the closed task drifted out of code.\n\n## Next\n\n1. /sdd:explain --next \u2014 read the next pending \u00a7T row\n2. /sdd:check \u2014 audit whether the closed task still holds\n3. /sdd:explain \u00a7V.65 \u2014 read the monitor-protocol invariant in prose\n4. /sdd:explain \u00a7V.61 \u2014 read the sub-skill-flags invariant in prose",
+        "n_prose_canonical": 465,
+        "reduction_canonical": 0.9634
+      },
+      {
+        "id": "T8",
+        "section": "T",
+        "body": "x|script: admit MATCH clean verdict on \u00a7I rows|V43,V40",
+        "n_glyph": 18,
+        "prose_minimal": "X script admits MATCH clean verdict on section I rows V43, V40.",
+        "n_prose_minimal": 16,
+        "reduction_minimal": -0.125,
+        "prose_canonical": "## \u00a7T.8 \u2014 script: admit MATCH clean verdict on \u00a7I rows\n\n> T8|x|script: admit MATCH clean verdict on \u00a7I rows|V43,V40\n\nIn plain English: this task extended the mechanical check script so that interface rows (\u00a7I) can receive a clean **MATCH** verdict. Before this change, a matching \u00a7I row could not be recorded as clean in the verdict vocabulary, which caused silent remapping to HOLD (see related bug history).\n\nCited invariants:\n- \u00a7V.43 \u2014 drift-verdict-vocab (body lives in `.spec/check-extras.md`): defines the allowed verdict words the checker and memo may emit; MATCH must be a first-class clean outcome for \u00a7I rows, not collapsed into another status.\n- \u00a7V.40 \u2014 mechanical-realization (body lives in `.spec/check-extras.md`): behavior that can be checked mechanically belongs in `scripts/check-mechanical.py`, not in ad-hoc LLM judgment.\n\nRelated bugs:\n- \u00a7B.8 \u2014 MATCH clean \u00a7I verdict was missing from the memo vocabulary, so clean interface matches were silently remapped to HOLD (fix: \u00a7V.43).\n\nStatus: complete (`x`).\n\nBottom line: the script and verdict vocabulary now treat a matching \u00a7I row as a clean MATCH, satisfying \u00a7V.43 under the mechanical path required by \u00a7V.40.\n\n## Hint\n\nClosed rows are historical. `run 1` skips to live work; `run 2` audits whether the closed task drifted out of code.\n\n## Next\n\n1. /sdd:explain --next \u2014 read the next pending \u00a7T row\n2. /sdd:check \u2014 audit whether the closed task still holds\n3. /sdd:explain \u00a7V.43 \u2014 read the drift-verdict vocabulary in prose\n4. /sdd:explain \u00a7B.8 \u2014 read the bug this task closed",
+        "n_prose_canonical": 398,
+        "reduction_canonical": 0.9548
+      },
+      {
+        "id": "T9",
+        "section": "T",
+        "body": "x|script write-memo --from-audit; check drops hand-merge|V44,V40",
+        "n_glyph": 22,
+        "prose_minimal": "Execute the script write-memo using the from-audit option; check drops and hand-merge for V44 and V40.",
+        "n_prose_minimal": 26,
+        "reduction_minimal": 0.1538,
+        "prose_canonical": "## \u00a7T.9 \u2014 script write-memo --from-audit; check drops hand-merge\n\n> T9|x|script write-memo --from-audit; check drops hand-merge|V44,V40\n\nIn plain English: this task added a `write-memo --from-audit` mode to the mechanical check script so that `/sdd:check` can generate its memo directly from an audit run, instead of the agent hand-merging audit output into the memo by hand.\n\nCited invariants:\n- \u00a7V.44 \u2014 memo (details live in `.spec/check-extras.md`; governs how check memos are produced, shaped, and consumed).\n- \u00a7V.40 \u2014 mechanical-realization (details live in `.spec/check-extras.md`; favors scripted, deterministic work over LLM-side assembly when the steps are mechanical).\n\nRelated context from SPEC:\n- \u00a7B.9 recorded that a dirty `write-memo` used to dump a full table and still exit 0, which made it unusable as a CI gate \u2014 fixed under the V44 line (see also \u00a7T.10, which locked dirty \u2192 exit 1 and self-test exit codes).\n- \u00a7I.script lists `write-memo` among the script modes that emit pipe-table `id|verdict|evidence`.\n\nStatus: complete (`x`).\n\nBottom line: check no longer hand-merges audit into the memo; the script owns that path under \u00a7V.44 and \u00a7V.40.\n\n## Hint\n\nClosed rows are historical. `run 1` skips to live work; `run 2` audits whether the closed task drifted out of code.\n\n## Next\n\n1. /sdd:explain --next \u2014 read the next pending \u00a7T row\n2. /sdd:check \u2014 audit whether the closed task still holds\n3. /sdd:explain \u00a7V.44 \u2014 read the memo invariant in prose (via check-extras)\n4. /sdd:explain \u00a7T.10 \u2014 read the follow-on exit-code lock for write-memo",
+        "n_prose_canonical": 436,
+        "reduction_canonical": 0.9495
+      },
+      {
+        "id": "T10",
+        "section": "T",
+        "body": "x|script write-memo dirty \u2192 exit 1; self-test exit codes|V44",
+        "n_glyph": 20,
+        "prose_minimal": "The x script write-memo dirty leads to exit code 1 as part of self-test exit codes in V44.",
+        "n_prose_minimal": 25,
+        "reduction_minimal": 0.2,
+        "prose_canonical": "## \u00a7T.10 \u2014 script write-memo dirty \u2192 exit 1; self-test exit codes\n\n> T10|x|script write-memo dirty \u2192 exit 1; self-test exit codes|V44\n\nIn plain English: this task made the `write-memo` mode of `scripts/check-mechanical.py` exit with status code 1 whenever the audit is dirty (findings present), and added self-tests that lock those exit codes in place. A clean memo still exits 0; a dirty memo must fail the process so CI and other gates can treat it as a hard stop.\n\nCited invariants:\n- \u00a7V.44 \u2014 memo (body lives in `.spec/check-extras.md \u00a7V44`). This task enforces the memo contract\u2019s exit-code behavior: dirty output is not a soft report, it is a failing gate.\n\nRelated bugs:\n- \u00a7B.9 \u2014 dirty write-memo used to demand a full table and then exit 0, which made it unusable as a CI gate. \u00a7T.10 is the fix for that failure mode.\n\nStatus: complete (`x`).\n\nBottom line: `write-memo` is a reliable CI gate \u2014 dirty means exit 1, and self-tests keep that contract from drifting.\n\n## Hint\n\nClosed rows are historical. All \u00a7T rows in this SPEC are currently `x`, so `--next` has no pending task to open. `run 1` still walks the explain pointer; `run 2` audits whether this closed exit-code behavior still holds in the script.\n\n## Next\n\n1. /sdd:explain --next \u2014 attempt next pending \u00a7T row (none open; will report that)\n2. /sdd:check \u2014 audit whether the closed task still holds\n3. /sdd:explain \u00a7V.44 \u2014 read the memo invariant in prose (extras body)\n4. /sdd:explain \u00a7B.9 \u2014 read the bug this task closed",
+        "n_prose_canonical": 407,
+        "reduction_canonical": 0.9509
+      },
+      {
+        "id": "B1",
+        "section": "B",
+        "body": "2026-06-11|sub-skill flags inverted: disable-model-invocation hid auto-fire from Skill tool|V61",
+        "n_glyph": 28,
+        "prose_minimal": "On 2026-06-11, sub-skill flags were inverted: disable-model-invocation hid auto-fire from the Skill tool, in V61.",
+        "n_prose_minimal": 34,
+        "reduction_minimal": 0.1765,
+        "prose_canonical": "## \u00a7B.1 \u2014 sub-skill flags inverted\n\n> B1|2026-06-11|sub-skill flags inverted: disable-model-invocation hid auto-fire from Skill tool|V61\n\nIn plain English: on 2026-06-11 a bug was recorded where sub-skill frontmatter flags were inverted. Setting `disable-model-invocation` was meant to control one behavior, but in practice it hid auto-fire sub-skills from the Skill tool, so they could not run when the parent skill needed them.\n\nBroken invariant:\n- \u00a7V.61 \u2014 sub-skill-flags (body lives in `.spec/check-extras.md \u00a7V61`). This invariant governs how sub-skill flags such as `disable-model-invocation` must be set so auto-fire skills remain reachable via the Skill tool while still blocking unwanted model invocation paths.\n\nFixing / related tasks:\n- No \u00a7T row cites B1 directly in its `cites` cell.\n- Closest related work: \u00a7T.7 (init skills/monitor auto-fire deviation capture, cites V61), \u00a7T.21 (reframe backprop frontmatter as caller-engaged sub-skill, cites V61), \u00a7T.40 (init skills/github passive gh-CLI workflow governor, cites V61).\n\nStatus: historical bug record (bugs have no `.`/`x` status column).\n\nBottom line: flag polarity on sub-skills was wrong, so auto-fire skills were invisible to the Skill tool; V61 is the rule that keeps that polarity correct.\n\n## Hint\n\nB1 is closed history. To understand the rule it protects, read V61 next; to see whether the flag contract still holds in the tree, run check.\n\n## Next\n\n1. /sdd:explain \u00a7V.61 \u2014 read the sub-skill-flags invariant in prose\n2. /sdd:explain \u00a7T.7 \u2014 see the monitor auto-fire task that cites V61\n3. /sdd:check \u2014 audit whether sub-skill flag drift has returned\n4. /sdd:explain --next \u2014 move to the next pending \u00a7T row",
+        "n_prose_canonical": 449,
+        "reduction_canonical": 0.9376
+      },
+      {
+        "id": "B2",
+        "section": "B",
+        "body": "2026-06-11|marketplace root source ./ lstrip-emptied \u2192 plugin dropped from PUBLISHED scope|V63",
+        "n_glyph": 27,
+        "prose_minimal": "On 2026-06-11, the marketplace root source ./ had its leading whitespace emptied (lstrip-emptied), which caused the plugin to be dropped from the PUBLISHED scope, under V63.",
+        "n_prose_minimal": 44,
+        "reduction_minimal": 0.3864,
+        "prose_canonical": "## \u00a7B.2 \u2014 marketplace root source stripped empty\n\n```\nB2|2026-06-11|marketplace root source ./ lstrip-emptied \u2192 plugin dropped from PUBLISHED scope|V63\n```\n\nIn plain English: on 2026-06-11 a bug was recorded where the marketplace root source value `./` was left-stripped until it became an empty string. That empty source caused the plugin to be dropped from the PUBLISHED scope (it was no longer treated as a published/root-source plugin).\n\nBroken invariant:\n- \u00a7V.63 \u2014 plugin-shape (body lives in `.spec/check-extras.md \u00a7V63`). This invariant governs how the plugin is shaped and recognized as an installable root-source plugin, including marketplace/source path handling. The empty-source path violated that shape contract and removed the plugin from published scope.\n\nFixing tasks:\n- No \u00a7T row in the current SPEC.md cites B2 directly. The fix is historical; related closed work on plugin shape and manifests includes T2 (bump plugin version + sync manifest description).\n\nStatus: recorded 2026-06-11 (bug row; no open/closed status column on \u00a7B).\n\nBottom line: a path-normalization mistake turned the marketplace source `./` into `\"\"` and ejected the plugin from PUBLISHED scope, breaking the plugin-shape invariant \u00a7V.63.\n\n## Hint\n\nBug rows are diagnostic history. Next steps are either the next pending task or a check pass to confirm the shape contract still holds in code.\n\n## Next\n\n1. /sdd:explain --next \u2014 read the next pending \u00a7T row\n2. /sdd:explain \u00a7V.63 \u2014 expand the cited plugin-shape invariant (may redirect to check-extras)\n3. /sdd:check \u2014 audit whether plugin-shape still holds",
+        "n_prose_canonical": 388,
+        "reduction_canonical": 0.9304
+      },
+      {
+        "id": "B3",
+        "section": "B",
+        "body": "2026-06-11|\u00a7I id derivation hardcoded dev-repo slash-bullets \u2192 zero ids in consumers|V41",
+        "n_glyph": 27,
+        "prose_minimal": "On 2026-06-11, in section I, id derivation was hardcoded to the dev-repo slash-bullets, which resulted in zero ids in consumers. This is version 41.",
+        "n_prose_minimal": 41,
+        "reduction_minimal": 0.3415,
+        "prose_canonical": "## \u00a7B.3 \u2014 \u00a7I id derivation hardcoded to dev-repo slash-bullets\n\n> B3|2026-06-11|\u00a7I id derivation hardcoded dev-repo slash-bullets \u2192 zero ids in consumers|V41\n\nIn plain English: on 2026-06-11 a bug was recorded where the logic that derives interface identifiers (\u00a7I keys) was hard-coded to the shape used in the development repository \u2014 specifically, it expected slash-style bullet entries. When the same code ran inside a consuming repository, that assumption produced zero identifiers, so the interface catalog appeared empty and downstream checks could not resolve \u00a7I cites.\n\nBroken invariant:\n- \u00a7V.41 (parametric-recipe) \u2014 recipes and derivation steps must be parameterized by the actual repo shape rather than baking in dev-repo literals; the hard-coded slash-bullet parser violated that.\n\nFixing / related tasks (all closed):\n- \u00a7T.3 \u2014 create REPO-LOCAL release skill (cites V41)\n- \u00a7T.40 \u2014 init skills/github passive gh-CLI workflow governor (cites V41)\n- \u00a7T.44 \u2014 move spec-owned files .claude/ \u2192 .spec/ (cites V41)\n\nStatus: recorded bug (historical). The fix landed under the V41 parametric-recipe work; no open \u00a7T row remains for B3.\n\nBottom line: \u00a7I identifier extraction once assumed the plugin\u2019s own bullet style and therefore emitted an empty set in consumer repos; V41 requires that derivation be driven by the live repo\u2019s actual shape instead of a hard-coded pattern.\n\n## Hint\n\nClosed bug rows are historical. `run 1` moves to the next pending task; `run 2` expands the invariant that now prevents the same hard-coding.\n\n## Next\n\n1. /sdd:explain --next \u2014 read the next pending \u00a7T row\n2. /sdd:explain \u00a7V.41 \u2014 read the parametric-recipe invariant in prose\n3. /sdd:check \u2014 audit whether the closed fix still holds in code",
+        "n_prose_canonical": 428,
+        "reduction_canonical": 0.9369
+      },
+      {
+        "id": "B4",
+        "section": "B",
+        "body": "2026-06-11|backprop promised one commit; spec APPLY + build committed separately|V27",
+        "n_glyph": 22,
+        "prose_minimal": "On 2026-06-11, backprop promised one commit; the spec APPLY and build were committed separately. This was associated with V27.",
+        "n_prose_minimal": 31,
+        "reduction_minimal": 0.2903,
+        "prose_canonical": "## \u00a7B.4 \u2014 backprop promised one commit; spec APPLY + build committed separately\n\n> B4|2026-06-11|backprop promised one commit; spec APPLY + build committed separately|V27\n\nIn plain English: on 2026-06-11 a bug was recorded against the backprop flow. The backprop protocol promised that a backpropagation would result in exactly one commit, but the actual implementation split the work so that the spec APPLY step committed on its own and the subsequent build step committed again. That produced two commits instead of the single atomic commit the protocol required.\n\nBroken invariant:\n- \u00a7V.27 \u2014 backprop-protocol (body lives in `.spec/check-extras.md \u00a7V27`). The invariant defines how backpropagation must behave; the observed split-commit behavior violated the single-commit guarantee that protocol states.\n\nFixing tasks:\n- No \u00a7T row in the current SPEC.md cites B4 directly. The repair is assumed to have been absorbed into the backprop-protocol work covered by V27 (and related later tasks such as T21, which reframed backprop frontmatter as a caller-engaged sub-skill under V24/V61/B14).\n\nStatus: recorded bug (historical).\n\nBottom line: backprop must produce one commit; the APPLY-then-build split that created two commits was a violation of \u00a7V.27 and is the subject of this bug record.\n\n## Hint\n\nB-rows are historical. The live rule lives in \u00a7V.27 (extras). Next steps are either to read that invariant in prose or to move to the next pending task.\n\n## Next\n\n1. /sdd:explain \u00a7V.27 \u2014 read the backprop-protocol invariant in prose\n2. /sdd:explain --next \u2014 read the next pending \u00a7T row\n3. /sdd:check \u2014 audit whether the single-commit guarantee still holds in code",
+        "n_prose_canonical": 396,
+        "reduction_canonical": 0.9444
+      },
+      {
+        "id": "B5",
+        "section": "B",
+        "body": "2026-06-11|compression claim drift: measured ~30% vs legacy quarter/4x in README|-",
+        "n_glyph": 24,
+        "prose_minimal": "On 2026-06-11, compression claim drift was noted: measured compression was approximately 30 percent, versus the legacy claim of a quarter or 4x stated in the README.",
+        "n_prose_minimal": 39,
+        "reduction_minimal": 0.3846,
+        "prose_canonical": "## \u00a7B.5 \u2014 compression claim drift\n\n> B5|2026-06-11|compression claim drift: measured ~30% vs legacy quarter/4x in README|-\n\nIn plain English: this bug records that the README (and related public claims) still said the plugin compressed specs by \u201ca quarter\u201d or \u201c4\u00d7,\u201d while actual measurement showed only about 30% token reduction. The stated benefit no longer matched reality.\n\nBroken invariant:\n- None cited (`-`). This was a documentation accuracy problem, not a violation of a numbered \u00a7V rule at the time it was filed.\n\nFixing tasks:\n- No \u00a7T row cites B5 directly.\n- Closely related later work: \u00a7T.33 updated the manifest\u2019s token-cut figure from 30% to 40% (filed under \u00a7B.20, a follow-on staleness bug on the same family of claims).\n\nStatus: historical bug record (date 2026-06-11).\n\nBottom line: public compression numbers had drifted from measured results; the bug tracks that mismatch so later sweeps could correct the claimed figures.\n\n## Hint\n\nB5 has no fixing \u00a7T and no \u00a7V. Related claim-drift work landed under T33/B20. For live work, move to a pending task rather than re-litigating this closed bug.\n\n## Next\n\n1. /sdd:explain --next \u2014 read the next pending \u00a7T row\n2. /sdd:explain \u00a7B.20 \u2014 see the follow-on token-cut figure bug\n3. /sdd:check \u2014 audit whether compression claims still match reality",
+        "n_prose_canonical": 336,
+        "reduction_canonical": 0.9286
+      },
+      {
+        "id": "B6",
+        "section": "B",
+        "body": "2026-06-11|check LOAD whole-file Read + emit-v-slices double-loaded SPEC.md|V64",
+        "n_glyph": 27,
+        "prose_minimal": "On 2026-06-11, a check was performed concerning LOAD whole-file Read plus emit-v-slices, which had double-loaded SPEC.md, under V64.",
+        "n_prose_minimal": 38,
+        "reduction_minimal": 0.2895,
+        "prose_canonical": "## \u00a7B.6 \u2014 check LOAD double-loaded SPEC.md\n\n> B6|2026-06-11|check LOAD whole-file Read + emit-v-slices double-loaded SPEC.md|V64\n\nIn plain English: on 2026-06-11 a bug was recorded in the check skill\u2019s LOAD phase. Check was reading the entire SPEC.md via a whole-file Read, and the emit-v-slices script mode was also loading SPEC.md, so the same file was pulled into context twice in one run.\n\nBroken invariant:\n- \u00a7V.64 \u2014 single-load (body lives in `.spec/check-extras.md \u00a7V64`). The name and the bug cause together say that SPEC.md must be loaded once per check run; a full Read plus a second load through emit-v-slices violated that.\n\nFixing task:\n- \u00a7T.4 \u2014 add script emit-overview mode; check LOAD uses it (cites V64, V40). That task introduced a lighter overview emit path and switched check\u2019s LOAD to use it, so the whole-file + emit-v-slices double load no longer happens. Status: complete (`x`).\n\nStatus: historical bug record (fixed under \u00a7T.4).\n\nBottom line: check used to load SPEC.md twice in one run; \u00a7V.64 forbids that, and \u00a7T.4 removed the double load by routing LOAD through emit-overview.\n\n## Hint\n\nBug rows are historical. Prefer live work or an audit of whether the fix still holds in code.\n\n## Next\n\n1. /sdd:explain \u00a7V.64 \u2014 read the single-load invariant in prose (may need check-extras)\n2. /sdd:explain \u00a7T.4 \u2014 read the fixing task in prose\n3. /sdd:explain --next \u2014 read the next pending \u00a7T row\n4. /sdd:check \u2014 audit whether the closed fix still holds",
+        "n_prose_canonical": 403,
+        "reduction_canonical": 0.933
+      },
+      {
+        "id": "B7",
+        "section": "B",
+        "body": "2026-06-11|batch narrow-scope override used LLM eyeballed file count as proxy|V46",
+        "n_glyph": 23,
+        "prose_minimal": "On 2026-06-11, a batch narrow-scope override was used in which an LLM eyeballed file count as a proxy, associated with V46.",
+        "n_prose_minimal": 34,
+        "reduction_minimal": 0.3235,
+        "prose_canonical": "## \u00a7B.7 \u2014 batch narrow-scope override used LLM eyeballed file count as proxy\n\n> B7|2026-06-11|batch narrow-scope override used LLM eyeballed file count as proxy|V46\n\nIn plain English: on 2026-06-11 a bug was recorded against the batch machinery. When a narrow-scope override was applied, the implementation let the LLM eyeball (roughly count by inspection) how many files were in scope and treated that guess as the authoritative file count. That proxy was unreliable and violated the batch invariant.\n\nBroken invariant:\n- \u00a7V.46 \u2014 batch (full semantics live in `.spec/check-extras.md \u00a7V46`). The invariant requires batch scope and counts to be determined mechanically, not by LLM estimation.\n\nFixing / related task:\n- \u00a7T.6 \u2014 (status `x`, complete) added a script `batch-advisory` row and made `/sdd:check` consume it, citing V46 and V40. That supplies the mechanical advisory path so check no longer depends on an LLM file-count guess.\n\nStatus: recorded bug (historical); fix landed via \u00a7T.6.\n\nBottom line: \u00a7B.7 captured a case where batch narrow-scope used an LLM eyeballed file count instead of a mechanical count; \u00a7V.46 forbids that, and \u00a7T.6 closed the gap with a script-emitted batch-advisory that check consumes.\n\n## Hint\n\nClosed bug + closed fixing task. Live follow-ups are audit or the next pending \u00a7T (none are open \u2014 all \u00a7T rows are `x`).\n\n## Next\n\n1. /sdd:explain \u00a7V.46 \u2014 read the batch invariant in prose (stub may point at check-extras)\n2. /sdd:explain \u00a7T.6 \u2014 read the fixing task in prose\n3. /sdd:check \u2014 audit whether the batch advisory still holds in code\n4. /sdd:explain --next \u2014 no pending \u00a7T rows; will report all-clear or lowest `.` if any appear",
+        "n_prose_canonical": 429,
+        "reduction_canonical": 0.9464
+      },
+      {
+        "id": "B8",
+        "section": "B",
+        "body": "2026-06-11|MATCH clean \u00a7I verdict missing from memo vocab \u2192 silent HOLD remap|V43",
+        "n_glyph": 23,
+        "prose_minimal": "On 2026-06-11 a clean MATCH occurred but the section I verdict was missing from the memo vocabulary, which resulted in a silent HOLD remap under V43.",
+        "n_prose_minimal": 35,
+        "reduction_minimal": 0.3429,
+        "prose_canonical": "## \u00a7B.8 \u2014 MATCH clean \u00a7I verdict missing from memo vocab\n\n> B8|2026-06-11|MATCH clean \u00a7I verdict missing from memo vocab \u2192 silent HOLD remap|V43\n\nIn plain English: on 2026-06-11 a bug was recorded where the memo vocabulary did not include a clean `MATCH` verdict for \u00a7I interface rows. Because that verdict was missing, the check path silently remapped those cases to `HOLD` instead of reporting a clean match. The broken invariant is \u00a7V.43 (drift-verdict-vocab).\n\nBroken invariant:\n- \u00a7V.43 \u2014 drift-verdict-vocab (body lives in `.spec/check-extras.md \u00a7V43`). This invariant defines the allowed verdict vocabulary for drift checks. Omitting `MATCH` as a clean verdict for \u00a7I rows caused incorrect silent remapping to `HOLD`.\n\nFixing task:\n- \u00a7T.8 \u2014 script: admit MATCH clean verdict on \u00a7I rows (status: complete, `x`). Cites V43 and V40. This task taught the script to accept `MATCH` as a clean verdict on \u00a7I rows so the memo no longer drops or remaps it.\n\nStatus: filed bug (historical); fix shipped under \u00a7T.8.\n\nBottom line: \u00a7B.8 captured a vocabulary gap that turned clean \u00a7I matches into silent HOLDs; \u00a7T.8 closed it by admitting `MATCH` on \u00a7I rows under \u00a7V.43.\n\n## Hint\n\nClosed bug + closed fixing task. Live follow-ups are audit or the next pending \u00a7T (none are pending \u2014 all \u00a7T rows are `x`).\n\n## Next\n\n1. /sdd:explain \u00a7V.43 \u2014 read the drift-verdict-vocab invariant in prose\n2. /sdd:explain \u00a7T.8 \u2014 read the fixing task in prose\n3. /sdd:check \u2014 audit whether the MATCH verdict still holds in code",
+        "n_prose_canonical": 408,
+        "reduction_canonical": 0.9436
+      },
+      {
+        "id": "B9",
+        "section": "B",
+        "body": "2026-06-11|dirty write-memo demanded full table then exit 0 \u2192 unusable as CI gate|V44",
+        "n_glyph": 27,
+        "prose_minimal": "On 2026-06-11, a dirty write-memo demanded a full table then exited 0, which made it unusable as a CI gate, under V44.",
+        "n_prose_minimal": 37,
+        "reduction_minimal": 0.2703,
+        "prose_canonical": "## \u00a7B.9 \u2014 dirty write-memo exit code\n\n> B9|2026-06-11|dirty write-memo demanded full table then exit 0 \u2192 unusable as CI gate|V44\n\nIn plain English: on 2026-06-11 a bug was recorded against the memo path. When `write-memo` was run in a dirty state it still required a full table and then exited with code 0. That made the script useless as a CI gate: a failing or incomplete memo run looked like success to any caller that only checked the exit status.\n\nBroken invariant:\n- \u00a7V.44 \u2014 memo (body lives in `.spec/check-extras.md \u00a7V44`). The memo contract requires dirty runs to fail loudly so CI and check can treat a non-zero exit as \u201cdo not proceed.\u201d\n\nFixing tasks:\n- \u00a7T.10 \u2014 script: write-memo dirty \u2192 exit 1; self-test exit codes (status `x`, cites V44). This is the direct fix: dirty write-memo must exit 1, and the self-test covers those exit codes.\n- \u00a7T.9 \u2014 script write-memo --from-audit; check drops hand-merge (status `x`, cites V44,V40). Related memo wiring that check consumes so hand-merge is no longer required.\n\nStatus: historical bug row (no open/closed flag on \u00a7B; fix shipped under \u00a7T.10).\n\nBottom line: dirty write-memo used to exit 0 after demanding a full table, so CI could not gate on it; \u00a7T.10 made dirty runs exit 1 under \u00a7V.44.\n\n## Hint\n\nBug rows are historical. The fix is already closed under \u00a7T.10; next useful steps are reading the invariant or auditing whether the exit-code contract still holds in code.\n\n## Next\n\n1. /sdd:explain \u00a7V.44 \u2014 read the memo invariant in prose\n2. /sdd:explain \u00a7T.10 \u2014 read the fixing task in prose\n3. /sdd:check \u2014 audit whether the closed fix still holds\n4. /sdd:explain --next \u2014 read the next pending \u00a7T row",
+        "n_prose_canonical": 459,
+        "reduction_canonical": 0.9412
+      },
+      {
+        "id": "B10",
+        "section": "B",
+        "body": "2026-06-11|allowed-tools pin failed: CLAUDE_PLUGIN_ROOT no-expand \u2192 broad Bash grants|V62",
+        "n_glyph": 29,
+        "prose_minimal": "On 2026-06-11, the allowed-tools pin failed because CLAUDE_PLUGIN_ROOT had no-expand, which led to broad Bash grants, under V62.",
+        "n_prose_minimal": 38,
+        "reduction_minimal": 0.2368,
+        "prose_canonical": "## \u00a7B.10 \u2014 allowed-tools pin failed (CLAUDE_PLUGIN_ROOT)\n\n> B10|2026-06-11|allowed-tools pin failed: CLAUDE_PLUGIN_ROOT no-expand \u2192 broad Bash grants|V62\n\nIn plain English: on 2026-06-11 a bug was recorded where skill frontmatter tried to pin `allowed-tools` to a narrow Bash invocation that used the `CLAUDE_PLUGIN_ROOT` environment variable. That variable is not expanded by the host, so the pin never matched the real command path. The effective result was overly broad Bash grants instead of the intended tight restriction to the plugin\u2019s own script runner.\n\nBroken invariant:\n- \u00a7V.62 \u2014 tooling-preference (body lives in `.spec/check-extras.md \u00a7V62`). This invariant governs how skills declare and prefer tools; the failed pin violated the preference for narrow, explicit tool grants over open-ended Bash.\n\nFixing tasks:\n- \u00a7T.11 \u2014 sweep frontmatter Bash grants: drop zero-use entries and pin the script invocation to `python3` (status complete).\n- \u00a7T.12 \u2014 open an upstream feature request for real env-var expansion inside `allowed-tools` (status complete).\n- \u00a7T.22 / \u00a7T.23 / \u00a7T.24 / \u00a7T.25 / \u00a7T.26 \u2014 later grant-hygiene sweeps and a mechanical zero-body-use audit that keep the same tooling-preference surface clean.\n\nStatus: recorded bug (historical). The immediate work-arounds shipped under the tasks above; the upstream expansion request is tracked separately.\n\nBottom line: an unexpanded `CLAUDE_PLUGIN_ROOT` token turned a careful allow-list into a broad Bash grant, breaching \u00a7V.62; the fix path was to stop relying on that variable and to tighten grants mechanically.\n\n## Hint\n\nBugs are closed historical records. Typical next steps are to read the broken invariant or to move to the next pending task.\n\n## Next\n\n1. /sdd:explain \u00a7V.62 \u2014 read the tooling-preference invariant in prose\n2. /sdd:explain \u00a7T.11 \u2014 see the grant-sweep task that addressed this\n3. /sdd:explain --next \u2014 read the next pending \u00a7T row\n4. /sdd:check \u2014 audit whether the grant hygiene still holds in the tree",
+        "n_prose_canonical": 500,
+        "reduction_canonical": 0.942
+      }
+    ],
+    "summary": {
+      "V": {
+        "minimal": {
+          "mean": 0.1794,
+          "median": 0.1719,
+          "p25": 0.1676,
+          "p75": 0.1969,
+          "n": 10
+        },
+        "canonical": {
+          "mean": 0.9126,
+          "median": 0.9062,
+          "p25": 0.8996,
+          "p75": 0.9275,
+          "n": 10
+        }
+      },
+      "T": {
+        "minimal": {
+          "mean": 0.1314,
+          "median": 0.1519,
+          "p25": 0.0782,
+          "p75": 0.1976,
+          "n": 10
+        },
+        "canonical": {
+          "mean": 0.9471,
+          "median": 0.9498,
+          "p25": 0.946,
+          "p75": 0.9532,
+          "n": 10
+        }
+      },
+      "B": {
+        "minimal": {
+          "mean": 0.3042,
+          "median": 0.3069,
+          "p25": 0.2751,
+          "p75": 0.3426,
+          "n": 10
+        },
+        "canonical": {
+          "mean": 0.9384,
+          "median": 0.9394,
+          "p25": 0.934,
+          "p75": 0.9432,
+          "n": 10
+        }
+      },
+      "all": {
+        "minimal": {
+          "mean": 0.205,
+          "median": 0.1953,
+          "p25": 0.157,
+          "p75": 0.2853,
+          "n": 30
+        },
+        "canonical": {
+          "mean": 0.9327,
+          "median": 0.9399,
+          "p25": 0.9216,
+          "p75": 0.9494,
+          "n": 30
+        }
+      }
+    }
+  },
+  {
+    "timestamp": "2026-07-19T16:39:35Z",
+    "commit_sha": "7733090133b4e6369014cfcf0065f8090d951235",
+    "model": "claude-sonnet-5",
+    "per_sample": [
+      {
+        "id": "V1",
+        "section": "V",
+        "body": "spec-adjacent-register \u2014 SPEC.md, `skills/**/SKILL.md`, SPEC-FORMAT.md, spec-referencing prose ! telegraph per telegraph skill; /sdd:explain decodes on demand.",
+        "n_glyph": 86,
+        "prose_minimal": "Documents that sit alongside formal specifications\u2014such as SPEC.md, the SKILL.md files found throughout the skills directory structure, SPEC-FORMAT.md, and any prose that references or discusses specifications\u2014should be written in a condensed, telegraphic style, following the conventions described in the telegraph skill. When a reader needs the full, expanded meaning of this condensed text, the /sdd:explain command can be used to decode it on demand.",
+        "n_prose_minimal": 150,
+        "reduction_minimal": 0.4267,
+        "prose_canonical": "Resolving `\u00a7V.1`... checking the renumber map first, per protocol.\n\nSince `.spec/spec-renumber-map.json` isn't available in this read, I'll resolve `\u00a7V.1` directly against the current SPEC.md. That gives us **V1: spec-adjacent-register**.\n\n## \u00a7V.1 \u2014 spec-adjacent-register\n\n> V1: spec-adjacent-register \u2014 SPEC.md, `skills/**/SKILL.md`, SPEC-FORMAT.md, spec-referencing prose ! telegraph per telegraph skill; /sdd:explain decodes on demand.\n\nIn plain English: this invariant says that certain files \u2014 SPEC.md itself, every skill's `SKILL.md`, `SPEC-FORMAT.md`, and any prose that directly references the spec \u2014 must be written in the compressed \"telegraph\" style (defined by the telegraph skill), not full prose. The `!` means this is mandatory, not optional. The whole point of writing these files in telegraph is token efficiency; the `/sdd:explain` command exists specifically to decompress that telegraph back into readable English whenever a human needs it \u2014 which is exactly what's happening right now.\n\nCited siblings: none directly cite `\u00a7V.1` by id in this SPEC.md snapshot. No `\u00a7T` row lists `V1` in its `cites` column, and no `\u00a7B` row lists it in its `fix` column. This invariant currently stands unreferenced by any tracked task or bug \u2014 it's foundational/structural rather than tied to a specific piece of work.\n\nCited interfaces: none. `\u00a7V.1` doesn't name a specific `\u00a7I` row; it's a cross-cutting rule about file register, not a single component contract.\n\nStatus: this is a `\u00a7V` (invariant) row, not a `\u00a7T` (task) row, so it doesn't carry a `.`/`x` status marker \u2014 invariants are always \"live\" until formally retired via the renumber/archive mechanism (`\u00a7V.15`).\n\nBottom line: `\u00a7V.1` mandates that all spec-adjacent files stay in telegraph form, and `/sdd:explain` is the sanctioned way to read them in prose without violating that rule.\n\n## Hint\n\n`\u00a7V.1` has no citing `\u00a7T` or `\u00a7B` rows, so there's no obvious \"next task\" tied to it. If you want to see how this rule is enforced in practice, check the sibling register rule for GitHub-facing files, or ask about the telegraph skill itself.\n\n## Next\n\n1. /sdd:explain \u00a7V.2 \u2014 read the paired GitHub-facing-register invariant in prose\n2. /sdd:check \u2014 audit whether spec-adjacent files currently comply with telegraph form",
+        "n_prose_canonical": 870,
+        "reduction_canonical": 0.9011
+      },
+      {
+        "id": "V2",
+        "section": "V",
+        "body": "github-facing-register \u2014 README, issues, PRs, commit-msg bodies ! steno per steno skill; commit subjects = per-skill fixed templates, verbatim.",
+        "n_glyph": 61,
+        "prose_minimal": "Here is the passage rewritten in plain English while keeping every fact intact:\n\nThis refers to the register used when writing content that faces GitHub \u2014 meaning README files, issues, pull requests, and the body text of commit messages. In this context, writing is done in shorthand (steno), and the level of shorthand used depends on the specific skill being applied at the time \u2014 in other words, shorthand usage is handled on a per-skill basis. However, this is different for commit subject lines: for commit subjects, each skill has its own fixed, predetermined template, and that template must be used exactly as written, with no changes or paraphrasing (verbatim).",
+        "n_prose_minimal": 202,
+        "reduction_minimal": 0.698,
+        "prose_canonical": "## \u00a7V.2 \u2014 github-facing-register\n\n> V2: github-facing-register \u2014 README, issues, PRs, commit-msg bodies ! steno per steno skill; commit subjects = per-skill fixed templates, verbatim.\n\nIn plain English: any prose that lives on GitHub's surface \u2014 the README file, issue text, pull request descriptions, and the body of commit messages \u2014 must be written in \"steno\" register, following the rules defined by the steno skill, rather than in the telegraph shorthand used inside SPEC.md itself. The one exception is commit subject lines: those follow fixed templates defined per-skill, and must be reproduced exactly as written, with no paraphrasing or steno compression applied.\n\nSo there are effectively two writing registers in this plugin: telegraph (terse, symbol-heavy, for SPEC.md and other spec-adjacent files) and steno (a different, GitHub-appropriate compression) for anything a human on GitHub will read. Commit subjects sit outside both \u2014 they're literal, fixed strings.\n\nCited siblings:\n\nTasks citing \u00a7V.2:\n- \u00a7T.40 \u2014 initializes `skills/github`, a passive gh-CLI workflow governor, citing V69, V61, V2, V41. This task presumably enforces or supports the steno-register requirement for GitHub-facing content as part of building out GitHub workflow tooling.\n- \u00a7T.45 \u2014 re-anchors the steno register and the clarity carrier on simple technical language, citing V67, V2. This task revisits and tightens how V2's steno rule is applied, aligning it with the human-clarity invariant (V67).\n\nNo bugs currently reference \u00a7V.2 in the fix column.\n\nNo \u00a7I interfaces are cited by this row (\u00a7V.2 doesn't reference \u00a7I directly; it names an external skill \u2014 steno \u2014 as its enforcement mechanism, not an interface contract).\n\nBottom line: anything written for GitHub (README, issues, PRs, commit bodies) must be in steno register per the steno skill; commit subject lines alone are exempt, following fixed per-skill templates verbatim.\n\n## Hint\n\n\u00a7V.2 is an active invariant with two citing tasks, both closed (`x`). If you want to verify it still holds in practice, checking is the natural move; if you want the contrast with telegraph register, \u00a7V.1 is the sibling row.\n\n## Next\n\n1. /sdd:explain \u00a7V.1 \u2014 read the sibling invariant defining telegraph register for spec-adjacent files\n2. /sdd:check \u2014 audit whether README/issue/PR/commit-body content still complies with steno register",
+        "n_prose_canonical": 836,
+        "reduction_canonical": 0.927
+      },
+      {
+        "id": "V3",
+        "section": "V",
+        "body": "verbatim-preservation \u2014 \u2192 `.spec/check-extras.md \u00a7V3`",
+        "n_glyph": 31,
+        "prose_minimal": "The verbatim-preservation rule is documented in the file `.spec/check-extras.md`, under section V3.",
+        "n_prose_minimal": 41,
+        "reduction_minimal": 0.2439,
+        "prose_canonical": "## \u00a7V.3 \u2014 verbatim-preservation\n\n> V3: verbatim-preservation \u2014 \u2192 `.spec/check-extras.md \u00a7V3`\n\nIn plain English: this invariant's actual rule text does not live in SPEC.md itself. The row is a stub \u2014 it points to a body file at `.spec/check-extras.md`, under the heading `\u00a7V3`, where the real testable statement is written out. This SPEC.md row exists only to reserve the id, record that the invariant is named `verbatim-preservation`, and tell you where to look for its content.\n\nI can't read `.spec/check-extras.md` in this session (no filesystem access here), so I can't expand what \"verbatim-preservation\" actually requires. Given the name, it plausibly governs some rule about preserving content byte-for-byte (verbatim) somewhere in the system \u2014 possibly related to archived rows (\u00a7V16), quoted spec text, or commit bodies \u2014 but stating that as fact would be guessing past the cited source, and I won't do that.\n\nCited siblings:\n\n- \u00a7T rows citing V3 directly: T15 (\"sweep body rg \u2192 builtin Grep / grep -v -E invert\") and T39 (\"sweep prose pipe-tables \u2192 bullet lists (table-use)\", which cites both V68 and V3).\n- No \u00a7B rows cite V3.\n- No \u00a7I rows are cited by V3 (stub row carries no inline cite list beyond the redirect).\n\nStatus: this is a permanent-body-elsewhere row (the `\u2192` form), not a `.`/`x` lifecycle status \u2014 it's not \"pending\" or \"done,\" it's structurally external per V49 (extras-hook).\n\nBottom line: \u00a7V.3's real content lives in `.spec/check-extras.md \u00a7V3`; SPEC.md only confirms the id and name and shows two tasks (T15, T39) that were done in service of whatever that rule says.\n\n## Hint\n\nThis row can't be fully explained from SPEC.md alone \u2014 the body lives in a sidecar file this session can't read. The next steps below are about getting the real text, not about the invariant's content.\n\n## Next\n\n1. run 1 \u2014 read `.spec/check-extras.md` directly (outside this tool) to get V3's actual rule text\n2. /sdd:explain T15 \u2014 see how one citing task interprets V3 in practice",
+        "n_prose_canonical": 739,
+        "reduction_canonical": 0.9581
+      },
+      {
+        "id": "V4",
+        "section": "V",
+        "body": "symbol-set \u2014 \u2192 `.spec/check-extras.md \u00a7V4`",
+        "n_glyph": 28,
+        "prose_minimal": "This is a symbolic reference indicating a mapping or pointer to a specific location in a document. It refers to the file `.spec/check-extras.md`, specifically to the section labeled \"\u00a7V4\" (Section V4) within that file.",
+        "n_prose_minimal": 78,
+        "reduction_minimal": 0.641,
+        "prose_canonical": "## \u00a7V.4 \u2014 symbol-set\n\n```\nV4: symbol-set \u2014 \u2192 `.spec/check-extras.md \u00a7V4`\n```\n\nIn plain English: this row's full enforcement text lives outside SPEC.md, in the repo-local file `.spec/check-extras.md`, under the heading `\u00a7V4`. The SPEC.md row itself is just a stub pointing there \u2014 the actual rule content (the definition of which symbols are permitted where) is not present in the text I have access to.\n\nCited invariants:\n- none \u2014 \u00a7V.4 cites nothing itself; it *is* an invariant row, and its body is externalized.\n\nCited by \u2014 tasks referencing \u00a7V.4:\n- \u00a7T.31 \u2014 sweep human-facing surfaces: spell out `\u2192`, `\u2265`, `\u2264`, `&`, `~` (also cites V67, B19)\n- \u00a7T.32 \u2014 script: naked-symbol audit on human-facing surfaces (also cites V67, V40, B19)\n- \u00a7T.34 \u2014 sweep steno + design bodies per symbol-set + human-clarity (also cites V67, B21)\n\nCited by \u2014 bugs referencing \u00a7V.4: none directly (B19, B21 cite V67 as the operative invariant, not V4).\n\nRelated interfaces: none cited.\n\nStatus: not applicable \u2014 \u00a7V rows carry no `.`/`x` status; they're standing invariants, not tasks. This one is currently enforced (per closed \u00a7T.31/32/34) but its literal rule text isn't visible without reading `.spec/check-extras.md \u00a7V4`.\n\nBottom line: \u00a7V.4 governs which symbols are banned from human-facing prose (evidently things like `\u2192`, `\u2265`, `\u2264`, `&`, `~` per the tasks that enforce it), but the actual rule body is stored outside SPEC.md and wasn't available to expand here.\n\n## Hint\n\nThe stub-body pattern (`\u2192 .spec/check-extras.md \u00a7V4`) means true expansion requires reading that sidecar file, which wasn't provided in this session \u2014 item 2 is the way to get the literal rule; item 1 shows the enforcement history instead.\n\n## Next\n\n1. /sdd:explain \u00a7T.32 \u2014 read the mechanical audit that enforces this invariant in prose\n2. /sdd:check \u2014 surface current drift against the naked-symbol rule directly from source",
+        "n_prose_canonical": 749,
+        "reduction_canonical": 0.9626
+      },
+      {
+        "id": "V10",
+        "section": "V",
+        "body": "sole-source-of-truth \u2014 SPEC.md @ repo root is sole live spec; no docs/ tree, no sidecars; SPEC.archive.md sibling carries immutable archived rows only.",
+        "n_glyph": 71,
+        "prose_minimal": "The SPEC.md file located at the root of the repository is the single, authoritative, and current specification document \u2014 it is the sole source of truth. There is no docs/ directory in use, and no additional sidecar files exist alongside it. A separate file, SPEC.archive.md, sits next to SPEC.md at the same level (as a sibling file) and its purpose is to hold rows that have been archived; these archived rows are immutable, meaning they cannot be changed once placed there.",
+        "n_prose_minimal": 154,
+        "reduction_minimal": 0.539,
+        "prose_canonical": "Checking `.spec/spec-renumber-map.json` per protocol \u2014 treating as absent in this context, so `\u00a7V.10` resolves directly against SPEC.md as `V10`.\n\n## \u00a7V.10 \u2014 sole-source-of-truth\n\n> V10: sole-source-of-truth \u2014 SPEC.md @ repo root is sole live spec; no docs/ tree, no sidecars; SPEC.archive.md sibling carries immutable archived rows only.\n\nIn plain English: SPEC.md, sitting at the root of the repository, is the one and only living specification document. There is no `docs/` folder holding parallel spec content, and no other sidecar files split off pieces of the spec. The one exception is `SPEC.archive.md`, which lives next to SPEC.md and holds rows that have been retired \u2014 but that archive file is immutable: once a row lands there, it's frozen and never edited again.\n\nCited siblings found by scanning \u00a7T and \u00a7B for `V10`:\n\n- No \u00a7T rows cite V10 directly.\n- No \u00a7B rows cite V10 directly.\n\nThis invariant works alongside a related one already in the spec:\n\n- \u00a7V.11 (shape-semantics-split) \u2014 draws the line between SPEC-FORMAT.md (which owns row shape and section catalog) and \u00a7V rows (which own semantics and enforcement), so neither file duplicates the other's job.\n- \u00a7V.15 (renumber-chain-walk) \u2014 explains how a historical id resolves through the renumber map to either a live row or the `archive` sentinel, which is what sends a row into SPEC.archive.md in the first place.\n- \u00a7V.16 (archive-semantics) \u2014 describes exactly what happens to a row once it's archived: verbatim migration, per-section markers, permanently cite-resolvable but never edited again.\n\nStatus: enforced, standing invariant (no status column \u2014 invariants don't carry `.`/`x`, they simply hold).\n\nBottom line: SPEC.md is the single authoritative spec file; nothing else \u2014 not a docs tree, not scattered sidecars \u2014 competes with it, and the only satellite file (SPEC.archive.md) is read-only history, not a second source of truth.\n\n## Hint\n\nV10 has no direct \u00a7T/\u00a7B citers in this SPEC.md, so there's no open task or bug thread to jump into from here \u2014 the natural moves are lateral (read the sibling invariants that flesh out the archive mechanism) or a general drift check.\n\n## Next\n\n1. /sdd:explain \u00a7V.15 \u2014 read how the renumber-chain-walk decides what gets archived\n2. /sdd:explain \u00a7V.16 \u2014 read the archive-semantics invariant in full\n3. /sdd:check \u2014 audit whether SPEC.md is currently the sole live spec in practice",
+        "n_prose_canonical": 879,
+        "reduction_canonical": 0.9192
+      },
+      {
+        "id": "V11",
+        "section": "V",
+        "body": "shape-semantics-split \u2014 SPEC-FORMAT.md binds row shape + section catalog + citation grammar; \u00a7V rows bind semantics + enforcement; neither restates the other.",
+        "n_glyph": 66,
+        "prose_minimal": "The project separates the specification into two distinct documents (or document parts) that work together without duplicating each other's content. \n\nThe file named SPEC-FORMAT.md is responsible for defining the structural aspects of the specification: it establishes the shape or layout that rows must follow, it defines the catalog of sections that make up the specification, and it sets out the grammar rules for how citations should be written.\n\nSeparately, the rows found in section V (\u00a7V) are responsible for defining the semantics \u2014 that is, the meaning \u2014 associated with each row, as well as how that meaning is enforced.\n\nImportantly, these two parts do not duplicate one another: SPEC-FORMAT.md does not restate the semantic or enforcement information that lives in the \u00a7V rows, and the \u00a7V rows do not restate the structural, section-catalog, or citation-grammar rules that live in SPEC-FORMAT.md. Each document or section owns its own distinct kind of information, and the two are kept separate rather than repeating each other's content.",
+        "n_prose_minimal": 318,
+        "reduction_minimal": 0.7925,
+        "prose_canonical": "Reading SPEC.md \u2014 resolving `\u00a7V.11`.\n\nNo renumber map noted as active, so resolving directly against current SPEC.md: `\u00a7V.11` \u2192 row `V11: shape-semantics-split`.\n\n## \u00a7V.11 \u2014 shape-semantics-split\n\n> V11: shape-semantics-split \u2014 SPEC-FORMAT.md binds row shape + section catalog + citation grammar; \u00a7V rows bind semantics + enforcement; neither restates the other.\n\nIn plain English: this invariant draws a firm line between two documents that could easily blur together. SPEC-FORMAT.md is responsible for the *mechanics* of the spec \u2014 what a row looks like, which sections exist, and how citations are written and parsed. The \u00a7V rows themselves (like this one) are responsible for the *meaning* \u2014 what must be true, and what enforces it. The rule forbids either document from duplicating the other's job: SPEC-FORMAT.md should never explain why a rule exists, and a \u00a7V row should never redefine row syntax. If you find yourself writing shape rules inside a \u00a7V row, or semantic justification inside SPEC-FORMAT.md, that's a violation of this invariant.\n\nCited siblings:\n\n- No \u00a7T rows currently cite `V11` directly \u2014 no open or closed tasks reference it.\n- No \u00a7B rows reference `V11` \u2014 no bug has been logged against this split breaking down.\n- No \u00a7I interfaces name it (SPEC-FORMAT.md is mentioned as a format contract loaded by several skills, but not tied to this row via citation).\n\nThis invariant is currently unenforced by any script mode or task \u2014 it functions as a standing structural rule with no dedicated mechanical audit.\n\nStatus: enforced by convention (no `.`/`x` status \u2014 \u00a7V rows are standing invariants, not tasks).\n\nBottom line: keep SPEC-FORMAT.md and SPEC.md's \u00a7V rows non-overlapping \u2014 one governs shape, the other governs meaning, and neither should restate the other's content.\n\n## Hint\n\nV11 has no citers and no dedicated audit \u2014 if you're investigating drift here, the next steps are either reading the actual SPEC-FORMAT.md contract it pairs with, or checking whether this split is holding up in practice.\n\n## Next\n\n1. /sdd:check \u2014 audit whether SPEC-FORMAT.md and \u00a7V rows currently violate this split\n2. /sdd:explain \u00a7G \u2014 read the top-level goal this structural rule serves",
+        "n_prose_canonical": 792,
+        "reduction_canonical": 0.9167
+      },
+      {
+        "id": "V12",
+        "section": "V",
+        "body": "monotonic-numbering \u2014 V/T/B ids strictly increasing in section order; gaps OK, reuse banned; sole renumber path = /sdd:reorganize (map append + cite sweep, same commit).",
+        "n_glyph": 74,
+        "prose_minimal": "Identifiers for verses (V), terms (T), and blocks (B) must be assigned numbers that strictly increase according to the order of the sections in which they appear. It is acceptable for there to be gaps in the numbering sequence, but a number that has already been used must never be reused for something else. The only permitted way to renumber these identifiers is through the /sdd:reorganize process, which involves appending to the mapping and sweeping through all citations to update them, with both of these changes made together in the same commit.",
+        "n_prose_minimal": 162,
+        "reduction_minimal": 0.5432,
+        "prose_canonical": "Resolving `\u00a7V.12` against SPEC.md.\n\n## \u00a7V.12 \u2014 monotonic-numbering\n\n> V12: monotonic-numbering \u2014 V/T/B ids strictly increasing in section order; gaps OK, reuse banned; sole renumber path = /sdd:reorganize (map append + cite sweep, same commit).\n\nIn plain English: the numeric ids in the \u00a7V, \u00a7T, and \u00a7B sections must always go up as you read down the section \u2014 never repeat, never go backwards. Skipping numbers is fine (that just means something was closed or retired), but reusing a number that was ever assigned is forbidden. The only way ids are ever allowed to be renumbered is through the `/sdd:reorganize` skill, and when that happens, the renumbering and the sweep of every citation that pointed at the old number must land in the same commit \u2014 never split across two commits.\n\nCited siblings:\n\n- No `\u00a7T` rows cite `\u00a7V.12` directly.\n- No `\u00a7B` rows reference `\u00a7V.12` directly.\n- Related mechanism: `\u00a7V.15` (renumber-chain-walk) governs how a historical id, once it's been superseded by a reorganize pass, gets resolved forward \u2014 it's the runtime-lookup counterpart to the write-time guarantee `\u00a7V.12` makes.\n- Related mechanism: `\u00a7V.13` (cite-resolution) requires that a renumber sweep update every citer in the same commit \u2014 this is the enforcement mechanism `\u00a7V.12` depends on to keep citations valid across a renumber.\n\nStatus: enforced (`\u00a7V` rows carry no status column \u2014 invariants are permanently live, not task-tracked).\n\nBottom line: id numbers in \u00a7V/\u00a7T/\u00a7B are a monotonic, append-only sequence; the only legal way to change one is a same-commit reorganize pass that also fixes every citation pointing at it.\n\n## Hint\n\n`\u00a7V.12` is an invariant row, not a task \u2014 there's nothing to \"start.\" The natural next moves are either checking the plugin still honors it (drift check) or reading the two mechanisms it leans on (`\u00a7V.13`, `\u00a7V.15`) for full context.\n\n## Next\n\n1. /sdd:check \u2014 audit whether monotonic-numbering currently holds across \u00a7V/\u00a7T/\u00a7B\n2. /sdd:explain \u00a7V.15 \u2014 read the renumber-chain-walk mechanism this invariant depends on\n3. /sdd:explain \u00a7V.13 \u2014 read the cite-resolution mechanism this invariant depends on",
+        "n_prose_canonical": 796,
+        "reduction_canonical": 0.907
+      },
+      {
+        "id": "V13",
+        "section": "V",
+        "body": "cite-resolution \u2014 every cite ! resolve: `cites` tokens \u2192 live/archived V/T/B row or live \u00a7I kind, `fix` tokens \u2192 \u00a7V row, free-text `\u00a7<S>.<n>` \u2192 \u00a7<S> row; renumber sweeps citers same commit.",
+        "n_glyph": 92,
+        "prose_minimal": "Here is the plain-English expansion of this citation-resolution rule:\n\nEvery citation must be resolved\u2014no exceptions. Specifically:\n\n- Any token written as `cites` must be resolved to point to either a live or archived row in Section V, Section T, or Section B, or alternatively to a live kind (type/category) listed in Section I.\n- Any token written as `fix` must be resolved to point to a row in Section V.\n- Any free-text reference formatted like `\u00a7<S>.<n>` (that is, a section symbol followed by a section identifier, a period, and a number) must be resolved to point to the corresponding row in that section (Section S).\n- Whenever renumbering occurs, the sweep that performs the renumbering must also update (sweep along) all citers\u2014that is, everything that cites the renumbered item\u2014within that same commit, so nothing is left referencing outdated numbers.",
+        "n_prose_minimal": 284,
+        "reduction_minimal": 0.6761,
+        "prose_canonical": "## \u00a7V.13 \u2014 cite-resolution\n\n> V13: cite-resolution \u2014 every cite ! resolve: `cites` tokens \u2192 live/archived V/T/B row or live \u00a7I kind, `fix` tokens \u2192 \u00a7V row, free-text `\u00a7<S>.<n>` \u2192 \u00a7<S> row; renumber sweeps citers same commit.\n\nIn plain English: this invariant guarantees that every citation anywhere in the spec system points to something real and findable. There are three kinds of citation, each with its own resolution rule:\n\n1. **`cites` tokens** (the kind used in \u00a7T rows, e.g. `V1,I.api`) must resolve to either a live row, an archived row, or a live \u00a7I interface kind. They are never allowed to dangle.\n2. **`fix` tokens** (used in \u00a7B bug rows) must resolve specifically to a \u00a7V invariant row \u2014 a bug's fix always points back to the rule it violated.\n3. **Free-text citations** written in prose as `\u00a7<Section>.<n>` (like `\u00a7V.13` itself) must resolve to the matching row in that section.\n\nThe invariant also commits to upkeep: whenever a row gets renumbered, every place that cites the old number is swept and updated in the same commit as the renumber. Nothing is left pointing at a stale id.\n\nCited siblings:\n- No \u00a7T tasks currently cite `V13` directly.\n- No \u00a7B bugs currently cite `V13` as a fix.\n\nThis invariant is a structural, self-referential rule about the citation system as a whole rather than a feature invariant tied to specific tasks \u2014 it's what makes commands like `/sdd:explain` and `/sdd:check` trustworthy when they follow a cite.\n\nStatus: enforced (no `.spec/check-extras.md` stub \u2014 full body lives in SPEC.md).\n\nBottom line: every citation in the spec \u2014 whether a `cites` token, a `fix` token, or free prose \u2014 must resolve to a real row, and renumbering never breaks that promise.\n\n## Hint\n\n\u00a7V.13 is a cross-cutting integrity rule with no direct \u00a7T/\u00a7B citers, so there's nothing further to drill into here \u2014 the natural next step is either auditing the live spec for compliance or reading a related invariant like \u00a7V.12 (monotonic-numbering) or \u00a7V.15 (renumber-chain-walk), which govern the renumbering process this rule depends on.\n\n## Next\n\n1. /sdd:check \u2014 audit whether all live citations currently resolve\n2. /sdd:explain \u00a7V.15 \u2014 read the renumber-chain-walk invariant this rule depends on",
+        "n_prose_canonical": 820,
+        "reduction_canonical": 0.8878
+      },
+      {
+        "id": "V14",
+        "section": "V",
+        "body": "pinned-cite-ban \u2014 PUBLISHED bodies ! placeholder (`\u00a7V.<n>`) or named-invariant form, never pinned \u00a7-digit cites; SPEC.md-narrative + REPO-LOCAL pinned cites ! resolve live.",
+        "n_glyph": 93,
+        "prose_minimal": "This rule concerns a ban on pinned citations, and it applies to published bodies of work.\n\nIn published documents, when referring to a section, one must never use a pinned citation with a specific section digit or number (such as citing \"\u00a73\" or \"\u00a74.2\" directly). Instead, published material must use either a placeholder in the form \"\u00a7V.<n>\" (where n represents a variable number to be filled in) or refer to the section by its named invariant (that is, using a descriptive name that stays constant rather than a number that might change).\n\nHowever, this restriction does not apply to narrative content within SPEC.md or to citations that are local to the repository. In those contexts, pinned citations are permitted, but they must be resolved live \u2014 meaning the actual section numbers or references should be checked and confirmed against the current, up-to-date state of the document at the time they are used, rather than being fixed or hardcoded permanently.",
+        "n_prose_minimal": 280,
+        "reduction_minimal": 0.6679,
+        "prose_canonical": "Let me load the spec context and expand \u00a7V.14.\n\n## \u00a7V.14 \u2014 pinned-cite-ban\n\n> V14: pinned-cite-ban \u2014 PUBLISHED bodies ! placeholder (`\u00a7V.<n>`) or named-invariant form, never pinned \u00a7-digit cites; SPEC.md-narrative + REPO-LOCAL pinned cites ! resolve live.\n\nIn plain English: this rule splits citation style by audience. Anything written for a PUBLISHED, external-facing surface \u2014 things like README text, commit messages, issue/PR bodies, or other GitHub-facing prose \u2014 must never contain a hard-pinned citation like `\u00a7V14` or `\u00a7V.14`. Instead it must either use a generic placeholder form (literally `\u00a7V.<n>`) or refer to the invariant by its name (e.g. \"pinned-cite-ban\"). The reasoning: published bodies live forever in public history, but \u00a7V row numbers can shift when `/sdd:reorganize` renumbers things. A pinned digit citation in a GitHub issue from six months ago would silently go stale and point at the wrong invariant.\n\nThe second half of the rule covers the opposite case: citations that live inside SPEC.md itself (its own narrative text) or in REPO-LOCAL files (things like `.spec/check-extras.md`) \u2014 these *are* allowed to use pinned digit citations, but with an obligation: they must always resolve to a currently-live row. If a renumber happens, these pinned cites are expected to get swept and corrected in the same commit (this is what \u00a7V.13 and \u00a7V.15's renumber-chain-walk backstop).\n\nSo the split is: **PUBLISHED = never pin, REPO-LOCAL/SPEC.md-narrative = pin but keep live**.\n\nCited siblings \u2014 no \u00a7T row currently cites \u00a7V14 directly, and no \u00a7I row is cited by it. It does have a related bug:\n\n- \u00a7B14 (2026-06-13) \u2014 a concrete violation of the *spirit* of this area: a Next-block wrongly named `/sdd:backprop` as something the user could directly dispatch, when the real route was `/sdd:spec`. That bug is tagged against \u00a7V24 (response-shape), not \u00a7V14 directly, but it's illustrative of the same family of problem \u2014 stale/wrong references leaking into user-facing output.\n\nNo \u00a7V-row cites \u00a7V14 as a fold target, and no open \u00a7T task is currently assigned to enforce it further \u2014 it appears to be a settled, already-integrated invariant (most of the plugin's PUBLISHED-facing sweeps, like T31/T34/T37, were about symbols and idiom rather than this specific pinned-cite concern).\n\nBottom line: never write a raw `\u00a7V14`-style digit citation into a README, commit message, issue, or PR \u2014 use `\u00a7V.<n>` as a placeholder or the invariant's name instead; pinned digit citations are reserved for SPEC.md's own narrative and REPO-LOCAL files, and even there they must be kept live across renumbers.\n\n## Next\n\n1. /sdd:explain \u00a7V13 \u2014 read the cite-resolution invariant this rule depends on\n2. /sdd:check \u2014 audit whether any PUBLISHED-facing surface currently violates pinned-cite-ban",
+        "n_prose_canonical": 1056,
+        "reduction_canonical": 0.9119
+      },
+      {
+        "id": "V15",
+        "section": "V",
+        "body": "renumber-chain-walk \u2014 `.spec/spec-renumber-map.json` append-only; historical id resolves newest-first to live id or `archive` sentinel (\u2192 SPEC.archive.md \u00a7V.retired block, never live row).",
+        "n_glyph": 81,
+        "prose_minimal": "The system uses a mechanism called renumber-chain-walk, which relies on a file located at `.spec/spec-renumber-map.json`. This file is append-only, meaning new entries can be added to it but existing entries are never modified or removed.\n\nWhen resolving a historical identifier, the system searches through the map starting from the newest entries and working backward toward the oldest (newest-first order). This resolution process determines whether the historical id maps to a currently live identifier, or whether it maps to the special \"archive\" sentinel value.\n\nIf the historical id resolves to the archive sentinel, that means it points to the retired block found in section V of the file SPEC.archive.md (referred to as SPEC.archive.md \u00a7V.retired block). Importantly, in this archive case, the identifier must never be resolved to or associated with a live row\u2014it only ever points to the archived, retired record.",
+        "n_prose_minimal": 277,
+        "reduction_minimal": 0.7076,
+        "prose_canonical": "## \u00a7V.15 \u2014 renumber-chain-walk\n\n> V15: renumber-chain-walk \u2014 `.spec/spec-renumber-map.json` append-only; historical id resolves newest-first to live id or `archive` sentinel (\u2192 SPEC.archive.md \u00a7V.retired block, never live row).\n\nIn plain English: when a \u00a7V invariant gets renumbered, the plugin never edits old citations in place.\nInstead it appends a mapping entry (old id \u2192 new id) to `.spec/spec-renumber-map.json`, and that file only ever grows \u2014 nothing in it is ever rewritten or deleted.\n\nIf someone (or some skill) later looks up an old, superseded id, the resolution process walks the map starting from the newest entries first, hopping forward through however many renumbers happened, until it lands on either:\n\n- a currently-live \u00a7V row in SPEC.md, or\n- the special `archive` sentinel, which means the id was retired rather than renamed \u2014 in that case the real content lives in SPEC.archive.md under a `\u00a7V.retired` block, not as a live row anywhere.\n\nThis is what lets other skills (like `explain` itself, per its own LOAD step) safely resolve a citation like `\u00a7V.7` even if that invariant was renumbered three times since the citation was written \u2014 without ever having to rewrite historical citations across the whole repo.\n\nCited siblings: none \u2014 no live \u00a7T row or \u00a7B row currently cites \u00a7V.15 directly.\n\nRelated invariants worth knowing alongside this one:\n- \u00a7V.12 (monotonic-numbering) \u2014 establishes that renumbering only happens through `/sdd:reorganize`, which is the sole writer of this map.\n- \u00a7V.16 (archive-semantics) \u2014 defines what \"archived\" actually means for a retired row (verbatim migration to SPEC.archive.md, never edited afterward).\n- \u00a7V.13 (cite-resolution) \u2014 the general citation-resolution contract that \u00a7V.15 specializes for the renumber case.\n\nStatus: this is a permanent, always-enforced invariant \u2014 it has no `.`/`x` status; it's structural.\n\nBottom line: \u00a7V.15 guarantees old \u00a7V citations never go stale silently \u2014 they either resolve forward to a live row or land cleanly on the archive.\n\n## Hint\n\nThis invariant is infrastructural \u2014 no open task or bug currently references it, so there's nothing to build. The natural next moves are either reading a related invariant or checking the map's actual state.\n\n## Next\n\n1. /sdd:explain \u00a7V.16 \u2014 read the archive-semantics invariant this one hands off to\n2. /sdd:check \u2014 verify the renumber map + SPEC.md are currently consistent",
+        "n_prose_canonical": 844,
+        "reduction_canonical": 0.904
+      },
+      {
+        "id": "T1",
+        "section": "T",
+        "body": "x|add CI: script --self-test + audit dirty-verdict gate on push/PR|V40,V62",
+        "n_glyph": 40,
+        "prose_minimal": "Here is the expanded version in plain English prose:\n\nAdd a continuous integration process that includes a script capable of running its own self-test. This CI process should also include an audit step that checks for a \"dirty\" verdict\u2014meaning it should act as a gate that blocks or flags the build when the audit determines that something is not clean or valid. This gate should be triggered on both push events and pull request events. This work is associated with version 40 and version 62.",
+        "n_prose_minimal": 139,
+        "reduction_minimal": 0.7122,
+        "prose_canonical": "## \u00a7T.1 \u2014 add CI: script --self-test + audit dirty-verdict gate on push/PR\n\n```\nT1|x|add CI: script --self-test + audit dirty-verdict gate on push/PR|V40,V62\n```\n\nIn plain English: this task set up continuous integration that runs `check-mechanical.py --self-test` and its `audit` mode on every push and pull request, and fails the build if the audit produces a \"dirty\" verdict (i.e. drift detected between spec and code). The status is closed, so this CI gate has already been implemented.\n\nCited invariants:\n\n- \u00a7V40 \u2014 mechanical-realization (full text lives in `.spec/check-extras.md \u00a7V40`, not inline in SPEC.md). This row governs when a check ought to be done by a deterministic script rather than by LLM judgment; the CI gate is the enforcement mechanism that makes that script's verdicts binding.\n- \u00a7V62 \u2014 tooling-preference (full text lives in `.spec/check-extras.md \u00a7V62`). This row governs preferred tool choices (e.g. stdlib-only Python, builtin Grep over `rg`, correct use of `allowed-tools` vs `disallowed-tools`). The CI setup itself is expected to follow this preference (plain python3, no extra dependencies).\n\nNo \u00a7B bugs reference \u00a7T.1 directly, though several bugs (B10, B15, B16) touch \u00a7V62's broader tooling concerns and were fixed in later tasks.\n\nStatus: complete (`x`).\n\nBottom line: the `check-mechanical.py` script's self-test and audit modes are now wired into CI, so any dirty drift verdict blocks push/PR merges automatically \u2014 enforcing \u00a7V40 and \u00a7V62 without manual review.\n\n## Hint\n\nThis row is closed and historical. `run 1` moves to the next open work item; `run 2` checks whether this CI gate still functions as spec'd.\n\n## Next\n\n1. /sdd:explain --next \u2014 read the next pending \u00a7T row\n2. /sdd:check \u2014 audit whether this closed task's CI gate still holds",
+        "n_prose_canonical": 670,
+        "reduction_canonical": 0.9403
+      },
+      {
+        "id": "T2",
+        "section": "T",
+        "body": "x|bump plugin version 1.1.0 + sync manifest description|-",
+        "n_glyph": 30,
+        "prose_minimal": "The \"bump plugin version\" task updates the plugin version to 1.1.0 and synchronizes the manifest description to match.",
+        "n_prose_minimal": 45,
+        "reduction_minimal": 0.3333,
+        "prose_canonical": "## \u00a7T.2 \u2014 bump plugin version 1.1.0 + sync manifest description\n\n```\nT2|x|bump plugin version 1.1.0 + sync manifest description|-\n```\n\nIn plain English: this task bumped the plugin's version number to 1.1.0 and updated the manifest's description text so it matched the new state of the plugin. The `cites` field is `-`, meaning this task doesn't reference any invariant or interface row \u2014 it's a housekeeping change, not something enforcing or testing a specific behavioral contract.\n\nCited invariants: none. This row carries no `cites` tokens, so there is no invariant or interface this task is bound to uphold.\n\nCited siblings: no \u00a7B bug row references \u00a7T.2, and no \u00a7I interface row is named here either.\n\nStatus: complete (`x`).\n\nBottom line: the plugin's version metadata and description were synced as a standalone maintenance task, with no invariant or bug tied to it.\n\n## Hint\n\nClosed rows are historical. `run 1` moves to live/pending work; `run 2` checks whether this version-bump task has drifted (e.g., manifest description now stale again, as later happened in B20/B23-adjacent history).\n\n## Next\n\n1. /sdd:explain --next \u2014 read the next pending \u00a7T row\n2. /sdd:check \u2014 audit whether version/manifest metadata still matches current plugin state",
+        "n_prose_canonical": 439,
+        "reduction_canonical": 0.9317
+      },
+      {
+        "id": "T3",
+        "section": "T",
+        "body": "x|create REPO-LOCAL release skill (gh release flow)|V24,V41,V42",
+        "n_glyph": 37,
+        "prose_minimal": "The task is to create a repository-local release skill that implements a GitHub CLI (gh) release workflow. This work item is tagged with reference codes V24, V41, and V42.",
+        "n_prose_minimal": 61,
+        "reduction_minimal": 0.3934,
+        "prose_canonical": "## \u00a7T.3 \u2014 create REPO-LOCAL release skill (gh release flow)\n\n```\nT3|x|create REPO-LOCAL release skill (gh release flow)|V24,V41,V42\n```\n\nIn plain English: this task created a new skill, local to the consuming repo rather than shipped with the plugin, that handles the `gh release` workflow \u2014 presumably drafting or cutting GitHub releases via the `gh` CLI. It's marked complete.\n\nCited invariants:\n\n- \u00a7V24: response-shape \u2014 this row cites the response-shape invariant, meaning the release skill's output had to conform to whatever fixed shape \u00a7V24 mandates for skill responses. The full rule text is stored in `.spec/check-extras.md \u00a7V24`, not inline in SPEC.md, so I can't expand its content here \u2014 only note that this task is bound by it.\n- \u00a7V41: parametric-recipe \u2014 same situation: the actual rule lives in `.spec/check-extras.md \u00a7V41`. It's referenced, so the release skill's recipe presumably needed to be parametric (accept arguments/config rather than hardcoding behavior) \u2014 but the enforceable text is off-spec.\n- \u00a7V42: scope-set \u2014 again deferred to `.spec/check-extras.md \u00a7V42`. Likely governs what the skill's scope declaration must look like, but the binding text isn't in SPEC.md itself.\n\nNote: all three cited invariants are stub rows in this SPEC.md \u2014 their bodies were moved out to `.spec/check-extras.md` per the check-extras hook (\u00a7V49-adjacent pattern). I can quote the citation but not the enforceable rule text without reading that file, which is out of scope for this read-only expansion.\n\nNo \u00a7B bugs reference this task.\n\nStatus: complete (`x`).\n\nBottom line: a REPO-LOCAL `gh release` skill was built and closed against three stub invariants (\u00a7V24, \u00a7V41, \u00a7V42) whose actual rule bodies live outside SPEC.md in `.spec/check-extras.md`.\n\n## Hint\n\nThis is a closed row citing stub invariants \u2014 the interesting content is off-spec. `run 1` reads the next open work item; `run 2` re-verifies this closed task still holds against current code.\n\n## Next\n\n1. /sdd:explain --next \u2014 read the next pending \u00a7T row\n2. /sdd:check \u2014 audit whether T3's implementation still matches V24/V41/V42",
+        "n_prose_canonical": 776,
+        "reduction_canonical": 0.9523
+      },
+      {
+        "id": "T4",
+        "section": "T",
+        "body": "x|add script emit-overview mode; check LOAD uses it|V64,V40",
+        "n_glyph": 32,
+        "prose_minimal": "The user is instructing that when the \"x\" flag or context is combined with adding a script called \"emit-overview\" mode, the system should check that the LOAD process uses it. This applies to versions V64 and V40.\n\nIn plain terms: add a script (or mode) named \"emit-overview,\" and then verify that the LOAD operation actually makes use of this newly added script/mode. This check should be performed for both version 64 (V64) and version 40 (V40).",
+        "n_prose_minimal": 144,
+        "reduction_minimal": 0.7778,
+        "prose_canonical": "## \u00a7T.4 \u2014 add script emit-overview mode; check LOAD uses it\n\n```\nT4|x|add script emit-overview mode; check LOAD uses it|V64,V40\n```\n\nIn plain English: this task added a new mode called `emit-overview` to the `check-mechanical.py` script, and updated the `/sdd:check` skill's load step to call that mode instead of reading the whole file itself.\n\nCited invariants:\n\n- \u00a7V64 (single-load) \u2014 the actual current text for this row is stored in `.spec/check-extras.md`, not inline in SPEC.md. Based on how it's named and used elsewhere (it prevents SPEC.md from being loaded more than once per run), this task exists specifically to stop double-loading: before this fix, `/sdd:check`'s LOAD step did a whole-file `Read` of SPEC.md, and then `emit-v-slices` loaded it again separately (this exact redundancy is bug \u00a7B6 below).\n- \u00a7V40 (mechanical-realization) \u2014 also stored externally in check-extras.md. This invariant class is about pushing deterministic, mechanizable work out of the LLM and into the script, which is exactly what adding a new script mode does.\n\nRelated bug:\n\n- \u00a7B6 \u2014 \"check LOAD whole-file Read + emit-v-slices double-loaded SPEC.md\" \u2014 this is the concrete problem \u00a7T.4 was built to fix. The task and the bug cite the same invariant (\u00a7V64), confirming they're linked: the bug describes the symptom, the task describes the shipped remedy.\n\nStatus: complete (`x`).\n\nBottom line: `/sdd:check` no longer redundantly reads SPEC.md twice \u2014 it now gets its overview data from the script's `emit-overview` mode in one pass, satisfying \u00a7V64's single-load rule.\n\n## Hint\n\nThis is a closed row referencing two stub invariants (\u00a7V64, \u00a7V40) whose full text lives outside SPEC.md. `run 1` reads the actual invariant bodies if you want the enforcement details; `run 2` checks whether this fix has held up in the current code.\n\n## Next\n\n1. /sdd:explain \u00a7V64 \u2014 read the single-load invariant in full (currently a check-extras.md stub)\n2. /sdd:check \u2014 audit whether the check skill's LOAD step still avoids double-reading SPEC.md",
+        "n_prose_canonical": 758,
+        "reduction_canonical": 0.9578
+      },
+      {
+        "id": "T5",
+        "section": "T",
+        "body": "x|add PROGRESS checklist to multi-phase recipes|V24,V62",
+        "n_glyph": 33,
+        "prose_minimal": "The change adds a PROGRESS checklist to multi-phase recipes. This corresponds to version V24 and version V62.",
+        "n_prose_minimal": 45,
+        "reduction_minimal": 0.2667,
+        "prose_canonical": "Reading the cited row now.\n\n## \u00a7T.5 \u2014 add PROGRESS checklist to multi-phase recipes\n\n> T5|x|add PROGRESS checklist to multi-phase recipes|V24,V62\n\nIn plain English: this task added a PROGRESS checklist to skills whose recipes run across multiple phases.\nThe idea is that a long-running recipe (several steps, possibly interrupted or resumed) should track and display which phase it is in, rather than leaving the operator to infer progress from scrollback.\n\nCited invariants:\n\n- \u00a7V.24 \u2014 response-shape.\n  This invariant governs the overall shape of a skill's output (the exact content is stored in `.spec/check-extras.md \u00a7V24`, not inline in SPEC.md, so I can't quote its enforcement text directly \u2014 only that it exists and constrains this task).\n- \u00a7V.62 \u2014 tooling-preference.\n  Same situation: full body lives in `.spec/check-extras.md \u00a7V62`.\n  Given its use elsewhere in the tasks/bugs list (Bash grants, script preferences, `rg` vs builtin grep), this invariant appears to govern which tools/mechanisms a skill should prefer when implementing something like a progress checklist.\n\nNo \u00a7T rows cite \u00a7T.5 (tasks don't cite other tasks in this format), and no \u00a7B bugs reference it \u2014 this task has no recorded bug history.\n\nStatus: complete (`x`).\n\nBottom line: multi-phase recipes now surface a PROGRESS checklist, shaped per \u00a7V.24's response-shape rules and implemented per \u00a7V.62's tooling preferences.\n\n## Hint\n\nClosed rows are historical \u2014 nothing to build here. `run 1` moves you to live work; `run 2` gives you the actual enforcement text for the two cited invariants, which I could only gesture at above since their bodies live in a file I wasn't given.\n\n## Next\n\n1. /sdd:explain --next \u2014 read the next pending \u00a7T row\n2. /sdd:check \u2014 audit whether this closed task still holds against current skill files",
+        "n_prose_canonical": 657,
+        "reduction_canonical": 0.9498
+      },
+      {
+        "id": "T6",
+        "section": "T",
+        "body": "x|script batch-advisory row; check consumes it|V46,V40",
+        "n_glyph": 28,
+        "prose_minimal": "I need to clarify what this input represents before expanding it, as the notation appears to be shorthand for a data processing scenario.\n\nIn plain English, this describes a situation involving a script that operates on a batch-advisory row of data. There is a check or validation process that consumes this row\u2014meaning it reads or processes the data produced by that row. The reference to V46 and V40 likely indicates specific version identifiers, variable names, or field labels associated with this row, suggesting that the row contains or is tagged with these two version markers. The overall meaning is that a script processes a row of data related to a batch advisory, and subsequently, a separate check step takes that row as input and uses it, with the two values V46 and V40 being relevant identifiers or data points tied to that row within this process.",
+        "n_prose_minimal": 244,
+        "reduction_minimal": 0.8852,
+        "prose_canonical": "## \u00a7T.6 \u2014 script batch-advisory row; check consumes it\n\n> T6|x|script batch-advisory row; check consumes it|V46,V40\n\nIn plain English: this task added a \"batch advisory\" row to the output of `check-mechanical.py`, and updated the `/sdd:check` skill so that it reads and uses that row instead of computing the same information itself. The point is to move a piece of classification logic out of the LLM-driven check skill and into the deterministic script, so the result is repeatable and cheap to rerun.\n\nCited invariants:\n\n- \u00a7V.46 \u2014 `batch`: this row is one of several \u00a7V rows whose full body has been moved out of SPEC.md into `.spec/check-extras.md` (the row here only shows the id and name, with the enforcement text stored elsewhere). Based on the surrounding pattern of similar stub rows, it governs how the script groups or batches related findings so `/sdd:check` can consume them as a single unit rather than re-deriving groupings itself.\n- \u00a7V.40 \u2014 `mechanical-realization`: also stored in `.spec/check-extras.md`. Judging from how this invariant is cited elsewhere (e.g. flagging \"fresh regex paraphrase of an existing mechanical rule\"), it's the general rule that any deterministic, mechanizable check must live in the script rather than be reimplemented ad hoc by an LLM skill. This task is a direct instance of that rule: batch-advisory logic became mechanical, so it moved into the script.\n\nNote: both cited invariants' full bodies live in `.spec/check-extras.md`, not in SPEC.md itself \u2014 this explain pass only had the stub rows available, so the description above is inferred from naming and cross-references, not from the enforcement text directly.\n\nTasks citing related work: \u00a7T.9 (`write-memo --from-audit; check drops hand-merge`) and \u00a7T.27 (`emit-token-estimate mode`) follow the same pattern \u2014 pushing more script modes so `/sdd:check` relies on script output instead of recomputing things itself.\n\nBugs referencing this invariant cluster: \u00a7B.7 \u2014 \"batch narrow-scope override used LLM eyeballed file count as proxy\" \u2014 describes exactly the kind of problem this task fixes: before this row existed, the check skill was estimating scope by eyeballing, instead of using a deterministic script-emitted value.\n\nStatus: complete (`x`).\n\nBottom line: the script now emits a batch-advisory row and `/sdd:check` reads it directly, replacing what used to be an LLM-estimated proxy (per \u00a7B.7) with a deterministic value.\n\n## Hint\n\nThis is a closed, historical row \u2014 the work already shipped. `run 1` looks at the live invariant text this task enforces; `run 2` moves to the next unclosed task in the spec.\n\n## Next\n\n1. /sdd:explain \u00a7V.46 \u2014 read the full batch invariant body (in `.spec/check-extras.md`)\n2. /sdd:explain --next \u2014 move to the next pending \u00a7T row",
+        "n_prose_canonical": 982,
+        "reduction_canonical": 0.9715
+      },
+      {
+        "id": "T7",
+        "section": "T",
+        "body": "x|init skills/monitor auto-fire deviation capture|V65,V61",
+        "n_glyph": 31,
+        "prose_minimal": "The system uses skills that initialize monitoring functions designed to automatically detect and capture deviations. This capability is tracked under version identifiers V65 and V61, indicating that this deviation-monitoring feature has been implemented and updated across these two software or system versions.",
+        "n_prose_minimal": 89,
+        "reduction_minimal": 0.6517,
+        "prose_canonical": "## \u00a7T.7 \u2014 init skills/monitor auto-fire deviation capture\n\n```\nT7|x|init skills/monitor auto-fire deviation capture|V65,V61\n```\n\nIn plain English: this task created the `monitor` skill, which fires automatically (not via slash-command) to capture deviations \u2014 cases where the running agent drifts from what the spec or a recipe expects. It's the plugin's background watcher rather than something an operator invokes directly.\n\nCited invariants:\n\n- \u00a7V65 \u2014 `monitor-protocol`: this invariant is a stub row; its full body lives in `.spec/check-extras.md \u00a7V65`, not inline in SPEC.md. I can't expand its content from SPEC.md alone \u2014 it governs how the monitor skill behaves (gh-write scoping, dispatch paths, etc.), but the enforceable text is in the extras file.\n- \u00a7V61 \u2014 `sub-skill-flags`: also a stub row, body in `.spec/check-extras.md \u00a7V61`. This invariant governs how frontmatter flags (like `disable-model-invocation`) mark a skill as auto-fire vs slash-dispatched, which is exactly the mechanism \u00a7T.7 depends on to make monitor fire without user invocation.\n\nRelated bugs (fixed later, referencing this area):\n\n- \u00a7B1 \u2014 the original inverted-flag bug: `disable-model-invocation` was set backwards and hid auto-fire skills from the Skill tool entirely. This predates and motivated the correct flag usage that \u00a7T.7 relies on.\n- \u00a7B11 \u2014 monitor's gh-write path once hit `anthropics/claude-code` instead of the plugin's own `.repository` \u2014 a scoping bug in the monitor skill itself, fixed under \u00a7T.13.\n- \u00a7B14 \u2014 a Next-block wrongly told the operator to dispatch `/sdd:backprop` (a monitor-adjacent auto-fire skill) as if it were slash-invocable; real route was `/sdd:spec`. This is the same auto-fire-vs-dispatchable confusion class that \u00a7V61 exists to prevent.\n\nStatus: complete (`x`).\n\nBottom line: \u00a7T.7 established the monitor skill as a passive, auto-firing watcher governed by \u00a7V65 and \u00a7V61 \u2014 both of whose actual rules live outside SPEC.md in `.spec/check-extras.md`.\n\n## Hint\n\nThe invariants cited here (\u00a7V65, \u00a7V61) are stub rows \u2014 their real content is in `.spec/check-extras.md`, which this skill doesn't read. If you want the actual rule text, you'd need to open that file directly or run `/sdd:check` to see it evaluated against current code.\n\n## Next\n\n1. /sdd:explain --next \u2014 read the next pending \u00a7T row\n2. /sdd:check \u2014 audit whether monitor's current implementation still satisfies \u00a7V65/\u00a7V61",
+        "n_prose_canonical": 922,
+        "reduction_canonical": 0.9664
+      },
+      {
+        "id": "T8",
+        "section": "T",
+        "body": "x|script: admit MATCH clean verdict on \u00a7I rows|V43,V40",
+        "n_glyph": 32,
+        "prose_minimal": "The script must acknowledge and accept a clean, unqualified verdict on the rows falling under Section I, specifically referencing versions or entries V43 and V40, which have been matched or confirmed to align correctly.",
+        "n_prose_minimal": 73,
+        "reduction_minimal": 0.5616,
+        "prose_canonical": "## \u00a7T.8 \u2014 add MATCH clean verdict for \u00a7I rows\n\n```\nT8|x|script: admit MATCH clean verdict on \u00a7I rows|V43,V40\n```\n\nIn plain English: this task added support in `check-mechanical.py` for a \"MATCH\" verdict \u2014 a clean, positive result \u2014 when auditing `\u00a7I` interface rows. Before this, the drift-checking script apparently had no way to say \"this interface row is fine, no drift\" in its controlled vocabulary; it could only flag problems. This task closed that gap by admitting `MATCH` as a legitimate verdict the script can emit for `\u00a7I` rows specifically.\n\nCited invariants:\n- \u00a7V43 (`drift-verdict-vocab`) \u2014 this row is one of the \"stub\" invariants whose full body lives in `.spec/check-extras.md \u00a7V43` rather than inline in SPEC.md. I don't have direct access to that file's contents here, but the row's name tells us it governs the controlled vocabulary of verdicts the mechanical-check script is allowed to emit (things like MATCH, HOLD, drift-flag terms, etc.). \u00a7T.8's job was to extend that vocabulary to include a clean/positive result for \u00a7I rows.\n- \u00a7V40 (`mechanical-realization`) \u2014 also a stub row, deferring to `.spec/check-extras.md \u00a7V40`. By name, this invariant governs when a manually-performed check or paraphrase should instead be captured as a deterministic script rule. \u00a7T.8 cites it because adding the `MATCH` verdict is itself an instance of mechanizing a judgment (interface row is unchanged/consistent) into the script rather than leaving it as an implicit or hand-eyeballed check.\n\nRelated bug fixed by this task:\n- \u00a7B8 \u2014 dated 2026-06-11, this bug describes exactly the gap this task closed: \"MATCH clean \u00a7I verdict missing from memo vocab \u2192 silent HOLD remap.\" In other words, before this fix, when an \u00a7I row was actually fine, the script had no clean verdict to emit for it, so it silently fell back to (or got remapped to) a `HOLD` verdict instead \u2014 which is misleading, since HOLD presumably means something more like \"needs attention\" or \"pending,\" not \"confirmed clean.\" \u00a7T.8 is the fix for \u00a7B8.\n\nStatus: complete (`x`).\n\nBottom line: the mechanical drift-check script can now correctly report a clean/matching result for \u00a7I interface rows instead of silently mismapping them to a HOLD state, closing the gap identified in \u00a7B8.\n\n## Hint\n\nThis is a closed row referencing two stub invariants (\u00a7V43, \u00a7V40) whose full definitions live outside SPEC.md in `.spec/check-extras.md`. If you want the precise verdict vocabulary or the mechanization criteria rather than just the row's intent, you'll need to read that file directly \u2014 I can't expand those stubs from SPEC.md alone.\n\n## Next\n\n1. /sdd:explain --next \u2014 read the next pending \u00a7T row\n2. /sdd:check \u2014 audit whether this closed task still holds against current code",
+        "n_prose_canonical": 997,
+        "reduction_canonical": 0.9679
+      },
+      {
+        "id": "T9",
+        "section": "T",
+        "body": "x|script write-memo --from-audit; check drops hand-merge|V44,V40",
+        "n_glyph": 33,
+        "prose_minimal": "The instruction is to run the script command \"write-memo\" using the \"--from-audit\" option. After running this, a check should be performed to identify any drops, and these drops should then be hand-merged (merged manually rather than automatically). This process relates to versions V44 and V40.",
+        "n_prose_minimal": 88,
+        "reduction_minimal": 0.625,
+        "prose_canonical": "## \u00a7T.9 \u2014 script write-memo --from-audit; check drops hand-merge\n\n> T9|x|script write-memo --from-audit; check drops hand-merge|V44,V40\n\nIn plain English: this task added a `--from-audit` mode to the mechanical-check script's `write-memo` command, so it can build the drift memo directly from an audit run instead of requiring the `/sdd:check` skill to manually merge audit output into the memo by hand.\n\nCited invariants:\n\n- \u00a7V44: memo \u2014 this row is stubbed out to `.spec/check-extras.md \u00a7V44` in this copy of SPEC.md, so its full enforcement text isn't visible here. Based on the task and bug history, it governs the shape/behavior of the drift memo the script writes.\n- \u00a7V40: mechanical-realization \u2014 also stubbed to `.spec/check-extras.md \u00a7V40`. This invariant class covers pushing deterministic logic out of the LLM and into the script (`check-mechanical.py`), which matches this task's goal of eliminating hand-merge work from the check skill.\n\nCited siblings:\n\n- No other \u00a7T rows cite V44 or V40 pointing at this same behavior narrowly, but sibling tasks in the same script-hardening arc include \u00a7T4 (emit-overview mode), \u00a7T6 (batch-advisory row), \u00a7T8 (MATCH clean verdict), \u00a7T10 (write-memo dirty \u2192 exit 1), and \u00a7T27 (emit-token-estimate) \u2014 all extending `check-mechanical.py` under the same V40 mechanization thread.\n- No \u00a7B rows reference V44 or V40 directly against this task, though \u00a7B8 (missing MATCH verdict) and \u00a7B9 (dirty write-memo unusable as CI gate) are adjacent bugs in the same memo/script subsystem, fixed by the neighboring \u00a7T8 and \u00a7T10.\n\nStatus: complete (`x`).\n\nBottom line: `/sdd:check` no longer hand-merges audit results into the memo \u2014 `write-memo --from-audit` in the script does that mechanically, per \u00a7V44 and \u00a7V40.\n\n## Hint\n\nThis is a closed row in a script-hardening cluster (\u00a7T4, \u00a7T6, \u00a7T8, \u00a7T10, \u00a7T27 nearby) \u2014 reading a neighbor may be more useful than auditing this one in isolation.\n\n## Next\n\n1. /sdd:explain \u00a7T10 \u2014 see the paired dirty-exit-code task that followed this one\n2. /sdd:check \u2014 verify write-memo --from-audit still matches current script behavior",
+        "n_prose_canonical": 814,
+        "reduction_canonical": 0.9595
+      },
+      {
+        "id": "T10",
+        "section": "T",
+        "body": "x|script write-memo dirty \u2192 exit 1; self-test exit codes|V44",
+        "n_glyph": 32,
+        "prose_minimal": "Attempting to write a memo marked as \"dirty\" using the x-script utility resulted in a failure. When this write-memo dirty operation was attempted, the process exited with exit code 1, indicating an error. This was observed during self-testing of exit codes, under version or build V44.",
+        "n_prose_minimal": 93,
+        "reduction_minimal": 0.6559,
+        "prose_canonical": "## \u00a7T.10 \u2014 script write-memo dirty \u2192 exit 1; self-test exit codes\n\n> T10|x|script write-memo --from-audit; check drops hand-merge|V44,V40\n\nIn plain English: this task changed the `check-mechanical.py` script so that when the write-memo mode produces a \"dirty\" result (meaning the memo it would write disagrees with, or is out of sync with, the current audit state), the script exits with status code 1 instead of exiting cleanly. It also extended the script's self-test suite to verify that these exit codes are correct \u2014 that clean runs exit 0 and dirty runs exit 1. This makes the script usable as a real gate (for example in CI) rather than something that always reports success regardless of outcome.\n\nCited invariants:\n\n- \u00a7V44 \u2014 memo: governs the shape and lifecycle of the write-memo mode, including how a memo is produced from an audit and what \"dirty\" means for that memo. (Full row body lives in `.spec/check-extras.md \u00a7V44`, not inline in SPEC.md.)\n- \u00a7V40 \u2014 mechanical-realization: governs when a check or rule should be pushed down into the deterministic script rather than re-implemented as an ad hoc LLM judgment call each time. (Full row body lives in `.spec/check-extras.md \u00a7V40`.)\n\nNote: both cited invariants are stub rows in SPEC.md pointing to `.spec/check-extras.md` for their full text \u2014 I don't have access to that file's contents here, so I can't expand their bodies further. Only the summary label of each is available.\n\nRelated bugs:\n\n- \u00a7B9 \u2014 the bug this task fixes directly: \"dirty write-memo demanded full table then exit 0 \u2192 unusable as CI gate.\" Before this task, a dirty memo state still exited 0 (success), which made it impossible to use write-memo as an automated gate \u2014 a CI system checking the exit code would never see a failure even when the memo was dirty.\n\nStatus: complete (`x`).\n\nBottom line: write-memo now signals failure (exit 1) on a dirty result and self-tests confirm both exit-code paths, closing the gap described in \u00a7B9 and fulfilling the CI-gate requirement referenced by \u00a7T1.\n\n## Hint\n\nThis is a closed row referencing a stub invariant (\u00a7V44) whose full text lives in `.spec/check-extras.md`. If you want the complete semantics rather than just the label, you'd need that file read \u2014 not available in this session.\n\n## Next\n\n1. /sdd:explain --next \u2014 read the next pending \u00a7T row\n2. /sdd:check \u2014 audit whether this closed task still holds against current code",
+        "n_prose_canonical": 838,
+        "reduction_canonical": 0.9618
+      },
+      {
+        "id": "B1",
+        "section": "B",
+        "body": "2026-06-11|sub-skill flags inverted: disable-model-invocation hid auto-fire from Skill tool|V61",
+        "n_glyph": 48,
+        "prose_minimal": "On June 11, 2026, a sub-skill flag issue was identified: the disable-model-invocation flag was inverted, which caused it to hide the auto-fire (automatic invocation) functionality from the Skill tool instead of controlling it as intended. This issue was recorded under version V61.",
+        "n_prose_minimal": 99,
+        "reduction_minimal": 0.5152,
+        "prose_canonical": "Reading SPEC.md for \u00a7B1.\n\n## \u00a7B1 \u2014 sub-skill flags inverted\n\n> B1|2026-06-11|sub-skill flags inverted: disable-model-invocation hid auto-fire from Skill tool|V61\n\nIn plain English: on 2026-06-11, a bug was found where the frontmatter flags controlling sub-skill invocation were set backwards. The `disable-model-invocation` flag \u2014 which is meant to stop a skill from being *slash-dispatched by the operator* \u2014 was instead applied in a way that also hid the skill from the Skill tool's automatic invocation path. The practical effect: a sub-skill that was supposed to auto-fire (be triggered automatically by the main agent's Skill tool, not by a human typing a slash command) never fired, because the flag meant to block one invocation path blocked both.\n\nCited invariants:\n\n- \u00a7V61 \u2014 this row is a stub; its full body lives in `.spec/check-extras.md \u00a7V61`, not inline in SPEC.md. I can't expand its content further without reading that file. In general terms, its cluster (V60\u2013V69) governs skills-only plugin shape, and V61 specifically concerns sub-skill invocation flags \u2014 the distinction between operator-facing slash dispatch and auto-fire dispatch via the Skill tool.\n\nNo \u00a7T row cites B1 directly (no `fix` column entries reference it in the tasks table), so there's no explicit linked-fix task visible in \u00a7T \u2014 the fix is presumably folded into how V61's rules are now written/enforced, rather than tracked as a standalone follow-up task.\n\nBottom line: B1 documents the root cause of a flag-inversion bug where blocking operator slash-invocation accidentally also blocked legitimate auto-fire, and V61 now encodes the corrected rule for how these flags should be set.\n\n## Hint\n\n\u00a7V61's real content is in `.spec/check-extras.md`, not SPEC.md \u2014 if you want the enforceable rule this bug produced (not just the bug's cause), that file is the next stop.\n\n## Next\n\n1. /sdd:explain \u00a7V61 \u2014 attempt expansion of the invariant this bug fixed (note: body lives outside SPEC.md)\n2. /sdd:check \u2014 audit whether current sub-skill flag usage still satisfies V61",
+        "n_prose_canonical": 749,
+        "reduction_canonical": 0.9359
+      },
+      {
+        "id": "B2",
+        "section": "B",
+        "body": "2026-06-11|marketplace root source ./ lstrip-emptied \u2192 plugin dropped from PUBLISHED scope|V63",
+        "n_glyph": 50,
+        "prose_minimal": "On June 11, 2026, an issue was recorded concerning the marketplace root source, which was set to \"./\". This path was stripped of leading characters and became empty as a result of the lstrip operation. Because of this, the plugin was dropped from the PUBLISHED scope. This entry is recorded under version V63.",
+        "n_prose_minimal": 104,
+        "reduction_minimal": 0.5192,
+        "prose_canonical": "Reading SPEC.md for \u00a7B.2.\n\n## \u00a7B.2 \u2014 marketplace root-source lstrip bug\n\n> B2|2026-06-11|marketplace root source ./ lstrip-emptied \u2192 plugin dropped from PUBLISHED scope|V63\n\nIn plain English: on June 11 2026, a bug was found where the marketplace's root source path, written as `./`, was being processed by some string-stripping logic (an lstrip operation) that stripped it down to an empty string. Because the source path ended up empty instead of `./`, the plugin was silently excluded from the PUBLISHED scope \u2014 meaning consumers relying on the published/marketplace listing wouldn't see or receive this plugin at all. The fix is tied to \u00a7V63.\n\nCited invariants:\n- \u00a7V63 \u2014 `.spec/check-extras.md \u00a7V63` (this row's body has been moved out of SPEC.md into the REPO-LOCAL extras file; the live SPEC.md only carries a pointer stub here). To read the actual invariant text (named `plugin-shape`), you'd need to open `.spec/check-extras.md` \u2014 that's outside what I can read in this pass since I only have SPEC.md content.\n\nTasks referencing this bug:\n- None of the listed \u00a7T rows cite B2 directly in their `cites` column.\n\nStatus: this is a \u00a7B (bug) row, not a \u00a7T row, so it doesn't carry an open/closed `.`/`x` status \u2014 it's a permanent historical record of a cause tied to a fix invariant (\u00a7V63).\n\nBottom line: \u00a7B.2 documents that the plugin's marketplace source declaration (`./`) was mishandled by lstrip-style stripping, causing total exclusion from PUBLISHED scope; the corrective constraint now lives under \u00a7V63 (plugin-shape).\n\n## Hint\n\n\u00a7V63's body isn't in the copy of SPEC.md I have \u2014 it's a stub pointing to `.spec/check-extras.md \u00a7V63`. If you want the actual invariant text explained, that file needs to be read first.\n\n## Next\n\n1. /sdd:explain \u00a7V63 \u2014 attempt to expand the plugin-shape invariant (may require `.spec/check-extras.md` access)\n2. /sdd:check \u2014 audit whether the marketplace root-source handling still matches the \u00a7V63 fix",
+        "n_prose_canonical": 748,
+        "reduction_canonical": 0.9332
+      },
+      {
+        "id": "B3",
+        "section": "B",
+        "body": "2026-06-11|\u00a7I id derivation hardcoded dev-repo slash-bullets \u2192 zero ids in consumers|V41",
+        "n_glyph": 47,
+        "prose_minimal": "On June 11, 2026, an issue was identified in section I concerning ID derivation: the process for generating identifiers was hardcoded to a development repository's slash-bullet formatting convention. As a result, this hardcoding caused zero IDs to be produced or recognized in the downstream consumer systems. This finding is recorded under version V41.",
+        "n_prose_minimal": 114,
+        "reduction_minimal": 0.5877,
+        "prose_canonical": "Reading the row \u00a7B.3 from SPEC.md.\n\n## \u00a7B.3 \u2014 \u00a7I id derivation hardcoded dev-repo slash-bullets\n\n> B3|2026-06-11|\u00a7I id derivation hardcoded dev-repo slash-bullets \u2192 zero ids in consumers|V41\n\nIn plain English: on 2026-06-11, a bug was found where the logic for deriving `\u00a7I` (interface) row ids assumed a specific dev-repo formatting convention \u2014 bulleted lines starting with `/` (like the slash-command bullets you see in this very SPEC.md's \u00a7I section). That assumption worked fine in the plugin's own dev repo, but when the same logic ran in a consumer repo (a repo that installs and uses this plugin, rather than the plugin's home repo), the interface bullets weren't shaped the same way. The id-derivation step found nothing to match, so it produced zero `\u00a7I` ids \u2014 silently breaking interface citation in every consuming repo.\n\nThe fix is tied to invariant \u00a7V41.\n\nCited invariants:\n\n- \u00a7V41: parametric-recipe. This row's content lives in `.spec/check-extras.md \u00a7V41` rather than inline in SPEC.md, so I can't quote its exact enforcement text here \u2014 but the name suggests the fix generalized the id-derivation logic into a parametric recipe (one that adapts to different repo shapes) rather than a hardcoded one. Read `.spec/check-extras.md \u00a7V41` directly, or run `/sdd:explain \u00a7V41` if that file is loadable, for the full invariant text.\n\nNo \u00a7T row in the current table cites B3 directly (the fixing work may predate this table's visible rows, or was folded into earlier task history not shown here).\n\nStatus: this is a **bug row**, not a task \u2014 bug rows are historical-cause records, not open work items. There's no `.`/`x` status field on \u00a7B rows the way \u00a7T has; presence in the table means it's logged and (per its `fix` column) resolved via \u00a7V41.\n\nBottom line: B3 documents why \u00a7I-id derivation had to become repo-shape-agnostic (\u00a7V41) instead of assuming the dev repo's own bullet-list formatting.\n\n## Hint\n\n\u00a7V41's actual enforcement text isn't inline in SPEC.md \u2014 it's stubbed to `.spec/check-extras.md`. If that file isn't loaded in this session, item 2 below will need it fetched first.\n\n## Next\n\n1. /sdd:check \u2014 verify \u00a7V41's parametric id-derivation still holds against current script behavior\n2. /sdd:explain \u00a7V41 \u2014 read the full invariant text (requires `.spec/check-extras.md` access)",
+        "n_prose_canonical": 852,
+        "reduction_canonical": 0.9448
+      },
+      {
+        "id": "B4",
+        "section": "B",
+        "body": "2026-06-11|backprop promised one commit; spec APPLY + build committed separately|V27",
+        "n_glyph": 37,
+        "prose_minimal": "On June 11, 2026, a backpropagation update was promised as a single commit. However, in practice, the changes were split and committed separately: one commit applied the specification (spec APPLY) and another handled the build. This was recorded under version V27.",
+        "n_prose_minimal": 81,
+        "reduction_minimal": 0.5432,
+        "prose_canonical": "Reading SPEC.md for \u00a7B.4...\n\n## \u00a7B.4 \u2014 backprop commit-count drift\n\n> B4|2026-06-11|backprop promised one commit; spec APPLY + build committed separately|V27\n\nIn plain English: this bug was logged on 2026-06-11. The root cause was that the backprop workflow promised to produce a single atomic commit, but in practice the spec APPLY step and the build step ended up creating two separate commits instead of one. The fix is tracked against V27.\n\nCited invariants:\n- \u00a7V27 \u2014 `backprop-protocol` (full row body lives in `.spec/check-extras.md \u00a7V27`, not inline in SPEC.md). I can't expand its content from here \u2014 SPEC.md only stores a pointer for this row. Read `.spec/check-extras.md` directly, or run `/sdd:explain \u00a7V27` if that sidecar file is loadable in this context, to see the actual protocol text this bug violated.\n\nTasks referencing this bug: none found \u2014 no \u00a7T row cites `B4` or `V27` directly in the visible SPEC.md table. (\u00a7T4 cites `V27`? \u2014 checked: no \u00a7T row cites V27. This bug may have been fixed by a task that didn't carry an explicit cite back to it, or the fix was folded into general backprop-skill behavior rather than a tracked task.)\n\nBottom line: backprop was supposed to feel atomic to the operator \u2014 one gate, one commit \u2014 but under the hood spec-apply and build ran as two writes; \u00a7V27 (detail hidden in the sidecar) presumably pins the corrected protocol.\n\n## Hint\n\nThe invariant text itself is off-page (`.spec/check-extras.md \u00a7V27`), so full understanding needs that file. If it's not accessible in this session, item 1 gets you the closest live substitute.\n\n## Next\n\n1. /sdd:explain \u00a7V27 \u2014 attempt to expand the backprop-protocol invariant (may require `.spec/check-extras.md` access)\n2. /sdd:check \u2014 audit whether backprop's current behavior still matches the intended one-commit protocol",
+        "n_prose_canonical": 674,
+        "reduction_canonical": 0.9451
+      },
+      {
+        "id": "B5",
+        "section": "B",
+        "body": "2026-06-11|compression claim drift: measured ~30% vs legacy quarter/4x in README|-",
+        "n_glyph": 41,
+        "prose_minimal": "On June 11, 2026, an issue was identified regarding a claim about compression performance. Specifically, the compression rate that was actually measured came out to approximately 30%. However, this did not match the figure described in the README file, which stated a legacy comparison of \"quarter\" or a 4x reduction. In other words, there was a discrepancy\u2014a drift\u2014between the compression ratio that testing or measurement actually produced (around 30%) and the compression ratio that had been previously documented or claimed in the README (a 4x reduction, equivalent to reducing something to one-quarter of its original size). This mismatch between the documented claim and the measured result needs to be reconciled or addressed.",
+        "n_prose_minimal": 219,
+        "reduction_minimal": 0.8128,
+        "prose_canonical": "Checking \u00a7B.5 against the section catalog.\n\n`\u00a7B.n` resolves to a row in the \u00a7B BUGS table. Let me pull it directly.\n\n## \u00a7B.5 \u2014 compression claim drift\n\n> B5|2026-06-11|compression claim drift: measured ~30% vs legacy quarter/4x in README|-\n\nIn plain English: on 2026-06-11, someone noticed that the README was making a compression claim \u2014 probably about how much smaller telegraph-encoded SPEC.md is compared to prose \u2014 that didn't match reality. The README was still citing an old \"quarter the size\" or \"4x\" compression figure, but actual measurement showed the real number was closer to 30% savings, a much more modest number. This is a documentation-accuracy bug: the marketing/description language drifted ahead of (or behind) what the system actually achieves.\n\nCited invariants: none. The `fix` column is `-`, meaning this bug has no invariant tying its resolution to enforceable spec language \u2014 it was a one-off fact-correction, not a new rule.\n\nCited siblings \u2014 tasks referencing this bug:\n\n- No live \u00a7T row cites `B5` directly. However, \u00a7T.33 (`fix manifest description token-cut figure 30% \u2192 40%`, cites `B20`) is a *later*, similar bug about the same class of claim \u2014 the token-cut percentage drifting again after apparently being fixed once. This suggests B5's fix corrected the figure to ~30%, and B20 later caught it drifting further to the accurate ~40%.\n\nNo \u00a7V row constrains this bug (fix = `-`), and no \u00a7I interface is implicated \u2014 this was pure prose/doc accuracy, not a structural contract.\n\nStatus: this is a closed historical bug entry (\u00a7B rows are logs of past incidents, not live-tracked items with `.`/`x` status \u2014 they exist permanently as record). There's no \"open/closed\" state to report beyond its presence in the table.\n\nBottom line: \u00a7B.5 records that the README once overstated telegraph's compression ratio (quarter-size/4x) when real measurement showed roughly 30% \u2014 a factual correction with no new invariant, later echoed by a similar drift caught in \u00a7B.20/\u00a7T.33.\n\n## Hint\n\n\u00a7B rows are immutable history, not actionable items \u2014 there's no task to build here. The two relevant next steps are: read the newer, related bug (\u00a7B.20) that caught the same class of drift again, or check whether the manifest description is currently accurate against measured reality.\n\n## Next\n\n1. /sdd:explain \u00a7B.20 \u2014 read the follow-up bug where the token-cut figure drifted again\n2. /sdd:check \u2014 verify the manifest/README compression claims currently match measured reality",
+        "n_prose_canonical": 861,
+        "reduction_canonical": 0.9524
+      },
+      {
+        "id": "B6",
+        "section": "B",
+        "body": "2026-06-11|check LOAD whole-file Read + emit-v-slices double-loaded SPEC.md|V64",
+        "n_glyph": 46,
+        "prose_minimal": "On June 11, 2026, a check was performed regarding the LOAD process, specifically examining whether a whole-file Read combined with emit-v-slices resulted in the SPEC.md file being double-loaded. This is recorded under version V64.",
+        "n_prose_minimal": 83,
+        "reduction_minimal": 0.4458,
+        "prose_canonical": "Reading `.spec/spec-renumber-map.json` \u2014 not available in this session, and the argument `\u00a7B.6` isn't a renumber-eligible token (V-renumbering only), so no chain-walk needed. Resolving directly against SPEC.md.\n\n## \u00a7B.6 \u2014 check LOAD whole-file Read + emit-v-slices double-loaded SPEC.md\n\n> B6|2026-06-11|check LOAD whole-file Read + emit-v-slices double-loaded SPEC.md|V64\n\nIn plain English: on 2026-06-11, a bug was found where the `/sdd:check` skill's loading step read the entire SPEC.md file directly using a whole-file read, and *also* called the script's `emit-v-slices` mode, which independently loads and slices SPEC.md. The result was SPEC.md getting loaded into context twice for a single check run \u2014 wasted tokens and redundant work for no benefit.\n\nCited invariants:\n\n- **\u00a7V64 \u2014 single-load.** (Body lives in `.spec/check-extras.md \u00a7V64`, not inline in SPEC.md, so I can't quote its enforcement text here \u2014 only the pointer row is visible in SPEC.md itself.) The row's placement here tells me this invariant governs how many times a given source file (like SPEC.md) may be loaded within one skill run; the bug is a direct violation of that rule.\n\nCited fixes:\n\n- No `\u00a7T` row cites `B6` back, so I can't find the specific task that resolved this bug from this document alone. It's possible the fix was folded into a broader check-skill rewrite, or the fix task was archived/renumbered without an explicit citation trail. If you need the exact remediation, `/sdd:check` skill body itself would show the corrected LOAD sequence.\n\nBottom line: \u00a7B.6 documents a double-read inefficiency in `/sdd:check`'s LOAD step, now governed by \u00a7V64's single-load rule to prevent recurrence.\n\n## Hint\n\n\u00a7V64's full enforcement text isn't visible in SPEC.md \u2014 it's stubbed to `.spec/check-extras.md`. If you want the actual rule text, item 1 reads it directly; if you just want to confirm the bug stays fixed in code, item 2 is faster.\n\n## Next\n\n1. read .spec/check-extras.md \u00a7V64 \u2014 see the full single-load enforcement text\n2. /sdd:check --full \u2014 verify the check skill's LOAD step still avoids double-loading SPEC.md",
+        "n_prose_canonical": 806,
+        "reduction_canonical": 0.9429
+      },
+      {
+        "id": "B7",
+        "section": "B",
+        "body": "2026-06-11|batch narrow-scope override used LLM eyeballed file count as proxy|V46",
+        "n_glyph": 40,
+        "prose_minimal": "On June 11, 2026, a batch process was run that applied a narrow-scope override. During this process, the number of files was estimated by having a large language model visually inspect and judge the count, and this eyeballed estimate was used as a stand-in (proxy) rather than an exact or verified count. This approach was recorded under version 46 (V46).",
+        "n_prose_minimal": 112,
+        "reduction_minimal": 0.6429,
+        "prose_canonical": "## \u00a7B.7 \u2014 batch narrow-scope override used LLM eyeballed file count as proxy\n\n> B7|2026-06-11|batch narrow-scope override used LLM eyeballed file count as proxy|V46\n\nIn plain English: this bug was logged on 2026-06-11. The cause was that the \"narrow-scope override\" feature of the batch mechanism relied on the LLM visually estimating how many files were involved, rather than using a reliable, mechanical count. That eyeballed number was then used as a stand-in (a proxy) for a real measurement, which made the override unreliable. The fix that closed this bug is tied to invariant \u00a7V.46.\n\nCited invariants:\n- \u00a7V.46 \u2014 named `batch`. Its full body is not stored directly in SPEC.md; it has been offloaded to `.spec/check-extras.md \u00a7V46` (SPEC.md only carries a pointer row for it). To read its actual content, that check-extras file would need to be consulted \u2014 SPEC.md itself doesn't hold the text of this invariant.\n\nTasks referencing \u00a7B.7: none found among current \u00a7T rows (no task row cites B7 directly).\n\nBottom line: \u00a7B.7 documents a fixed defect where batch-mode's narrow-scope override trusted an eyeballed file count instead of a mechanical one; the corrective behavior is now governed by \u00a7V.46, whose detail lives outside SPEC.md in the check-extras sidecar.\n\n## Hint\n\n\u00a7V.46's body is stubbed out to `.spec/check-extras.md` \u2014 I don't have filesystem access in this session, so I can't pull its actual text. If you want the full invariant definition, that file would need to be read directly.\n\n## Next\n\n1. /sdd:explain \u00a7V.46 \u2014 attempt to expand the batch invariant (will note the check-extras redirect)\n2. /sdd:check \u2014 audit whether this bug's fix still holds against current code",
+        "n_prose_canonical": 616,
+        "reduction_canonical": 0.9351
+      },
+      {
+        "id": "B8",
+        "section": "B",
+        "body": "2026-06-11|MATCH clean \u00a7I verdict missing from memo vocab \u2192 silent HOLD remap|V43",
+        "n_glyph": 44,
+        "prose_minimal": "On June 11, 2026, an issue was identified during the matching process: a clean match under section I (\"\u00a7I\") was found, but the verdict was missing from the memo vocabulary. As a result, this case was silently remapped to a HOLD status without any explicit notification or flagged warning. This issue is tracked under reference V43.",
+        "n_prose_minimal": 106,
+        "reduction_minimal": 0.5849,
+        "prose_canonical": "Verifying the citation against SPEC.md \u2014 \u00a7B.8 resolves to a real row.\n\n## \u00a7B.8 \u2014 MATCH clean verdict missing from memo vocab\n\n> B8|2026-06-11|MATCH clean \u00a7I verdict missing from memo vocab \u2192 silent HOLD remap|V43\n\nIn plain English: the drift-checking script has a vocabulary of verdicts it can assign when comparing spec interfaces (\u00a7I rows) against actual code. One valid verdict \u2014 \"MATCH,\" meaning the interface is clean and matches the spec exactly \u2014 was missing from that vocabulary. Because the memo-writing logic didn't recognize \"MATCH\" as a legitimate outcome, it silently downgraded those cases to \"HOLD\" instead. That's a bug: a clean, verified interface was being mislabeled as merely \"on hold\" (implying uncertainty or pending review) rather than confirmed correct.\n\nCited invariant:\n\n- \u00a7V43 \u2014 `drift-verdict-vocab` (full text lives in `.spec/check-extras.md \u00a7V43`, not inline in SPEC.md). This row defines the fixed set of verdict labels the mechanization script is allowed to emit. B8 exists because the vocabulary was incomplete at the time \u2014 it didn't yet include a clean-match verdict for \u00a7I rows \u2014 and the fix (T8) closed that gap by teaching the script to emit MATCH when a \u00a7I row is genuinely clean.\n\nRelated task:\n\n- \u00a7T.8 \u2014 `x` (closed) \u2014 \"script: admit MATCH clean verdict on \u00a7I rows|V43,V40\" \u2014 this is the fix that resolved B8. It taught `check-mechanical.py` to emit the MATCH verdict for clean \u00a7I rows instead of defaulting to HOLD.\n\nStatus: this is a closed bug record (\u00a7B rows are historical by nature \u2014 they document a cause that has already been fixed, not a live/pending item like \u00a7T).\n\nBottom line: B8 documents why clean \u00a7I interface checks used to get silently miscategorized as HOLD, and records that the fix now lives in the verdict vocabulary defined by \u00a7V43.\n\n## Next\n\n1. /sdd:explain \u00a7V.43 \u2014 read the full drift-verdict-vocab invariant in `.spec/check-extras.md`\n2. /sdd:explain \u00a7T.8 \u2014 read the task that fixed this bug in prose",
+        "n_prose_canonical": 762,
+        "reduction_canonical": 0.9423
+      },
+      {
+        "id": "B9",
+        "section": "B",
+        "body": "2026-06-11|dirty write-memo demanded full table then exit 0 \u2192 unusable as CI gate|V44",
+        "n_glyph": 43,
+        "prose_minimal": "On June 11, 2026, a dirty write was made to the memo file. This memo demanded a full table but exited with status 0, which made it unusable as a gate in continuous integration. This issue is tracked under version V44.",
+        "n_prose_minimal": 74,
+        "reduction_minimal": 0.4189,
+        "prose_canonical": "## \u00a7B.9 \u2014 write-memo unusable as CI gate\n\n```\nB9|2026-06-11|dirty write-memo demanded full table then exit 0 \u2192 unusable as CI gate|V44\n```\n\nIn plain English: this bug was logged on 2026-06-11. When `write-memo` was run against a dirty state (drift present), it required a fully-populated verdict table before it would proceed, but then it exited with status 0 (success) anyway. That combination made the mode useless as a CI gate, because a CI job checks the exit code to decide pass/fail \u2014 and this mode always reported success even when it had just demanded remediation, so a broken build would never actually fail CI.\n\nCited invariants:\n\n- \u00a7V44 (`memo`) \u2014 its body lives in `.spec/check-extras.md \u00a7V44`, not inline in SPEC.md, so I can't expand its full text here. It governs the memo format/behavior that `write-memo` must satisfy \u2014 presumably including correct exit-code semantics for dirty vs. clean state.\n\nTasks that fixed this bug:\n\n- \u00a7T10 \u2014 `script write-memo dirty \u2192 exit 1; self-test exit codes` (status `x`, closed). This task directly addresses B9: it changed dirty-state `write-memo` to exit 1 instead of 0, and added self-test coverage for the exit codes.\n- \u00a7T9 \u2014 `script write-memo --from-audit; check drops hand-merge` (status `x`, closed, cites V44,V40) \u2014 related surface work on the same mode, though not a direct fix-cite for B9.\n\nBottom line: B9 is closed \u2014 `write-memo` now exits 1 on dirty state (fixed under \u00a7T10), making it usable as a CI gate; the corrected exit-code behavior is covered by self-tests per the same task.\n\n## Hint\n\nB9 is a closed bug with a direct fixing task (\u00a7T10) \u2014 useful next steps are either reading that task's full record or checking the still-abstracted \u00a7V44 body it cites.\n\n## Next\n\n1. /sdd:explain \u00a7T10 \u2014 read the task that fixed this bug in prose\n2. /sdd:check \u2014 audit whether the exit-code fix still holds in the current script",
+        "n_prose_canonical": 699,
+        "reduction_canonical": 0.9385
+      },
+      {
+        "id": "B10",
+        "section": "B",
+        "body": "2026-06-11|allowed-tools pin failed: CLAUDE_PLUGIN_ROOT no-expand \u2192 broad Bash grants|V62",
+        "n_glyph": 57,
+        "prose_minimal": "On June 11, 2026, an attempt to pin the allowed-tools setting failed because the CLAUDE_PLUGIN_ROOT variable did not expand as expected, resulting in overly broad Bash permissions being granted instead of the intended restricted set. This issue was recorded under version V62.",
+        "n_prose_minimal": 103,
+        "reduction_minimal": 0.4466,
+        "prose_canonical": "Reading the citation for \u00a7B.10.\n\n## \u00a7B.10 \u2014 allowed-tools pin failed: CLAUDE_PLUGIN_ROOT no-expand \u2192 broad Bash grants\n\n```\nB10|2026-06-11|allowed-tools pin failed: CLAUDE_PLUGIN_ROOT no-expand \u2192 broad Bash grants|V62\n```\n\nIn plain English: on 2026-06-11 a bug was found where an attempt to pin the `Bash` tool grant in a skill's frontmatter to a narrow, safe command (something like `Bash(python3 ${CLAUDE_PLUGIN_ROOT}/scripts/check-mechanical.py:*)`) did not work as intended. The environment variable `CLAUDE_PLUGIN_ROOT` was not expanded when the tool grant was evaluated, so the pinned pattern never matched anything real. The practical effect was that skills fell back to much broader, less restrictive `Bash` grants than the design called for \u2014 a wider blast radius than intended for what should have been a single-script invocation.\n\nCited invariant:\n\n- \u00a7V62 (`tooling-preference`) \u2014 this row is a stub in SPEC.md; its body lives in `.spec/check-extras.md \u00a7V62`, so I can't expand its testable content here. What's visible from the citation graph is that this bug is filed as a violation of whatever tooling-preference rule V62 encodes, tying the malformed grant pattern back to a standard about how tools/scripts should be invoked in skill frontmatter.\n\nFixing task:\n\n- \u00a7T.11 \u2014 \"sweep frontmatter Bash grants: drop zero-use; pin script python3\" (status `x`, closed) cites V62 and is the row that swept skill frontmatter to fix exactly this class of problem: dropping unused Bash grants and pinning the script invocation to a plain `python3` form instead of relying on env-var expansion that doesn't happen.\n- Related: \u00a7T.12 (\"open upstream FR: env-var expansion in allowed-tools\", closed, cites V62) \u2014 filed an upstream feature request so that `${CLAUDE_PLUGIN_ROOT}`-style expansion becomes possible in the future, rather than treating the workaround as permanent.\n\nBottom line: B10 documents a broken assumption (env-var expansion in `allowed-tools` patterns) that forced a pinning workaround (T11) and an upstream ask (T12); both are closed, so the immediate risk is resolved, but the root cause (no expansion support) persists upstream until that FR lands.\n\n## Hint\n\nBoth T11 and T12 are closed \u2014 the bug is historically resolved but its root cause (no env-var expansion upstream) is tracked outside this repo. Item 1 checks whether the workaround still holds; item 2 reads the fixing task directly.\n\n## Next\n\n1. /sdd:check \u2014 verify the T11 pinning workaround hasn't drifted\n2. /sdd:explain \u00a7T.11 \u2014 read the fix in prose",
+        "n_prose_canonical": 986,
+        "reduction_canonical": 0.9422
+      }
+    ],
+    "summary": {
+      "V": {
+        "minimal": {
+          "mean": 0.5936,
+          "median": 0.6544,
+          "p25": 0.5401,
+          "p75": 0.6925,
+          "n": 10
+        },
+        "canonical": {
+          "mean": 0.9195,
+          "median": 0.9143,
+          "p25": 0.9048,
+          "p75": 0.9251,
+          "n": 10
+        }
+      },
+      "T": {
+        "minimal": {
+          "mean": 0.5863,
+          "median": 0.6383,
+          "p25": 0.4355,
+          "p75": 0.6981,
+          "n": 10
+        },
+        "canonical": {
+          "mean": 0.9559,
+          "median": 0.9587,
+          "p25": 0.9504,
+          "p75": 0.9652,
+          "n": 10
+        }
+      },
+      "B": {
+        "minimal": {
+          "mean": 0.5517,
+          "median": 0.5312,
+          "p25": 0.4637,
+          "p75": 0.587,
+          "n": 10
+        },
+        "canonical": {
+          "mean": 0.9412,
+          "median": 0.9423,
+          "p25": 0.9365,
+          "p75": 0.9443,
+          "n": 10
+        }
+      },
+      "all": {
+        "minimal": {
+          "mean": 0.5772,
+          "median": 0.5863,
+          "p25": 0.4637,
+          "p75": 0.6741,
+          "n": 30
+        },
+        "canonical": {
+          "mean": 0.9389,
+          "median": 0.9423,
+          "p25": 0.9282,
+          "p75": 0.9565,
+          "n": 30
+        }
+      }
+    }
   }
 ]

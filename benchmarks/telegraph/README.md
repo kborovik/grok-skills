@@ -186,7 +186,7 @@ Summary (per-section × decoder + grand total):
 
 ## Cross-model
 
-The same 30-row corpus was run through three models. Grand totals (all sections,
+The same 30-row corpus was run through five models. Grand totals (all sections,
 n=30 each):
 
 | model               | minimal mean | minimal median | canonical mean | canonical median | Σ glyph | Σ prose_min |
@@ -194,29 +194,32 @@ n=30 each):
 | `claude-opus-4-7`   | +0.4138      | +0.3890        | +0.9195        | +0.9185          | 2229    | 4056        |
 | `claude-opus-4-8`   | +0.4172      | +0.4094        | +0.9107        | +0.9112          | 2069    | 3672        |
 | `claude-sonnet-4-6` | +0.7303      | +0.7650        | +0.9375        | +0.9402          | 1537    | 20201       |
+| `claude-sonnet-5`   | +0.5772      | +0.5863        | +0.9389        | +0.9423          | 1464    | 4062        |
+| `grok-4.5`          | +0.2050      | +0.1953        | +0.9327        | +0.9399          | 844     | 1077        |
 
 Two things to read off this table.
 
 ### The `canonical` decoder is model-stable; the `minimal` decoder is not
 
-Canonical reduction lands in a tight band — **0.911 / 0.920 / 0.938** — across all
-three models. That's the headline robustness result: when the decoder is handed
-the **full `SPEC.md` as context** (the production `/sdd:explain` path), the
-measured expansion barely moves with the model, because the model is grounding
-its prose in the spec rather than guessing.
+Canonical reduction lands in a tight band — **0.911 / 0.920 / 0.938 / 0.939 /
+0.933** — across all five models. That's the headline robustness result: when
+the decoder is handed the **full `SPEC.md` as context** (the production
+`/sdd:explain` path), the measured expansion barely moves with the model,
+because the model is grounding its prose in the spec rather than guessing.
 
 Minimal reduction does *not* hold steady: Opus 4.7 and 4.8 agree closely (0.41
-each), but Sonnet jumps to 0.73. **That jump is a decoder artifact, not a real
-compression gain** — see below. It is exactly the
-[decoder-dependence caveat](#caveats) in the extreme.
+each), Sonnet 4.6 jumps to 0.73 (artifact — see below), Sonnet 5 lands at 0.58
+with Opus-like total prose volume, and Grok lands lower at 0.21. It is exactly
+the [decoder-dependence caveat](#caveats) in both directions.
 
-### Why Sonnet's `minimal` number is an artifact
+### Why Sonnet 4.6's `minimal` number is an artifact
 
 The `minimal` decoder gives the model a single terse row and no context. Opus
-expands it tersely and faithfully. **Sonnet balloons — and on some rows,
+expands it tersely and faithfully. **Sonnet 4.6 balloons — and on some rows,
 confabulates.** The `Σ prose_min` column is the tell: Opus expanded all 30 rows
-to ~3.7–4.1k prose tokens total; **Sonnet produced 20,201** — roughly 5× — and
-14 of the 30 rows blew past 400 prose tokens (vs a typical Opus row of ~120).
+to ~3.7–4.1k prose tokens total; **Sonnet 4.6 produced 20,201** — roughly 5× —
+and 14 of the 30 rows blew past 400 prose tokens (vs a typical Opus row of
+~120).
 
 The clearest case is **§V.2**. The row defines the github-facing writing
 register:
@@ -225,26 +228,40 @@ register:
 github-facing-register — README, issues, PRs, commit-msg bodies ! steno per steno skill; commit subjects = per-skill fixed templates, verbatim.
 ```
 
-With no context, Sonnet misread "steno" as **stenography** and emitted a
+With no context, Sonnet 4.6 misread "steno" as **stenography** and emitted a
 **15,349-character fictional README about learning shorthand skills one at a
 time** — 3753 prose tokens, reduction +0.988. The reduction looks enormous only
-because the denominator hallucinated. It measures Sonnet's verbosity, not the
-telegraph encoding.
+because the denominator hallucinated. It measures that model's verbosity, not
+the telegraph encoding.
+
+**Sonnet 5 is better-behaved on the same path.** With adaptive thinking disabled
+for decode (so output tokens measure prose, not reasoning), minimal Σ prose is
+4062 — matching Opus volume — and §V.2 expands as a short github-facing-register
+paragraph (202 tokens, reduction +0.698) with no stenography confabulation. The
+0.58 minimal mean is higher than Opus mainly because Sonnet 5's glyph token
+counts are lower (Σ glyph 1464 vs Opus ~2.1k), not because the prose ballooned.
 
 ### Takeaways
 
 - **Headline stays on Opus `minimal` (~40%)** — the honest, same-content
   baseline. Opus 4.7 → 4.8 confirms it is stable across the model bump.
 - **`canonical` is the model-robust cross-model measure** (~0.91–0.94 for every
-  model tested). When you need one number that doesn't depend on decoder
-  temperament, this is it.
-- **Do not quote Sonnet's `minimal` 0.73 as a compression figure.** It reflects a
-  context-free decoder over-expanding (and on terse rows, hallucinating), which
-  is the opposite of what the benchmark is trying to isolate. The record is kept
-  in the results JSON for transparency, flagged here.
-- **Token counts are tokenizer-specific.** `Σ glyph` for the identical 30 rows is
-  2229 / 2069 / 1537 across the three models — Opus and Sonnet tokenize the same
-  bytes differently, so absolute counts are only comparable *within* a model.
+  model tested, including `claude-sonnet-5` at 0.939 and `grok-4.5` at 0.933).
+  When you need one number that doesn't depend on decoder temperament, this is
+  it.
+- **Do not quote Sonnet 4.6's `minimal` 0.73 as a compression figure.** It
+  reflects a context-free decoder over-expanding (and on terse rows,
+  hallucinating). The record is kept in the results JSON for transparency,
+  flagged here. Prefer Sonnet 5's 0.58 if you need a current Sonnet minimal.
+- **Grok's `minimal` 0.21 is real but under-states expansion vs Opus.** Grok
+  expands the same rows more tersely (Σ prose_min 1077), so reduction falls.
+  One row (T8) even went slightly negative (−0.125): glyph tokens exceeded the
+  minimal prose tokens under Grok's tokenizer and expand style.
+- **Token counts are tokenizer-specific.** `Σ glyph` for the identical 30 rows
+  spans 2229 / 2069 / 1537 / 1464 / 844 across the five models — providers
+  tokenize the same bytes differently (and Anthropic's count path includes
+  message framing while xAI uses pure `/v1/tokenize-text`), so absolute counts
+  are only comparable *within* a model.
 
 ## Reproduce
 
@@ -253,6 +270,9 @@ telegraph encoding.
 uv run benchmarks/telegraph/telegraph-bench.py
 # or, executable directly (PEP 723 self-bootstraps Python via uv)
 ./benchmarks/telegraph/telegraph-bench.py
+# cross-model (provider auto-detected from model id for grok*)
+BENCH_MODEL=claude-sonnet-5 uv run benchmarks/telegraph/telegraph-bench.py
+BENCH_MODEL=grok-4.5 uv run benchmarks/telegraph/telegraph-bench.py
 ```
 
 Requires:
@@ -260,8 +280,9 @@ Requires:
 - [`uv`](https://docs.astral.sh/uv/) — the script's PEP 723 header pins
   `requires-python >=3.11` and zero dependencies; `uv` bootstraps the
   interpreter. No virtualenv to manage.
-- An Anthropic API key in `$ANTHROPIC_API_KEY`, or a `~/.anthropic-api-key`
-  file. The script bails if neither is present.
+- Anthropic models: `$ANTHROPIC_API_KEY` or `~/.anthropic-api-key`.
+- Grok models: `$XAI_API_KEY`, `~/.xai-api-key`, or a Grok CLI session in
+  `~/.grok/auth.json`.
 
 A run reads the live `SPEC.md`, so re-running after the spec changes re-measures
 against the current rows — the number stays honest as the spec evolves.
@@ -303,10 +324,11 @@ format changes.
   fact-preserving expansion; a chattier or terser writer would move the number.
   We report `minimal` as the headline precisely because it's the least
   flattering, most defensible baseline. [Cross-model](#cross-model) shows how far
-  this can swing — Sonnet's context-free `minimal` decode balloons ~5× and drags
-  its reduction to an artifactual 0.73.
+  this can swing — Sonnet 4.6's context-free `minimal` decode balloons ~5× and
+  drags its reduction to an artifactual 0.73; Sonnet 5 stays near Opus volume.
 - **Model-pinned.** Token counts and decodings come from the run's model (default
-  `claude-opus-4-7`, overridable via `$BENCH_MODEL`). A different model shifts
+  `claude-opus-4-7`, overridable via `$BENCH_MODEL`). Provider is auto-detected
+  from the model id (`grok*` → xAI, else Anthropic). A different model shifts
   both the counts and the prose length; tokenizers differ, so absolute counts are
   only comparable within a model. The model id is recorded in every result record.
   The `canonical` decoder proves the most model-robust — see [Cross-model](#cross-model).
