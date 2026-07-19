@@ -70,7 +70,7 @@ Shape defaults:
 
 ## QUESTION SHAPE
 
-Claude asks the operator to decide (AskUserQuestion prose, per decision-gate invariant):
+Grok asks the operator to decide (ask_user_question prose, per decision-gate invariant):
 
 1. **State the choice first** — one sentence naming the decision.
 2. **List the options plainly** — one line each, mutually exclusive, no idiom.

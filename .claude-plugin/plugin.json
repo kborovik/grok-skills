@@ -1,0 +1,11 @@
+{
+  "name": "sdd",
+  "displayName": "Spec-Driven Development (SDD)",
+  "description": "Compressed spec-driven development for Grok (Claude-compatible manifest). Seven skills over one SPEC.md.",
+  "version": "1.2.1",
+  "author": { "name": "Konstantin Borovik", "email": "github@lab5.ca" },
+  "homepage": "https://github.com/kborovik/grok-skills",
+  "repository": "https://github.com/kborovik/grok-skills",
+  "license": "MIT",
+  "keywords": ["spec-driven-development", "sdd", "spec", "skills", "grok"]
+}

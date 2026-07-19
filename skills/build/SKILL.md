@@ -5,14 +5,13 @@ description: |
   implement, or execute spec or specific §T task. Phrasings: "build §T.<n>",
   "build --next", "implement next task", "run the build", "does the
   implementation run?", "is §T.<n> done?".
-allowed-tools: Read, Edit, Write, Bash, Skill, TaskCreate, TaskUpdate
-model: opus
+allowed-tools: read_file, search_replace, write, run_terminal_command, skill, todo_write
 ---
 
 # build — implement spec
 
 Single-thread native plan→execute.
-You are main Claude.
+You are the main Grok agent.
 No swarm.
 
 ## LOAD
@@ -36,8 +35,8 @@ Emit plan inline every task (transparency, not wait-state) → EXECUTE.
 ## PROGRESS
 
 `--all` autonomous chain = multi-phase run per response-shape invariant → emit live harness checklist (single `§T.n` / `--next` = one row, no checklist).
-TaskCreate one task per chosen `.` §T row @ plan start, subject `T<n>: <goal line>`.
-TaskUpdate `in_progress` @ that row's {edit → verify → commit} entry → `completed` @ its auto-commit.
+todo_write: one task per chosen `.` §T row @ plan start, subject `T<n>: <goal line>`.
+todo_write status `in_progress` @ that row's {edit → verify → commit} entry → `completed` @ its auto-commit.
 FAIL → BACKPROP (status stays `.`) → task stays `in_progress`, never `completed`.
 Checklist = ephemeral harness UI: never repo state (§T cells stay the dashboard per NON-GOALS), never substitutes the `## Next` block.
 
@@ -61,7 +60,7 @@ Per task in order:
 1. Read failure output.
 2. Classify: (a) code bug, (b) spec wrong, (c) unspec edge.
    Confident → proceed direct.
-   Low-confidence (ambiguous or multiple plausible) → AskUserQuestion per decision-gate invariant, header `Verify-fail class`, 3 action-labels keyed (a)/(b)/(c): "Code bug — fix and re-run" / "Spec wrong — route cause to /sdd:spec" / "Unspec edge — route cause to /sdd:spec".
+   Low-confidence (ambiguous or multiple plausible) → ask_user_question per decision-gate invariant, header `Verify-fail class`, 3 action-labels keyed (a)/(b)/(c): "Code bug — fix and re-run" / "Spec wrong — route cause to /sdd:spec" / "Unspec edge — route cause to /sdd:spec".
 3. (a) → fix code, retry.
    No spec change.
 4. (b)/(c) → run spec skill w/ the cause as free-form intent (gate routes to BACKPROP); it records §B (+ §V) and commits SPEC.md.

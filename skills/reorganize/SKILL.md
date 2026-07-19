@@ -5,8 +5,7 @@ description: |
   clarity-shape pass — distinct from /sdd:condense (token reduction).
   Phrasings: "/sdd:reorganize", "reorganize the spec", "regroup §V by topic",
   "renumber invariants", "cluster §V rows", "tidy §V order", "taxonomy pass".
-allowed-tools: AskUserQuestion, Read, Edit, Write, Grep, Bash(git *), Bash(jq *), Bash(python3 *), Agent, Skill, TaskCreate, TaskUpdate
-model: fable
+allowed-tools: ask_user_question, read_file, search_replace, write, grep, run_terminal_command(git *), run_terminal_command(jq *), run_terminal_command(python3 *), spawn_subagent, skill, todo_write
 ---
 
 # reorganize — §V cluster + renumber + cite-DAG sweep
@@ -29,7 +28,7 @@ Single commit per atomic-operation discipline, not partial application; cite-DAG
 
 Multi-phase run per response-shape invariant → emit live harness checklist.
 Phases: LOAD, ARCHIVE-RETIRED, CLUSTER, PROPOSE, CONFIRM, EXECUTE.
-TaskCreate one task per phase @ LOAD start; TaskUpdate `in_progress` @ phase entry → `completed` @ phase exit. `--taxonomy-only` exit / CONFIRM cancel / subset re-loop → unreached phases `deleted`, not `completed`.
+todo_write: one task per phase @ LOAD start; todo_write status `in_progress` @ phase entry → `completed` @ phase exit. `--taxonomy-only` exit / CONFIRM cancel / subset re-loop → unreached phases `deleted`, not `completed`.
 Checklist = ephemeral harness UI: never repo state, never substitutes the PROPOSE render or the `## Next` block.
 
 ## LOAD
@@ -37,7 +36,7 @@ Checklist = ephemeral harness UI: never repo state, never substitutes the PROPOS
 1. Read `SPEC.md`.
    Missing → "no spec, nothing to reorganize."
    Stop.
-2. Read `${CLAUDE_PLUGIN_ROOT}/SPEC-FORMAT.md` every row schema and section catalog.
+2. Read `${GROK_PLUGIN_ROOT}/SPEC-FORMAT.md` every row schema and section catalog.
 3. Parse `$ARGUMENTS`: empty → full cluster + renumber + sweep propose; `--taxonomy-only` → PROPOSE report only, not mutation.
 4. Discovery probe — repo-agnostic plugin scope per published-scope invariant:
    - (a) `<repo>/.claude-plugin/marketplace.json` → parse `plugins[].source` via `jq` (fallback `python3` per tooling-preference invariant; python3 here = arbitrary JSON parse, not script-sole → frontmatter `Bash(python3 *)` stays broad, no single script path to pin) → {dir-name → plugin-name} map per plugin-name-vs-dir invariant; PUBLISHED = `{<dir>/**}` over each `source` value.
@@ -90,7 +89,7 @@ Not CONFIRM, not EXECUTE.
 
 ## CONFIRM
 
-AskUserQuestion per decision-gate invariant — single bulk-confirm covers renumber + sweep (mid-flow re-prompt not allowed per atomic-operation discipline):
+ask_user_question per decision-gate invariant — single bulk-confirm covers renumber + sweep (mid-flow re-prompt not allowed per atomic-operation discipline):
 
 - **question**: `Reorganize SPEC.md: <m> clusters, <k> id renumbers, <a> archive-retired rows, cite-DAG sweep over <s> sites. Apply?`
 - **header**: `Reorganize gate`

@@ -1035,49 +1035,57 @@ def audit_sembr(sembr_files):
     return out
 
 
-# --- CLAUDE.md presence + direct-instruction marker block --------------------
-# human-clarity invariant: repo-root CLAUDE.md carries the plain-imperative
-# restatement of the clarity standard governing chat + human-facing output,
-# wrapped in a stable marker block. Symbol-cleanliness rides the human-facing
-# scan (CLAUDE.md is in discover_human_facing), realized once per
-# mechanical-realization invariant — never re-checked here.
+# --- AGENTS.md presence + direct-instruction marker block -------------------
+# human-clarity invariant: repo-root AGENTS.md (Grok) or CLAUDE.md (alias)
+# carries the plain-imperative restatement of the clarity standard governing
+# chat + human-facing output, wrapped in a stable marker block.
 
-CLAUDE_MD = "CLAUDE.md"
-CLAUDE_MARKER_BEGIN = "<!-- sdd:direct-instruction:begin -->"
-CLAUDE_MARKER_END = "<!-- sdd:direct-instruction:end -->"
+# Grok native: AGENTS.md; CLAUDE.md kept as alias for dual-compat consumer repos.
+AGENTS_MD = "AGENTS.md"
+CLAUDE_MD = "CLAUDE.md"  # alias — still accepted when AGENTS.md absent
+AGENTS_MARKER_BEGIN = "<!-- sdd:direct-instruction:begin -->"
+AGENTS_MARKER_END = "<!-- sdd:direct-instruction:end -->"
+# backwards-compat names used by self-tests
+CLAUDE_MARKER_BEGIN = AGENTS_MARKER_BEGIN
+CLAUDE_MARKER_END = AGENTS_MARKER_END
 
 
-def classify_claude_md(text):
-    """CLAUDE.md presence + marker-block audit core (human-clarity invariant) —
-    pure, unit-testable without the filesystem. `text` is the file content, or
-    None when the file is absent @ repo root. Emits one row: MISSING when the
-    carrier is absent, VIOLATE when present but the begin/end marker block is
-    absent or mis-ordered (the block the audit anchors on). Present + well-formed
-    block → no row (silent, sibling convention). Symbol-cleanliness is NOT
-    re-checked — CLAUDE.md rides the human-facing symbol scan
-    (mechanical-realization invariant), so a naked symbol surfaces as a `symbols`
-    row, not here."""
+def classify_agents_md(text, carrier_name=AGENTS_MD):
+    """AGENTS.md (or CLAUDE.md alias) presence + marker-block audit core
+    (human-clarity invariant). `text` is file content, or None when absent.
+    MISSING when carrier absent; VIOLATE when present but marker block absent
+    or mis-ordered. Present + well-formed → no row."""
     if text is None:
-        return [("claude-md", "MISSING",
-                 f"claude-md MISSING: {CLAUDE_MD} absent @ repo root — "
+        return [("agents-md", "MISSING",
+                 f"agents-md MISSING: {carrier_name} absent @ repo root — "
                  f"human-clarity invariant requires the plain-imperative "
                  f"restatement carrier")]
-    b = text.find(CLAUDE_MARKER_BEGIN)
-    e = text.find(CLAUDE_MARKER_END)
+    b = text.find(AGENTS_MARKER_BEGIN)
+    e = text.find(AGENTS_MARKER_END)
     if b < 0 or e < 0 or e <= b:
-        return [("claude-md", "VIOLATE",
-                 f"claude-md VIOLATE: {CLAUDE_MD} missing direct-instruction "
-                 f"marker block ({CLAUDE_MARKER_BEGIN} ... {CLAUDE_MARKER_END})")]
+        return [("agents-md", "VIOLATE",
+                 f"agents-md VIOLATE: {carrier_name} missing direct-instruction "
+                 f"marker block ({AGENTS_MARKER_BEGIN} ... {AGENTS_MARKER_END})")]
     return []
 
 
+# back-compat alias for self-tests that still call classify_claude_md
+def classify_claude_md(text):
+    return classify_agents_md(text, carrier_name=CLAUDE_MD)
+
+
+def audit_agents_md(repo_root):
+    """Prefer AGENTS.md; fall back to CLAUDE.md for dual-compat repos."""
+    for name in (AGENTS_MD, CLAUDE_MD):
+        path = os.path.join(repo_root, name)
+        if os.path.isfile(path):
+            return classify_agents_md(read_text(path), carrier_name=name)
+    return classify_agents_md(None, carrier_name=AGENTS_MD)
+
+
 def audit_claude_md(repo_root):
-    """File-reading wrapper for the CLAUDE.md presence + marker-block audit
-    (human-clarity invariant). Reads repo-root CLAUDE.md (None when absent) and
-    delegates to the pure classifier."""
-    path = os.path.join(repo_root, CLAUDE_MD)
-    text = read_text(path) if os.path.isfile(path) else None
-    return classify_claude_md(text)
+    """Alias → audit_agents_md (human-clarity invariant)."""
+    return audit_agents_md(repo_root)
 
 
 # --- mechanize-block identity ------------------------------------------------
@@ -1264,19 +1272,32 @@ def audit_dispatch_targets(skill_md, plugins):
 # ("mid-glob") never masks a missing grant for it.
 
 GRANT_REFERENCE = {
+    # Grok-native tool names
+    "read_file": [(r'\bread', re.I)],
+    "search_replace": [(r'\bedit|\brewrite|\bpatch\b|\bprune|\btrim|\brenumber|\boverwrite|search_replace',
+               re.I)],
+    "write": [(r'\bwrite', re.I)],
+    "grep": [(r'\bgrep', re.I)],
+    "spawn_subagent": [(r'\bagent|\bExplore\b|spawn_subagent|subagent', re.I)],
+    "skill": [(r'\bskill', re.I)],
+    "todo_write": [(r'todo_write|TaskCreate|TaskUpdate|todo', re.I)],
+    "ask_user_question": [(r'ask_user_question|AskUserQuestion|\bask\b|\bquestion', re.I)],
+    "run_terminal_command": [(r'run_terminal_command|\bbash\b|```', re.I)],
+    # Claude Code aliases (dual-compat skill bodies / residual grants)
     "Read":  [(r'\bread', re.I)],
     "Edit":  [(r'\bedit|\brewrite|\bpatch\b|\bprune|\btrim|\brenumber|\boverwrite',
                re.I)],
     "Write": [(r'\bwrite', re.I)],
     "Grep":  [(r'\bgrep', re.I)],
-    "Glob":  [(r'\bGlob\b', 0)],                         # case-sensitive: prose-safe
+    "Glob":  [(r'\bGlob\b', 0)],
     "Agent": [(r'\bagent|\bExplore\b', re.I)],
-    "Skill": [(r'\bskill', re.I)],                       # generous (accepted limit)
-    "TaskCreate": [(r'TaskCreate', 0)],
-    "TaskUpdate": [(r'TaskUpdate', 0)],
-    "AskUserQuestion": [(r'AskUserQuestion|\bask\b|\bquestion', re.I)],
+    "Skill": [(r'\bskill', re.I)],
+    "TaskCreate": [(r'TaskCreate|todo_write', 0)],
+    "TaskUpdate": [(r'TaskUpdate|todo_write', 0)],
+    "AskUserQuestion": [(r'AskUserQuestion|ask_user_question|\bask\b|\bquestion', re.I)],
+    "Bash": [(r'```|\b(?:git|python3|gh|jq|grep|rg)', re.I)],
 }
-# bare `Bash` grant (no arg pattern) pre-approves any command — used when the body
+# bare `run_terminal_command` / `Bash` grant pre-approves any command — body
 # prescribes a command (fenced block or a known command token).
 BARE_BASH_CMD = re.compile(r'```|\b(?:git|python3|gh|jq|grep|rg|npm|make|cargo'
                            r'|sed|awk|cat|test)\b')
@@ -1337,7 +1358,7 @@ def grant_used(token, body):
     a catalogued tool → its body-reference set; an uncatalogued tool → its bare
     token (case-insensitive, so a never-mentioned future grant still flags)."""
     base = token.split("(", 1)[0].strip()
-    if base == "Bash":
+    if base in ("Bash", "run_terminal_command"):
         inner = token[token.find("(") + 1:token.rfind(")")] if "(" in token else ""
         if not inner.strip():
             return bool(BARE_BASH_CMD.search(body))
@@ -1681,39 +1702,54 @@ def plugin_source_dirs(repo_root, plugins):
     return dirs
 
 
+def _manifest_paths(repo_root):
+    """Return (marketplace.json path or None, plugin.json path or None).
+    Prefer Grok-native `.grok-plugin/`, then Claude-compat `.claude-plugin/`."""
+    for base in (".grok-plugin", ".claude-plugin"):
+        mp = os.path.join(repo_root, base, "marketplace.json")
+        pj = os.path.join(repo_root, base, "plugin.json")
+        if os.path.exists(mp) or os.path.exists(pj):
+            return (mp if os.path.exists(mp) else None,
+                    pj if os.path.exists(pj) else None)
+    return None, None
+
+
 def plugin_dirs(repo_root):
     """PUBLISHED plugin source dirs — from the marketplace manifest
     (`plugins[].source`, root `./` → repo root), else a single plugin.json repo
-    root, else empty. Repo-agnostic; shared by the published-md + skill-md
-    discovery so the PUBLISHED-scope root is resolved once."""
-    mp = os.path.join(repo_root, ".claude-plugin", "marketplace.json")
-    pj = os.path.join(repo_root, ".claude-plugin", "plugin.json")
-    if os.path.exists(mp):
+    root, else empty. Prefers `.grok-plugin/`, falls back to `.claude-plugin/`."""
+    mp, pj = _manifest_paths(repo_root)
+    # marketplace may still live under .claude-plugin even when plugin.json is grok
+    if mp is None:
+        alt = os.path.join(repo_root, ".claude-plugin", "marketplace.json")
+        if os.path.exists(alt):
+            mp = alt
+    if mp:
         try:
             data = json.loads(read_text(mp))
             return plugin_source_dirs(repo_root, data.get("plugins", []))
         except (OSError, ValueError):
             return []
-    if os.path.exists(pj):
+    if pj:
         return [repo_root]
     return []
 
 
 def plugin_names(repo_root):
-    """PUBLISHED plugin names — from the marketplace manifest
-    (`plugins[].name`), else the single `plugin.json` `name`, else empty
-    (plugin-shape invariant — name from the manifest, never assumed equal to a
-    dir name). The dispatch-target audit builds the `/<plugin>:<sub-skill>`
-    slash form from these."""
-    mp = os.path.join(repo_root, ".claude-plugin", "marketplace.json")
-    pj = os.path.join(repo_root, ".claude-plugin", "plugin.json")
-    if os.path.exists(mp):
+    """PUBLISHED plugin names — from marketplace or single plugin.json.
+    Prefers `.grok-plugin/`, falls back to `.claude-plugin/`."""
+    mp, pj = _manifest_paths(repo_root)
+    if mp is None:
+        alt = os.path.join(repo_root, ".claude-plugin", "marketplace.json")
+        if os.path.exists(alt):
+            mp = alt
+    if mp:
         try:
             data = json.loads(read_text(mp))
             return [p["name"] for p in data.get("plugins", []) if p.get("name")]
         except (OSError, ValueError):
             return []
-    if os.path.exists(pj):
+    if pj:
         try:
             data = json.loads(read_text(pj))
             return [data["name"]] if data.get("name") else []
@@ -1754,16 +1790,15 @@ def discover_skill_md(repo_root):
 
 def discover_grant_skills(repo_root):
     """SKILL.md set the grant-use audit spans: PUBLISHED `<src>/skills/*/SKILL.md`
-    (discover_skill_md) plus REPO-LOCAL `.claude/skills/*/SKILL.md` — a REPO-LOCAL
-    skill (e.g. release) carries `allowed-tools` grants too, so the grant-use
-    audit covers it. Repo-agnostic."""
+    plus REPO-LOCAL `.grok/skills` and `.claude/skills`."""
     paths = list(discover_skill_md(repo_root))
-    local = os.path.join(repo_root, ".claude", "skills")
-    if os.path.isdir(local):
-        for name in sorted(os.listdir(local)):
-            p = os.path.join(local, name, "SKILL.md")
-            if os.path.isfile(p):
-                paths.append(p)
+    for rel in (".grok/skills", ".claude/skills"):
+        local = os.path.join(repo_root, rel)
+        if os.path.isdir(local):
+            for name in sorted(os.listdir(local)):
+                p = os.path.join(local, name, "SKILL.md")
+                if os.path.isfile(p):
+                    paths.append(p)
     return sorted(set(paths))
 
 
@@ -1776,7 +1811,7 @@ def discover_repo_local(repo_root):
             for fn in fns:
                 if fn.endswith(".md"):
                     files.append(os.path.join(root, fn))
-    for name in ("README.md", "CLAUDE.md"):
+    for name in ("README.md", "AGENTS.md", "CLAUDE.md"):
         p = os.path.join(repo_root, name)
         if os.path.exists(p):
             files.append(p)
@@ -1785,29 +1820,26 @@ def discover_repo_local(repo_root):
 
 def discover_human_facing(repo_root):
     """Human-facing prose surfaces (symbol-set + human-clarity invariants):
-    repo-root README.md + CLAUDE.md (GITHUB-FACING + REPO-LOCAL human surfaces)
-    plus the plugin manifest(s) (description shown in the marketplace). Excludes
-    SPEC-adjacent telegraph (SPEC.md, skill bodies, `.spec/**` overflow), which
-    KEEPS the symbol set, so those are never scanned. Repo-agnostic."""
+    repo-root README.md + AGENTS.md (+ CLAUDE.md alias) plus plugin manifests.
+    Excludes SPEC-adjacent telegraph. Prefers Grok manifests."""
     out = []
-    for name in ("README.md", "CLAUDE.md"):
+    for name in ("README.md", "AGENTS.md", "CLAUDE.md"):
         p = os.path.join(repo_root, name)
         if os.path.isfile(p):
             out.append(p)
     for d in plugin_dirs(repo_root):
-        mani = os.path.join(d, ".claude-plugin", "plugin.json")
-        if os.path.isfile(mani):
-            out.append(mani)
+        for base in (".grok-plugin", ".claude-plugin"):
+            mani = os.path.join(d, base, "plugin.json")
+            if os.path.isfile(mani):
+                out.append(mani)
     return sorted(set(out))
 
 
 def discover_sembr_files(repo_root):
-    """Sembr-invariant prose file set: repo-root README.md + CLAUDE.md,
-    `designs/*.md` drafts, and the PUBLISHED skill bodies (discover_skill_md).
-    Pipe-row files (SPEC.md, the archive sibling, the extras overflow) are
-    exempt by construction — never in the set. Repo-agnostic."""
+    """Sembr-invariant prose file set: repo-root README.md + AGENTS.md
+    (+ CLAUDE.md alias), `designs/*.md` drafts, and PUBLISHED skill bodies."""
     out = []
-    for name in ("README.md", "CLAUDE.md"):
+    for name in ("README.md", "AGENTS.md", "CLAUDE.md"):
         p = os.path.join(repo_root, name)
         if os.path.isfile(p):
             out.append(p)

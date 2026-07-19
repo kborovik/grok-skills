@@ -5,8 +5,7 @@ description: |
   Triggers when user invokes `/sdd:condense` or asks to condense spec or /sdd:check
   emits `## advisory` token-budget overflow line. Phrasings: "/sdd:condense",
   "condense SPEC.md", "SPEC too big", "shrink the spec", "token budget".
-allowed-tools: AskUserQuestion, Read, Edit, Write, Bash(git *), Bash(python3 */check-mechanical.py *), Agent, Skill, TaskCreate, TaskUpdate
-model: sonnet
+allowed-tools: ask_user_question, read_file, search_replace, write, run_terminal_command(git *), run_terminal_command(python3 */check-mechanical.py *), spawn_subagent, skill, todo_write
 ---
 
 # condense — SPEC.md condenser
@@ -21,7 +20,7 @@ Writes serialize main-thread; per-prong scan reads delegable to sub-agents.
 
 Multi-phase run per response-shape invariant → emit live harness checklist.
 Phases: LOAD, PROPOSE (six-prong scan), CONFIRM, EXECUTE.
-TaskCreate one task per phase @ LOAD start; TaskUpdate `in_progress` @ phase entry → `completed` @ phase exit.
+todo_write: one task per phase @ LOAD start; todo_write status `in_progress` @ phase entry → `completed` @ phase exit.
 CONFIRM cancel / subset-skip → unreached phases `deleted`, not `completed`.
 Checklist = ephemeral harness UI: never repo state, never substitutes the `## Next` block.
 
@@ -30,7 +29,7 @@ Checklist = ephemeral harness UI: never repo state, never substitutes the `## Ne
 1. Read `SPEC.md`.
    Missing → "no spec, nothing to condense."
    Stop.
-2. Read `${CLAUDE_PLUGIN_ROOT}/SPEC-FORMAT.md` — row schema + section catalog.
+2. Read `${GROK_PLUGIN_ROOT}/SPEC-FORMAT.md` — row schema + section catalog.
 3. Baseline tokens = bytes / `check-mechanical.py` `TOKEN_RATIO` (single source; not hardcode divisor).
    Record.
 
@@ -39,7 +38,7 @@ Checklist = ephemeral harness UI: never repo state, never substitutes the `## Ne
 Six prongs, execution order 1 → 6.
 Per prong: scan SPEC.md for trigger match; emit firing-set + skip-set w/ 1-line rationale each.
 
-Script modes below run `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/check-mechanical.py <mode>`; `${CLAUDE_PLUGIN_ROOT}` no-expand in frontmatter → python3 grant pinned mid-glob `Bash(python3 */check-mechanical.py *)` (script-sole use, leading `*` absorbs the plugin-root prefix) per tooling-preference invariant.
+Script modes below run `python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py <mode>`; `${GROK_PLUGIN_ROOT}` no-expand in frontmatter → python3 grant pinned mid-glob `Bash(python3 */check-mechanical.py *)` (script-sole use, leading `*` absorbs the plugin-root prefix) per tooling-preference invariant.
 
 ### Prong 1 — §V fold-first sweep
 
@@ -97,7 +96,7 @@ Check skill loader already path-probes `.spec/check-extras.md` — no check-skil
 ## CONFIRM
 
 Always fires post-PROPOSE.
-Single bulk AskUserQuestion covers full sweep — mid-flow re-prompt not allowed:
+Single bulk ask_user_question covers full sweep — mid-flow re-prompt not allowed:
 
 - **question**: `Condense SPEC.md: prongs {<firing-set>} firing, {<skip-set>} skipped. Baseline ~<n>k tokens, est. ~<m>k post-sweep. Apply?`
 - **header**: `Condense gate`

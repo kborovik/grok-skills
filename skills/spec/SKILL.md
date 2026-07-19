@@ -9,8 +9,7 @@ description: |
   "write the spec for...", "new spec", "distill spec from code",
   "spec this idea", "import existing repo", "pull invariants out of code",
   "this bug keeps biting", "post-mortem on Y".
-allowed-tools: AskUserQuestion, Read, Edit, Write, Grep, Bash(git *), Bash(grep *), Agent, Skill
-model: fable
+allowed-tools: ask_user_question, read_file, search_replace, write, grep, run_terminal_command(git *), run_terminal_command(grep *), spawn_subagent, skill
 ---
 
 # spec — spec mutator
@@ -132,7 +131,7 @@ audit | fires when delta is | on fail
 sweep-scope | contains sweep-§T row (§V-violation remediation) | bail → SWEEP-§T SCOPE AUDIT
 pinned-cite | touches PUBLISHED (a) or SPEC.md narrative (b) | bail → PINNED-CITE AUDIT, matching sub-recipe
 next-block  | touches user-typeable SKILL.md | bail → NEXT-BLOCK-SECTION AUDIT
-fold-first  | adds §V row to pre-existing §V section, mode not FOLD-IN | AskUserQuestion gate → FOLD-FIRST AUDIT
+fold-first  | adds §V row to pre-existing §V section, mode not FOLD-IN | ask_user_question gate → FOLD-FIRST AUDIT
 ```
 
 pinned-cite (a) + next-block rows structurally no-op while step 4 writes SPEC.md only — retained defensive (fire only if future mode widens write set).
@@ -202,7 +201,7 @@ Each proposed new §V row in delta:
 
 1. Closest existing §V row by topic — heuristic: shared scope tokens (e.g. `PUBLISHED`, `GITHUB-FACING`, `SPEC-ADJACENT`), shared procedure ref (e.g. `/sdd:spec`, `/sdd:check`), shared verb pattern (e.g. `audit`, `auto-fire`, `gate`).
    None identifiable → step 3 w/ "no fold candidate" note.
-2. AskUserQuestion per decision-gate invariant (§V.<n>):
+2. ask_user_question per decision-gate invariant (§V.<n>):
    - **question**: `New §V row proposed: <delta one-line>. Closest existing row §V.<m>: <m-summary>. Fold into existing or split as new row?`
    - **header**: `Fold-first`
    - **options** (3, mutually exclusive, label = action):
@@ -246,7 +245,7 @@ Next-block surfacing is baseline — operator dispatch is only path to `/sdd:che
 
 ## OUTPUT RULES
 
-Defer to `${CLAUDE_PLUGIN_ROOT}/SPEC-FORMAT.md` — row shape, section catalog, citation forms, header conventions.
+Defer to `${GROK_PLUGIN_ROOT}/SPEC-FORMAT.md` — row shape, section catalog, citation forms, header conventions.
 
 ## MECHANIZE — script-candidate scan
 

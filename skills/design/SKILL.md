@@ -2,8 +2,7 @@
 name: design
 description: |
   Propose-then-critique structural design loop → draft to `designs/<slug>.md`. Distinct from socratic (which sharpens vague intent). Use when user wants to design a structural change, weigh tradeoffs between named alternatives, propose an architecture, or shape a subsystem before implementation. Triggers: "/sdd:design", "design the X", "shape the X subsystem", "tradeoffs between A and B", "how should we structure", "propose an architecture for".
-allowed-tools: AskUserQuestion, Read, Grep, Write
-model: fable
+allowed-tools: ask_user_question, read_file, grep, write
 ---
 
 # design — propose-then-critique → designs/<slug>.md draft
@@ -90,7 +89,7 @@ cap ≤ 2 reads/turn. broader sweep needed → stop, return control to user for 
 
 ## LONG-SESSION ESCAPE
 
-single Open Q ≥ 3 turns unresolved → AskUserQuestion per decision-gate invariant (selection drives persist-shape in current turn; prose `or keep going?` form not allowed):
+single Open Q ≥ 3 turns unresolved → ask_user_question per decision-gate invariant (selection drives persist-shape in current turn; prose `or keep going?` form not allowed):
 
 - **question**: `Park unresolved Q under '## Unresolved' and converge on rest?`
 - **header**: `Open-Q escape`

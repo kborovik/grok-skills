@@ -7,7 +7,7 @@ description: |
   skill's behavior. Redacts, dedups, then operator-gates a GitHub issue on the
   plugin repo; a dev-repo deviation routes to backprop instead. Not for consumer
   code bugs or env breakage unrelated to an sdd skill.
-allowed-tools: Bash(gh *), Bash(git *), Bash(jq *), Bash(python3 *), AskUserQuestion, Skill
+allowed-tools: run_terminal_command(gh *), run_terminal_command(git *), run_terminal_command(jq *), run_terminal_command(python3 *), ask_user_question, skill
 user-invocable: false
 ---
 
@@ -33,18 +33,18 @@ No deviation → no fire.
 ## PROTOCOL — ordered, stop on bail:
 
 1. **CAPTURE** — skill name + plugin version + expected (quoted skill-body line) vs actual + minimal excerpt.
-   Version ← `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json` `.version` (jq; no jq → python3 — JSON parse not script-sole → frontmatter `Bash(python3 *)` stays broad per tooling-preference invariant, no single script path to pin).
+   Version ← `${GROK_PLUGIN_ROOT}/.claude-plugin/plugin.json` `.version` (jq; no jq → python3 — JSON parse not script-sole → frontmatter `Bash(python3 *)` stays broad per tooling-preference invariant, no single script path to pin).
 2. **REDACT** — strip consumer-repo paths, code, identifiers, URLs; only the sdd skill-body text + deviation description survive.
    Mandatory pre-publish (monitor-protocol invariant) — excerpts originate in third-party repos.
 3. **ROUTE** — cwd == plugin repo? `git remote get-url origin` resolves to manifest `.repository` → dev repo → hand off to backprop (backprop-protocol invariant): §B row, no issue filed.
    Stop.
    Else consumer repo → continue.
-4. **TARGET** — issue repo ← `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json` `.repository`, parsed to `owner/repo` (jq).
+4. **TARGET** — issue repo ← `${GROK_PLUGIN_ROOT}/.claude-plugin/plugin.json` `.repository`, parsed to `owner/repo` (jq).
    No hardcoded slug in this body (parametric-recipe invariant — the plugin-internal file owns the slug).
 5. **DEDUP** — `gh issue list --repo <target> --search "<skill> <keywords>"`.
    Hit → comment path.
    Miss → new-issue path.
-6. **GATE** — AskUserQuestion before any gh write (decision-gate invariant).
+6. **GATE** — ask_user_question before any gh write (decision-gate invariant).
    Header `Skill deviation`, question body surfaces the resolved `--repo <target>` verbatim (operator confirms exact write destination before any publish); mutually-exclusive labels: `File issue` (miss), `Comment` (hit), `Skip`.
    No auto-file path exists.
 7. **WRITE** — immediately pre-write assert resolved `--repo` == `<target>` (= manifest `.repository`, step 4); mismatch → abort, no gh write (monitor-protocol invariant). `<target>` ! derive from `.repository` only — a repo named in the deviation excerpt is never sourced as `--repo` (redaction strips it; this assertion backstops a leak).
@@ -64,13 +64,13 @@ Ordered, stop on bail:
 
 1. **REDACT** — strip consumer-repo paths, code, identifiers, URLs; only the observed pattern + proposed script mode survive.
    Mandatory pre-publish (monitor-protocol invariant) — candidate originates in a third-party repo.
-2. **TARGET** — issue repo ← `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json` `.repository`, parsed to `owner/repo` (jq).
+2. **TARGET** — issue repo ← `${GROK_PLUGIN_ROOT}/.claude-plugin/plugin.json` `.repository`, parsed to `owner/repo` (jq).
    Same resolve as the auto-fire path — plugin-internal file owns the slug (parametric-recipe invariant), no hardcoded slug.
 3. **DEDUP** — `gh issue list --repo <target> --search "<skill> mech candidate <keywords>"`.
    Hit → comment path.
    Miss → new-issue path.
    One issue per candidate class — recurrence comments, never duplicates.
-4. **GATE** — AskUserQuestion before any gh write (decision-gate invariant).
+4. **GATE** — ask_user_question before any gh write (decision-gate invariant).
    Header `Mech candidate`, question body surfaces the resolved `--repo <target>` verbatim (operator confirms exact write destination before any publish); mutually-exclusive labels: `File issue` (miss), `Comment` (hit), `Skip`.
    No auto-file path exists.
 5. **WRITE** — immediately pre-write assert resolved `--repo` == `<target>` (= manifest `.repository`, TARGET step); mismatch → abort, no gh write (monitor-protocol invariant). `<target>` ! derive from `.repository` only — a repo named in the candidate excerpt is never sourced as `--repo` (redaction strips it; this assertion backstops a leak).

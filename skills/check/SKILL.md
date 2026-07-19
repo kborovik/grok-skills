@@ -7,9 +7,8 @@ description: |
   spec, or verify invariants. Phrasings: "check drift", "audit the spec",
   "check invariants", "spec vs code", "is the spec still accurate?",
   "did the code drift?".
-allowed-tools: Read, Grep, Bash(python3 */check-mechanical.py *), Agent, TaskCreate, TaskUpdate
-disallowed-tools: Edit, Write
-model: sonnet
+allowed-tools: read_file, grep, run_terminal_command(python3 */check-mechanical.py *), spawn_subagent, todo_write
+disallowed-tools: search_replace, write
 ---
 
 # check — drift report
@@ -26,12 +25,12 @@ Read-only → sub-agent delegation safe throughout.
 
 Multi-phase run per response-shape invariant → emit live harness checklist.
 Phases: LOAD, audit (mechanical core), §V classify, §I + cite-DAG, §T, REPORT + WRITE-MEMO.
-TaskCreate one task per phase @ LOAD start; TaskUpdate `in_progress` @ phase entry → `completed` @ phase exit. `--full` adds no phase (same recipe, memo dropped).
+todo_write: one task per phase @ LOAD start; todo_write status `in_progress` @ phase entry → `completed` @ phase exit. `--full` adds no phase (same recipe, memo dropped).
 Checklist = ephemeral harness UI: never repo state, never the memo, never substitutes REPORT or the `## Next` block.
 
 ## LOAD
 
-1. Load spec overview (SCOPE, not whole-file Read per single-load invariant) — `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/check-mechanical.py emit-overview`.
+1. Load spec overview (SCOPE, not whole-file Read per single-load invariant) — `python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py emit-overview`.
    Prints §G/§C/§I/§T/§B bodies + §V id list (no §V bodies — those arrive via `emit-v-slices` step 4; whole-file Read here double-loads SPEC.md + re-hits the Read token cap).
    Script exits non-zero "no SPEC.md" → "no spec, nothing to check."
    Stop.
@@ -50,13 +49,13 @@ Checklist = ephemeral harness UI: never repo state, never the memo, never substi
 
 ## MECHANICAL CORE — audit script
 
-Deterministic audit set — SPEC-FORMAT structural rules (section catalog + order, row grammar, rightmost-`|` column extraction, archive markers + sibling shape), `§T` cite / `§B` fix grammar, monotonic-ID, cite-DAG resolution + edge-type, history-residue patterns + pre-filters + oversized-cell advisory, pinned-invariant-header grep, MECHANIZE-block byte-identity across the user-invocable SKILL.md set, auto-fire sub-skill slash-dispatch ban, allowed-tools grant-use (no zero-body-use grant), CLAUDE.md presence + direct-instruction marker block, human-facing naked-symbol + banned-idiom scan, sembr multi-sentence-line scan, memo bookkeeping, token estimate — owned by `${CLAUDE_PLUGIN_ROOT}/scripts/check-mechanical.py`.
+Deterministic audit set — SPEC-FORMAT structural rules (section catalog + order, row grammar, rightmost-`|` column extraction, archive markers + sibling shape), `§T` cite / `§B` fix grammar, monotonic-ID, cite-DAG resolution + edge-type, history-residue patterns + pre-filters + oversized-cell advisory, pinned-invariant-header grep, MECHANIZE-block byte-identity across the user-invocable SKILL.md set, auto-fire sub-skill slash-dispatch ban, allowed-tools grant-use (no zero-body-use grant), AGENTS.md presence + direct-instruction marker block, human-facing naked-symbol + banned-idiom scan, sembr multi-sentence-line scan, memo bookkeeping, token estimate — owned by `${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py`.
 Script regex is single source of truth; per-run paraphrase not permitted (mirrors canonical-agent-block verbatim contract) — the MECHANIZE-block check supersedes any hand-run `awk|md5|uniq` block sweep, the dispatch-target check any hand-run skill-body slash grep, the grant-use check any hand-run `allowed-tools` grant sweep, the human-facing scan any hand-run symbol or idiom grep.
 
-Run at audit start (`${CLAUDE_PLUGIN_ROOT}` doesn't expand in frontmatter `allowed-tools` → script-path pin uses mid-glob `Bash(python3 */check-mechanical.py *)`; leading `*` absorbs the unexpanded plugin-root prefix, per tooling-preference invariant. git stays unused — all rev-parse/show/diff run inside the script):
+Run at audit start (`${GROK_PLUGIN_ROOT}` doesn't expand in frontmatter `allowed-tools` → script-path pin uses mid-glob `Bash(python3 */check-mechanical.py *)`; leading `*` absorbs the unexpanded plugin-root prefix, per tooling-preference invariant. git stays unused — all rev-parse/show/diff run inside the script):
 
 ```
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/check-mechanical.py audit [--full]
+python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py audit [--full]
 ```
 
 Reads `SPEC.md` (+ `SPEC.archive.md` sibling if exists) from cwd; discovers PUBLISHED scope from `.claude-plugin/marketplace.json`; probes `.spec/scripts/check-extras.sh` (exists + executable → run, append its `id|verdict|evidence` rows — language-agnostic contract).
@@ -73,15 +72,15 @@ Emits pipe-table `id|verdict|evidence`:
 - `grant|VIOLATE|<path:line> grants <tool> zero body use …` — a frontmatter `allowed-tools` grant the skill body never invokes per tooling-preference invariant (zero-body-use grant banned, nothing to pre-approve).
   Sound by construction: flagged only on total body-absence — canonical token, alias (`Explore` for the sub-agent spawner), the operation verb a body uses for the tool (`rewrite` for the editor), or a `Bash` command anchor; `Glob` matched case-sensitively so wildcard prose (`mid-glob`) never masks a missing grant.
   Spans the PUBLISHED + REPO-LOCAL skill set — script-owned, never hand-run the grant sweep per run (a manual sweep misses rows).
-- `claude-md|MISSING|CLAUDE.md absent …` / `claude-md|VIOLATE|CLAUDE.md missing … marker block …` — repo-root `CLAUDE.md` (the human-clarity carrier) present + carries the `sdd:direct-instruction` begin/end marker block per human-clarity invariant; MISSING = absent file, VIOLATE = block absent or mis-ordered.
-  Symbol-cleanliness rides the `symbols` row (CLAUDE.md in the human-facing scan set), not re-checked here.
-  Script-owned, never hand-verify CLAUDE.md per run.
-- `symbols|VIOLATE|<file:line> naked <sym> …` — a human-facing surface (README, CLAUDE.md, manifest) carries a naked `→ ≥ ≤ & ~` outside a backtick span or fenced block per symbol-set + human-clarity invariants; SPEC-adjacent telegraph keeps the set, so it is never scanned.
+- `agents-md|MISSING|AGENTS.md absent …` / `agents-md|VIOLATE|AGENTS.md missing … marker block …` — repo-root `AGENTS.md` (the human-clarity carrier) present + carries the `sdd:direct-instruction` begin/end marker block per human-clarity invariant; MISSING = absent file, VIOLATE = block absent or mis-ordered.
+  Symbol-cleanliness rides the `symbols` row (AGENTS.md in the human-facing scan set), not re-checked here.
+  Script-owned, never hand-verify AGENTS.md per run.
+- `symbols|VIOLATE|<file:line> naked <sym> …` — a human-facing surface (README, AGENTS.md, manifest) carries a naked `→ ≥ ≤ & ~` outside a backtick span or fenced block per symbol-set + human-clarity invariants; SPEC-adjacent telegraph keeps the set, so it is never scanned.
   Script-owned, never hand-run the symbol grep per run.
 - `idiom|VIOLATE|<file:line> banned idiom <phrase> …` — a human-facing surface carries a banned idiom / jargon-idiom phrase per human-clarity invariant, matched against a curated low-false-positive BOUNDARIES subset (multi-word idiom + hyphenated jargon-idiom; ambiguous single words excluded).
-  Backtick-span + fenced-block exempt (a code-span or fenced example naming a banned phrase, e.g. CLAUDE.md's ban list, is fine).
+  Backtick-span + fenced-block exempt (a code-span or fenced example naming a banned phrase, e.g. AGENTS.md's ban list, is fine).
   Script-owned, never hand-run the idiom grep per run (a manual sweep forgets to re-run it) (closes §B.22).
-- `sembr|ADVISORY|<file:line> multi-sentence source line …` — a prose source line in the sembr file set (README, CLAUDE.md, `designs/*.md`, skill bodies) holds ≥ 2 sentences per sembr invariant; fence / `|`-table / frontmatter / blockquote / backtick-span exempt, pipe-row files never in the set.
+- `sembr|ADVISORY|<file:line> multi-sentence source line …` — a prose source line in the sembr file set (README, AGENTS.md, `designs/*.md`, skill bodies) holds ≥ 2 sentences per sembr invariant; fence / `|`-table / frontmatter / blockquote / backtick-span exempt, pipe-row files never in the set.
   Advisory only (source-format rule, never dirty).
   Script-owned, never hand-run the multi-sentence line scan per run.
 - `token|ADVISORY|SPEC.md ~<n>k tokens > budget …` — estimate `bytes/3.4` per token-budget invariant.
@@ -91,7 +90,7 @@ Emits pipe-table `id|verdict|evidence`:
 - `scope|ADVISORY|v-path-dirty: V<n>,…` — §V rows whose body path tokens (quoted/backticked path-like strings) intersect the touched-set; script-computed, consumed by SCOPE step 1 in place of a hand-run grep over the §V section.
 - `batch|ADVISORY|recommended: <n> agents` — §V-classification sub-agent count from §V row count + PUBLISHED file census per batch invariant; consumed by Batch protocol step 1, never hand-computed.
 
-Merge into REPORT verbatim: `format` / `history` / `cite` / `pinned-header` / `mechanize` / `dispatch` / `grant` / `claude-md` / `symbols` / `idiom` rows → their REPORT blocks (`mechanize` DRIFT/MISSING + `dispatch` VIOLATE + `grant` VIOLATE + `claude-md` MISSING/VIOLATE + `symbols` VIOLATE + `idiom` VIOLATE → invariant drift); `token` + `sembr` + `memo`-invalidation → `## advisory`.
+Merge into REPORT verbatim: `format` / `history` / `cite` / `pinned-header` / `mechanize` / `dispatch` / `grant` / `agents-md` / `symbols` / `idiom` rows → their REPORT blocks (`mechanize` DRIFT/MISSING + `dispatch` VIOLATE + `grant` VIOLATE + `agents-md` MISSING/VIOLATE + `symbols` VIOLATE + `idiom` VIOLATE → invariant drift); `token` + `sembr` + `memo`-invalidation → `## advisory`.
 Scope-feed rows (`memo` drift, `tasks` flipped-set, `diff` touched-set, `scope` v-path-dirty) carry stable comma-joined fields consumed machine-side — chained into `emit-v-slices --dirty`, never surfaced in advisory, never hand-rolled via `git diff` or a hand-grep over §V bodies. `batch|ADVISORY` likewise consumed machine-side (Batch protocol step 1), never surfaced in advisory.
 
 ## MEMO
@@ -134,7 +133,7 @@ First-run, invalidated memo, or `--full` → classify all §V rows.
 §V bodies for the classified set:
 
 ```
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/check-mechanical.py emit-v-slices [--dirty V<n>,...]
+python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py emit-v-slices [--dirty V<n>,...]
 ```
 
 Prints each §V row body w/ source range — header `## V<n> SPEC.md:<start>-<end>` + verbatim row text. `--dirty` = comma-list from step 1; omit on first-run / `--full` (all rows).
@@ -256,7 +255,7 @@ idiom VIOLATE: README.md:25 banned idiom load-bearing in human-facing prose.
 ## cite drift
 T<n>.cites V<m> UNRESOLVED: V<m> absent from invariants section.
 §B.<n>.fix T<k> TYPE-MISMATCH: target is task row, expected invariant row.
-CLAUDE.md:<line> cite UNRESOLVED: row absent.
+AGENTS.md:<line> cite UNRESOLVED: row absent.
 
 ## interface drift
 I.api DRIFT: POST /x returns `{result}` not `{id}`. route.go:112.
@@ -307,7 +306,7 @@ SPEC.md ~30k tokens > 20k budget; consider /sdd:condense
 Source the live id-set skeleton from the script — never hand-enumerate (closes omitted-row silent-undercoverage class):
 
 ```
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/check-mechanical.py emit-row-ids
+python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py emit-row-ids
 ```
 
 Emits one blank-verdict row per live §V/§I/§T id (`id||`, header `id|verdict|evidence`).
@@ -315,7 +314,7 @@ Fill verdicts + evidence from REPORT classification — behavioral rows only (§
 Feed the filled skeleton to stdin; `--from-audit` re-runs the mechanical audit internally + merges it:
 
 ```
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/check-mechanical.py write-memo --from-audit < <filled-skeleton>
+python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py write-memo --from-audit < <filled-skeleton>
 ```
 
 Script merges its internal mechanical audit w/ the behavioral rows, validates vocab per row type, computes clean-set membership (clean iff no VIOLATE / UNVERIFIABLE / UNRESOLVED / TYPE-MISMATCH / DRIFT / MISSING / STALE / EXTRA), writes memo only when clean (schema v3, per-row hashes, `last_clean_sha` = HEAD, oversized-cell ack, `.gitignore` guard).

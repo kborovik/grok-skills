@@ -8,13 +8,13 @@ description: |
   squash-merge with branch cleanup, `Closes #<issue>` linkage. Not for
   plain git ops (commit, push) nor `gh release` — the release skill owns version
   tag + release notes.
-allowed-tools: Bash(gh *), Bash(git *)
+allowed-tools: run_terminal_command(gh *), run_terminal_command(git *)
 user-invocable: false
 ---
 
 # github — gh-CLI workflow governor (auto-fire)
 
-Auto-fire sub-skill per the sub-skill-flags invariant (`user-invocable: false`, never `disable-model-invocation` — that hides the skill from the Skill tool).
+Auto-fire sub-skill per the sub-skill-flags invariant (`user-invocable: false`, never `disable-model-invocation` — that hides the skill from model auto-invocation).
 No hook — the skills-only invariant bans runtime interception; github = LLM-applied workflow shape on each gh issue/PR op, not a wrapper.
 Ships PUBLISHED to every consumer → governs the consuming repo's own gh workflow.
 

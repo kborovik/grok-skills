@@ -2,7 +2,7 @@
 name: socratic
 description: |
   Parameterized single-question intent-sharpening gate. Not user-invoked — engaged from consumer cmd pre-apply gate (e.g. /sdd:spec).
-allowed-tools: AskUserQuestion, Read, Grep
+allowed-tools: ask_user_question, read_file, grep
 user-invocable: false
 ---
 
@@ -61,7 +61,7 @@ overlay, not phase. answer reveals gap → surface distinction in 1–2 sentence
 
 ## CONVERGENCE
 
-converged iff some mode's triple fully present in dialogue history. ≥ 3 turns w/o convergence → AskUserQuestion per decision-gate invariant (selection drives same-turn return-vs-resume; prose `or keep going?` form not allowed). header `Converge?`, mutually-exclusive labels: `Return now` (stop dialogue → return `(mode, partial-facts)` + `unmet-criteria` per ESCAPE HATCH) / `Keep going` (resume LOOP).
+converged iff some mode's triple fully present in dialogue history. ≥ 3 turns w/o convergence → ask_user_question per decision-gate invariant (selection drives same-turn return-vs-resume; prose `or keep going?` form not allowed). header `Converge?`, mutually-exclusive labels: `Return now` (stop dialogue → return `(mode, partial-facts)` + `unmet-criteria` per ESCAPE HATCH) / `Keep going` (resume LOOP).
 
 ## ESCAPE HATCH
 
