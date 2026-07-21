@@ -2,8 +2,9 @@
 name: telegraph
 description: |
   Telegraph encoding — LLM-facing compression for SPEC.md and spec-adjacent
-  writes. Loaded by /sdd:spec, /sdd:build, /sdd:check. Triggers on any
-  write to SPEC.md or user says "telegraph", "compress this", "be brief".
+  writes. Loaded by /sdd:spec, /sdd:build, /sdd:check
+  when any write to SPEC.md or spec-adjacent telegraph surface is required.
+  Not user-invoked — engaged from caller recipes (spec, build, check).
 user-invocable: false
 ---
 
