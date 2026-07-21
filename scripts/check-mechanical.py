@@ -1872,9 +1872,26 @@ def discover_human_facing(repo_root):
     return sorted(set(out))
 
 
+def discover_sembr_fragments(repo_root):
+    """Shared recipe fragments under each plugin's `skills/_fragments/**`
+    (sembr invariant scope — closes §B.26). Separate helper so self-tests
+    assert fragment inclusion without requiring a full skill tree."""
+    out = []
+    for d in plugin_dirs(repo_root):
+        frag = os.path.join(d, "skills", "_fragments")
+        if not os.path.isdir(frag):
+            continue
+        for root, _, files in os.walk(frag):
+            for fn in sorted(files):
+                if fn.endswith(".md"):
+                    out.append(os.path.join(root, fn))
+    return sorted(out)
+
+
 def discover_sembr_files(repo_root):
-    """Sembr-invariant prose file set: repo-root README.md + AGENTS.md
-    `designs/*.md` drafts, and PUBLISHED skill bodies."""
+    """Sembr-invariant prose file set: repo-root README.md + AGENTS.md,
+    `designs/*.md` drafts, PUBLISHED skill bodies, and
+    `skills/_fragments/**` (shared recipe text — closes §B.26)."""
     out = []
     for name in ("README.md", "AGENTS.md"):
         p = os.path.join(repo_root, name)
@@ -1886,6 +1903,7 @@ def discover_sembr_files(repo_root):
             if fn.endswith(".md"):
                 out.append(os.path.join(designs, fn))
     out += discover_skill_md(repo_root)
+    out += discover_sembr_fragments(repo_root)
     return sorted(set(out))
 
 
@@ -3070,6 +3088,33 @@ def selftest():
     check(refixed == fixed and rerewrites == {},
           "fix-sembr: rewrite is idempotent")
 
+    # discover_sembr_files includes skills/_fragments/** (sembr invariant +
+    # §B.26): fragment .md paths join the prose set so multi-sentence fragment
+    # lines are audited + fix-sembr-reachable.
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        os.makedirs(os.path.join(td, ".grok-plugin"))
+        with open(os.path.join(td, ".grok-plugin", "plugin.json"), "w",
+                  encoding="utf-8") as f:
+            f.write('{"name":"t"}\n')
+        frag_dir = os.path.join(td, "skills", "_fragments")
+        os.makedirs(frag_dir)
+        frag_path = os.path.join(frag_dir, "X.md")
+        with open(frag_path, "w", encoding="utf-8") as f:
+            f.write("One line.\n")
+        found = discover_sembr_files(td)
+        check(frag_path in found,
+              "sembr-discover: skills/_fragments/** .md in file set")
+        check(frag_path in discover_sembr_fragments(td),
+              "sembr-discover: fragment helper lists _fragments .md")
+        empty_td = os.path.join(td, "empty-plugin")
+        os.makedirs(os.path.join(empty_td, ".grok-plugin"))
+        with open(os.path.join(empty_td, ".grok-plugin", "plugin.json"), "w",
+                  encoding="utf-8") as f:
+            f.write('{"name":"e"}\n')
+        check(discover_sembr_fragments(empty_td) == [],
+              "sembr-discover: missing _fragments dir → empty")
+
     if fails:
         sys.stderr.write("SELF-TEST FAIL:\n  " + "\n  ".join(fails) + "\n")
         return 1
@@ -3079,7 +3124,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 211
+    return 214
 
 
 # --- entry -------------------------------------------------------------------

@@ -144,7 +144,7 @@ T56|x|consumer-core-profile + UPSTREAM-FR fragment gate|V71,V62
 T57|x|rename design → shape; Plan mode artifact; fold-shape|V31,V72
 T58|x|micro-AMEND path for trivial amends|V74,V23
 T59|x|medium: DISTILL 2nd pass, explain-first remedies, engage log, socratic concrete escape, reorganize advisory, shared fragments|V25,V75,V72,V76
-T60|.|script: discover_sembr_files include skills/_fragments/** + self-test; fix multi-sentence fragment lines|V70,B26
+T60|x|script: discover_sembr_files include skills/_fragments/** + self-test; fix multi-sentence fragment lines|V70,B26
 T61|.|condense+reorganize: replace PROGRESS/Next body copies with _fragments pointers|V72,B27
 T62|.|telegraph+steno frontmatter: socratic-desc caller-engagement form (drop user-says triggers)|V61,B28
 T63|.|script: ARCHIVE_CLOSED_T=50 constant; condense prong 3 consumes it; self-test|V48,B29
