@@ -148,6 +148,7 @@ T60|x|script: discover_sembr_files include skills/_fragments/** + self-test; fix
 T61|x|condense+reorganize: replace PROGRESS/Next body copies with _fragments pointers|V72,B27
 T62|x|telegraph+steno frontmatter: socratic-desc caller-engagement form (drop user-says triggers)|V61,B28
 T63|x|script: ARCHIVE_CLOSED_T=50 constant; condense prong 3 consumes it; self-test|V48,B29
+T64|.|condense+reorganize PROGRESS: name todo_write (mirror check; clear grant VIOLATE)|V62,B30
 
 ## §B BUGS
 
@@ -181,3 +182,4 @@ B26|2026-07-21|discover_sembr_files omits skills/_fragments/**; multi-sentence f
 B27|2026-07-21|condense+reorganize copy PROGRESS/NEXT body instead of _fragments pointer|V72
 B28|2026-07-21|telegraph+steno frontmatter advertise user-says triggers; collide w/ caller dispatch|V61
 B29|2026-07-21|closed-§T archive threshold 50 hardcode in condense; not script constant per V48|V48
+B30|2026-07-21|T61 PROGRESS pointer left todo_write grant without body literal on condense+reorganize|V62
