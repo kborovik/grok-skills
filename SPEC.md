@@ -144,6 +144,10 @@ T56|x|consumer-core-profile + UPSTREAM-FR fragment gate|V71,V62
 T57|x|rename design → shape; Plan mode artifact; fold-shape|V31,V72
 T58|x|micro-AMEND path for trivial amends|V74,V23
 T59|x|medium: DISTILL 2nd pass, explain-first remedies, engage log, socratic concrete escape, reorganize advisory, shared fragments|V25,V75,V72,V76
+T60|.|script: discover_sembr_files include skills/_fragments/** + self-test; fix multi-sentence fragment lines|V70,B26
+T61|.|condense+reorganize: replace PROGRESS/Next body copies with _fragments pointers|V72,B27
+T62|.|telegraph+steno frontmatter: socratic-desc caller-engagement form (drop user-says triggers)|V61,B28
+T63|.|script: ARCHIVE_CLOSED_T=50 constant; condense prong 3 consumes it; self-test|V48,B29
 
 ## §B BUGS
 
@@ -173,3 +177,7 @@ B22|2026-06-19|README banned idiom; audit scanned symbols not idiom set|V67
 B23|2026-06-22|spec AMEND assumed SPEC.md body; condense stubs redirect to check-extras|V49
 B24|2026-07-21|MECHANIZE byte-identity forced multi-skill copy-paste; DRIFT class on any edit drift|V66,V72
 B25|2026-07-21|/sdd:design slash-only + designs/ file fought Plan mode + bundled /design name collision|V31
+B26|2026-07-21|discover_sembr_files omits skills/_fragments/**; multi-sentence fragment lines unaudited|V70
+B27|2026-07-21|condense+reorganize copy PROGRESS/NEXT body instead of _fragments pointer|V72
+B28|2026-07-21|telegraph+steno frontmatter advertise user-says triggers; collide w/ caller dispatch|V61
+B29|2026-07-21|closed-§T archive threshold 50 hardcode in condense; not script constant per V48|V48
