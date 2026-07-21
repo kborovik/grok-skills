@@ -27,8 +27,8 @@ Single commit per atomic-operation discipline, not partial application; cite-DAG
 
 ## PROGRESS
 
-Per `skills/_fragments/PROGRESS.md`.
 Phases: LOAD, ARCHIVE-RETIRED, CLUSTER, PROPOSE, CONFIRM, EXECUTE.
+Per `skills/_fragments/PROGRESS.md` — todo_write one task per phase; status `in_progress` then `completed`.
 `--taxonomy-only` exit / CONFIRM cancel / subset re-loop → unreached phases `deleted`, not `completed`.
 
 ## LOAD

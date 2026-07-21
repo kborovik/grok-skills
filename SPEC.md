@@ -148,7 +148,7 @@ T60|x|script: discover_sembr_files include skills/_fragments/** + self-test; fix
 T61|x|condense+reorganize: replace PROGRESS/Next body copies with _fragments pointers|V72,B27
 T62|x|telegraph+steno frontmatter: socratic-desc caller-engagement form (drop user-says triggers)|V61,B28
 T63|x|script: ARCHIVE_CLOSED_T=50 constant; condense prong 3 consumes it; self-test|V48,B29
-T64|.|condense+reorganize PROGRESS: name todo_write (mirror check; clear grant VIOLATE)|V62,B30
+T64|x|condense+reorganize PROGRESS: name todo_write (mirror check; clear grant VIOLATE)|V62,B30
 
 ## §B BUGS
 

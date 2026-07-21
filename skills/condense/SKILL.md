@@ -18,8 +18,8 @@ Writes serialize main-thread; per-prong scan reads delegable to sub-agents.
 
 ## PROGRESS
 
-Per `skills/_fragments/PROGRESS.md`.
 Phases: LOAD, PROPOSE (six-prong scan), CONFIRM, EXECUTE.
+Per `skills/_fragments/PROGRESS.md` — todo_write one task per phase; status `in_progress` then `completed`.
 CONFIRM cancel / subset-skip → unreached phases `deleted`, not `completed`.
 
 ## LOAD
