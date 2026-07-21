@@ -23,6 +23,11 @@ Body LLM-facing → telegraph.
 
 Repo-agnostic per the parametric-recipe invariant: every gh + git command runs against the cwd repo — no hardcoded `owner/repo` slug, no `--repo` flag, no repo-literal path. github-facing bodies (issue, PR) = steno per the github-facing-register invariant; commit subjects = fixed templates, verbatim.
 
+## ENGAGE LOG
+
+When this skill fires, emit one telegraph line before the op recipe: `engaged sdd:github — <ISSUE|BRANCH|PR|MERGE|CLOSE>`.
+Operator must see the governor (auto-fire visibility).
+
 ## WHEN — fires on a gh issue/PR op:
 
 - new issue requested → ISSUE

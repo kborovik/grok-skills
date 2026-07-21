@@ -1,14 +1,14 @@
 ---
 name: spec
 description: |
-  Sole semantic author of SPEC.md @ repo root — create, amend, fold designs,
+  Sole semantic author of SPEC.md @ repo root — create, amend, fold shapes,
   or backprop bugs (§T status-flip → build, archive → condense, §V renumber →
   reorganize; those carve-outs not authoring paths).
   Triggers when user asks to write spec, start new spec, distill spec from
   code, add invariants, amend a section, or record a bug. Common phrasings:
   "write the spec for...", "new spec", "distill spec from code",
   "spec this idea", "import existing repo", "pull invariants out of code",
-  "this bug keeps biting", "post-mortem on Y".
+  "this bug keeps biting", "post-mortem on Y", "fold-shape".
 allowed-tools: ask_user_question, read_file, search_replace, write, grep, run_terminal_command(git *), run_terminal_command(grep *), spawn_subagent, skill
 ---
 
@@ -20,8 +20,10 @@ allowed-tools: ask_user_question, read_file, search_replace, write, grep, run_te
 
 **Step 0 (precondition):** `git status --porcelain SPEC.md` empty → continue; else bail w/ "SPEC.md has uncommitted changes; commit or stash first" (auto-commit assumes clean baseline; porcelain catches staged + untracked, which `git diff --quiet` misses).
 
-**Step 1 (fold-in shortcut):** `$ARGUMENTS` matches `designs/*.md`, file exists, SPEC.md exists @ repo root → FOLD-IN (skip socratic gate — design skill Open-Questions-empty rule already enforced convergence pre-persist).
-Design path w/o SPEC.md → bail w/ "fold-in needs SPEC.md; init via NEW or DISTILL first" (design skill degrades gracefully sans SPEC.md so converged drafts can predate it).
+**Step 1 (fold-in shortcut):** any of:
+- `$ARGUMENTS` is `fold-shape` / `fold the shape plan` / free-form fold of current shape plan → FOLD-IN from approved session plan (shape skill).
+- `$ARGUMENTS` matches `designs/*.md`, file exists → FOLD-IN from legacy design draft.
+SPEC.md must exist @ repo root else bail w/ "fold-in needs SPEC.md; init via NEW or DISTILL first".
 Else → gate.
 
 Engage `sdd:socratic` gate w/ `$ARGUMENTS` as intent.
@@ -64,6 +66,9 @@ Flag uncertain items w/ `?` so user can confirm.
 
 → APPLY.
 
+**Second pass (required Next):** post-APPLY Next always includes `/sdd:check` then `/sdd:spec` confirm `?`-flagged rows (named AMEND batch).
+DISTILL is not one-shot truth — brownfield needs check noise + confirmation.
+
 ## BACKPROP — bug → §B + §V
 
 Input: gate triple (symptom + surface + recurrence-class).
@@ -80,38 +85,51 @@ Input: gate triple (symptom + surface + recurrence-class).
 Rule: every bug → §B entry.
 Invariant optional but preferred.
 
+**Resume card (post-commit):** write `.spec/backprop-handoff.json` with `{B, V, T, test_name_hint}` for the new rows (REPO-LOCAL cache, not design truth).
+Next item #1 = concrete `/sdd:build §T.<n>` (never bare `--next` only).
+Build LOAD consumes + deletes the card on close.
+
 ## AMEND — targeted edit
 
 Input: gate §-target + delta.
 
-**Resolve body file** (§V target — condense relocates heavy §V bodies, SPEC.md row left a stub): read the target's SPEC.md §V row.
-Row body redirects to `.spec/check-extras.md §V<n>` (condense prong-6 stub) → live body lives there under `## §V<n>` header; body file = `.spec/check-extras.md` (multi-target AMEND → one resolved body file per §V target, stub-redirected rows collapse to the same file).
-Else inline-body row → body file = SPEC.md. §B/§G/§C/§I/§T targets always SPEC.md.
-Resolved body file feeds APPLY step 4 write + commit path-scope per extras-hook invariant.
+**Resolve body file** via script when possible: `emit-v-slices --dirty V<n>` resolves check-extras stubs (extras-hook + single-load).
+Fallback hand-resolve: SPEC.md stub `→ .spec/check-extras.md §V<n>` → body file `.spec/check-extras.md`; else SPEC.md. §B/§G/§C/§I/§T always SPEC.md.
 
-Read target § from its resolved body file.
-Show current in steno per steno skill if target in {§V, §B} (audience: user reviewing proposal); telegraph otherwise.
-Ask user what changes.
+### Micro-AMEND (trivial path)
+
+Fires when all hold: single § target; delta ≤ one cell / one line; no new §V row; no sweep-§T.
+Still show preview.
+ask_user_question options lead with `Apply` (recommended); skip fold-first (no new row).
+Structural multi-row / new §V / FOLD-IN / BACKPROP / NEW / DISTILL keep full APPLY gate.
+
+### Full AMEND
+
+Read target § from resolved body file.
+Show current in steno if target in {§V, §B}; telegraph otherwise.
+Ask user what changes when delta incomplete.
 
 → APPLY.
 
 Never silently rewrite §s user did not name.
 
-## FOLD-IN — design draft → §V or §T amend
+## FOLD-IN — shape plan or design draft → §V / §T amend
 
-Input: `designs/<slug>.md` (converged per design skill Open-Questions-empty rule).
+Input (any of):
+- approved Grok Plan mode body from `/sdd:shape` (`fold-shape`)
+- legacy `designs/<slug>.md`
 
-No socratic gate — design skill enforced convergence pre-persist so /sdd:spec trusts content.
-Multi-target: one design may propose new §V row(s), §T row(s), §I edit(s), §B row(s) in one apply.
+No socratic gate — shape/design already enforced Open-Questions-empty (or park) pre-approve.
+Multi-target: one shape may propose new §V / §T / §I / §B rows in one apply.
 
-1. Read draft; parse proposed amendments.
+1. Read plan or draft; parse proposed amendments.
 2. Draft each in telegraph (target §s + delta text).
 
 → APPLY.
 
-Rule: fold-in mutates SPEC.md only; design file persists in working tree post-apply (no `git rm`, `git add`, or `rm`) per design-file lifecycle invariant — APPLY write step SPEC.md-only so structurally enforced.
-User removes or preserves manually.
-Provenance: slug in SPEC.md commit msg + git history.
+Rule: fold-in mutates SPEC.md only.
+Plan file stays in session; legacy design file stays in working tree (no auto `rm`).
+Provenance: slug or "fold-shape" in commit msg.
 
 ## APPLY (all modes, post-delta)
 
@@ -151,7 +169,7 @@ NEW      → init SPEC.md (V<1>..V<n>, T<1>..T<m>)
 DISTILL  → init SPEC.md from code
 BACKPROP → backprop §B.<n>(+) + §V.<N>(+): <one-line cause>   (trimmed forensics → msg body, from step 0)
 AMEND    → amend §<S>.<n>(+): <one-line>                       (pruned history → msg body, from step 0)
-FOLD-IN  → fold-in §V.<n>(+) and §T.<n>(+): <slug>            (omit absent §s)
+FOLD-IN  → fold-in §V.<n>(+) and §T.<n>(+): <slug|fold-shape>  (omit absent §s)
 ```
 
 **Re-entry**: any stage rewriting delta after step 0 — concretely fold-first's fold-into reroute (new §V row → existing-row amend) — re-enters APPLY @ step 0; rewritten delta newly satisfies §V-row prune and prior audits saw a delta that no longer exists.
@@ -236,62 +254,33 @@ Preview shows trimmed form, not raw forensics.
 
 ## POST-APPLY
 
-Every mode post-commit ! surface `/sdd:check` as Next-block item #1 per §V.<n>; operator dispatches next turn → cascade scan over just-applied delta.
-Not silent commit-then-done.
-Recipe ends @ commit — slash-cmd dispatch is operator turn only.
+Default: surface `/sdd:check` as Next item #1 (cascade over just-applied delta).
+Exceptions:
+- **BACKPROP** → item #1 = concrete `/sdd:build §T.<n>` (resume card); item #2 = `/sdd:check`.
+- **DISTILL** → item #1 = `/sdd:check`; item #2 = `/sdd:spec` confirm `?`-flagged rows.
+- Green-path: not default-chained from spec (operator or explicit Next).
 
-Catches class where SPEC.md amend invalidates derivative content in `<plugin>/**` (skills, commands, READMEs) w/o manual audit.
-Next-block surfacing is baseline — operator dispatch is only path to `/sdd:check`.
+Not silent commit-then-done.
 
 ## OUTPUT RULES
 
 Defer to `${GROK_PLUGIN_ROOT}/SPEC-FORMAT.md` — row shape, section catalog, citation forms, header conventions.
 
-## MECHANIZE — script-candidate scan
+## MECHANIZE
 
-Recipe end → before the `## Next` block, scan this run for a mechanization candidate.
-Candidate = any of:
-
-- ≥ 2 same-shape deterministic calls this run (identical command modulo args)
-- LLM-side join / sort / count / dedup over script-emittable data
-- multi-step parse collapsible to one script emit mode
-- fresh regex paraphrase of an existing mechanical rule (mechanical-realization invariant class)
-
-Hit → emit exactly one `## Next` item naming the observed pattern + proposed script mode; none → no item.
-Never self-implement the mechanization mid-run (recipe-step-no-dispatch + write-ownership invariants).
-Route by cwd:
-
-- dev repo (this plugin) → /sdd:spec → new §T row
-- consumer repo, plugin-target → monitor dispatched `mechanization-candidate` path (monitor-protocol invariant)
-- consumer repo-local → consumer /sdd:spec → `.spec/check-extras` row
+Load `${GROK_PLUGIN_ROOT}/skills/_fragments/MECHANIZE.md`.
+Run probe.
+Emit Next item per fragment.
 
 ## OUTPUT — "Next" block
 
-Heading `## Next`; 1–5 atomic items (one sentence each, no `Reply` prefix); positional dispatch (`run <int>` or `run /<plugin>:<cmd> [args]`).
-Optional `## Hint` (≤ 3 lines) precedes when item selection needs hidden state.
-Two output moments, distinct item leads: show-user turn (diff pending) → apply + revise lead; post-commit turn → `/sdd:check` item #1 every mode per POST-APPLY, then `/sdd:build §T.n` when pending §T row exists.
-
-Example @ show-user, diff pending (Hint skipped — items self-explanatory):
-
-```
-## Next
-
-1. apply the diff to `SPEC.md`
-2. /sdd:spec rework the V<N> invariant before building
-```
-
-Example post-commit, any mode (`/sdd:check` leads per POST-APPLY):
-
-```
-## Next
-
-1. /sdd:check — cascade scan over the just-applied delta
-2. /sdd:build T<n> — start the next pending task
-```
+Per `skills/_fragments/NEXT.md`.
+Show-user → apply + revise lead.
+Post-commit → POST-APPLY leads (BACKPROP concrete build; DISTILL check + confirm-?; else check then build).
 
 ## NON-GOALS
 
-- Writes serialize on main thread; reads delegable to sub-agents — SPEC.md draft + apply + commit stays main-thread; BACKPROP root-cause + NEW/DISTILL code-walk reads delegable.
-- No dashboards, no logs, no state files beyond SPEC.md itself.
-- No auto-build after spec.
-  User invokes build explicitly.
+- Writes serialize on main thread; reads delegable to sub-agents.
+- No dashboards.
+  Cache files (`.spec/backprop-handoff.json`, check memo) are not design truth.
+- No auto-build after non-BACKPROP spec (BACKPROP Next names concrete §T).

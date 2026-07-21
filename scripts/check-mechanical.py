@@ -11,12 +11,13 @@ standardized `id|verdict|evidence` pipe-table the skill merges into its REPORT.
 Modes:
   audit       — read SPEC.md (+ sibling archive if present), run every mechanical
                 audit, print the pipe-table. Optionally probe a REPO-LOCAL hook.
-                Emits `mechanize|DRIFT|…` / `mechanize|MISSING|…` — the
-                mechanize-scan invariant's verbatim-block check: every
-                user-invocable `skills/*/SKILL.md` (minus frontmatter
-                `user-invocable: false`) carries the byte-identical canonical
-                MECHANIZE block (DRIFT divergent, MISSING absent), realized once
-                here so the drift-detector retires its hand-run `awk|md5|uniq`.
+                Emits `mechanize|MISSING|…` / `mechanize|DRIFT|…` — the
+                mechanize-scan invariant's pointer check: every user-invocable
+                `skills/*/SKILL.md` (minus frontmatter `user-invocable: false`)
+                carries a `## MECHANIZE` section that references
+                `skills/_fragments/MECHANIZE` (MISSING absent/unpointed;
+                DRIFT = section present but pointer missing). Canonical probe
+                text lives once in the fragment — skill bodies never copy it.
                 Emits `dispatch|VIOLATE|…` — the response-shape invariant's
                 dispatch-target rule: no skill body slash-dispatches an auto-fire
                 sub-skill (`/<plugin>:<sub-skill>` for a `user-invocable: false`
@@ -85,6 +86,13 @@ Modes:
                 (default is all). Sources the §V-classification slice for the
                 drift-detector's single-agent and sub-agent batch paths without a
                 whole-file Read (large SPEC exceeds the Read token cap).
+                Resolves condense stub redirects (`→ .spec/check-extras.md §Vn`)
+                by inlining the live body from `.spec/check-extras.md` when
+                present (extras-hook invariant) so consumers never hand-resolve
+                body files.
+  emit-check-agent-prompt — print the canonical §V-classification sub-agent
+                prompt block (single source with skills/_fragments/
+                CHECK-AGENT-PROMPT.md).
   emit-superseded — read SPEC.md, print the condenser's prong-2 SUPERSEDED
                 candidate set: every closed §T whose §V cite resolves only into
                 the archived §V.retired block (absent from live §V). Live-only
@@ -300,12 +308,53 @@ def emit_row_ids(v_rows, i_ids, t_rows):
             + [r["id"] for r in t_rows])
 
 
-def collect_v_slices(sections):
-    """Return [{id, line_start, line_end, text}] every §V row — each row body with
-    its source line span. Rows are normally single-line; the span captures any
-    continuation lines up to the next row opener (trailing blanks trimmed) so a
-    wrapped body stays faithful. Feeds the §V-classification slice per the batch
-    invariant (script slice not whole-file Read)."""
+# Condense prong-6 stub: body redirects to `.spec/check-extras.md §Vn`
+V_STUB_RE = re.compile(
+    r'→\s*`?\.spec/check-extras\.md\s+§(V\d+)`?',
+    re.IGNORECASE,
+)
+
+
+def load_check_extras_bodies(repo_root):
+    """Parse `.spec/check-extras.md` into {V<n>: body text under ## §Vn header}.
+    Empty dict when file absent. Used by emit-v-slices to resolve stub redirects."""
+    path = os.path.join(repo_root, ".spec", "check-extras.md")
+    if not os.path.isfile(path):
+        return {}
+    try:
+        text = read_text(path)
+    except OSError:
+        return {}
+    bodies = {}
+    cur_id = None
+    cur_lines = []
+    hdr = re.compile(r'^##\s+§?(V\d+)\b')
+    for line in text.splitlines():
+        m = hdr.match(line)
+        if m:
+            if cur_id is not None:
+                bodies[cur_id] = "\n".join(cur_lines).strip()
+            cur_id = m.group(1)
+            cur_lines = []
+            continue
+        if cur_id is not None:
+            cur_lines.append(line)
+    if cur_id is not None:
+        bodies[cur_id] = "\n".join(cur_lines).strip()
+    return bodies
+
+
+def collect_v_slices(sections, repo_root=None):
+    """Return [{id, line_start, line_end, text, source}] every §V row — each row
+    body with its source line span. Rows are normally single-line; the span
+    captures any continuation lines up to the next row opener (trailing blanks
+    trimmed) so a wrapped body stays faithful. Feeds the §V-classification slice
+    per the batch invariant (script slice not whole-file Read).
+
+    When repo_root is set, condense stub redirects
+    (`→ .spec/check-extras.md §Vn`) resolve to the live body in check-extras.md
+    (source field notes the body file). Unresolved stubs keep the stub text."""
+    extras = load_check_extras_bodies(repo_root) if repo_root else {}
     v_lines = sections.get("V", [])
     openers = [idx for idx, (_, line) in enumerate(v_lines) if V_ROW.match(line)]
     slices = []
@@ -315,10 +364,23 @@ def collect_v_slices(sections):
         while block and block[-1][1].strip() == "":
             block = block[:-1]
         m = V_ROW.match(block[0][1])
-        slices.append({"id": m.group(1),
+        vid = m.group(1)
+        text = "\n".join(b[1] for b in block)
+        source = "SPEC.md"
+        stub = V_STUB_RE.search(text)
+        if stub and extras:
+            # Prefer the id named in the stub; fall back to the row id.
+            body_id = stub.group(1)
+            resolved = extras.get(body_id) or extras.get(vid)
+            if resolved:
+                # Keep opener line for identity; replace redirected body.
+                text = f"{vid}: {resolved}" if not resolved.lstrip().startswith(vid) else resolved
+                source = f".spec/check-extras.md#{body_id}"
+        slices.append({"id": vid,
                        "line_start": block[0][0],
                        "line_end": block[-1][0],
-                       "text": "\n".join(b[1] for b in block)})
+                       "text": text,
+                       "source": source})
     return slices
 
 
@@ -1108,11 +1170,14 @@ def audit_agents_md(repo_root):
     return classify_agents_md(text, carrier_name=AGENTS_MD)
 
 
-# --- mechanize-block identity ------------------------------------------------
+# --- mechanize pointer -------------------------------------------------------
 
 MECHANIZE_HDR = re.compile(r'^## MECHANIZE\b')
 H2_HDR = re.compile(r'^## ')
 UI_FALSE = re.compile(r'^user-invocable:\s*false\s*$', re.MULTILINE)
+# Pointer must name the shared fragment (path form flexible: plugin-root,
+# relative skills/, or bare _fragments/MECHANIZE).
+MECHANIZE_PTR = re.compile(r'_fragments/MECHANIZE')
 
 
 def parse_frontmatter(text):
@@ -1137,11 +1202,9 @@ def is_user_invocable(text):
 
 
 def extract_mechanize_block(text):
-    """Canonical MECHANIZE block: the `## MECHANIZE` header line through the line
-    before the next H2 (or EOF), trailing blank lines trimmed. Returns None when
-    the sentinel is absent. Trailing-blank trim canonicalizes the inter-section
-    gap so byte-identity reflects block content, not the blank-line count before
-    the following section."""
+    """MECHANIZE section: the `## MECHANIZE` header line through the line before
+    the next H2 (or EOF), trailing blank lines trimmed. Returns None when the
+    sentinel is absent."""
     lines = text.splitlines()
     start = None
     for i, line in enumerate(lines):
@@ -1162,15 +1225,13 @@ def extract_mechanize_block(text):
 
 
 def classify_mechanize_blocks(skill_texts):
-    """Mechanize-block audit core over {path: text} — pure, unit-testable without
-    the filesystem (mechanize-scan + mechanical-realization invariants). The
-    user-invocable set is the input minus frontmatter `user-invocable: false`
-    (auto-fire sub-skills). Emits MISSING for a user-invocable skill lacking the
-    MECHANIZE sentinel, DRIFT for a block diverging from the set's canonical
-    (majority) md5. Uniform set → no rows (clean, silent). < 2 blocks → no
-    comparison possible, no rows."""
+    """Mechanize-pointer audit core over {path: text} — pure, unit-testable
+    without the filesystem (mechanize-scan invariant). User-invocable set =
+    input minus frontmatter `user-invocable: false`. Each skill must carry a
+    `## MECHANIZE` section that references `skills/_fragments/MECHANIZE`
+    (canonical probe text lives once in the fragment). MISSING = no section;
+    DRIFT = section present but pointer absent. No multi-file byte-identity."""
     out = []
-    blocks = {}
     for path in sorted(skill_texts):
         txt = skill_texts[path]
         if not is_user_invocable(txt):
@@ -1179,35 +1240,19 @@ def classify_mechanize_blocks(skill_texts):
         if block is None:
             out.append(("mechanize", "MISSING",
                         f"mechanize MISSING: {path} user-invocable, "
-                        f"no MECHANIZE block"))
+                        f"no MECHANIZE section"))
             continue
-        blocks[path] = block
-    if len(blocks) < 2:
-        return out
-    by_hash = {}
-    for path in sorted(blocks):
-        h = hashlib.md5(blocks[path].encode("utf-8")).hexdigest()
-        by_hash.setdefault(h, []).append(path)
-    if len(by_hash) == 1:
-        return out
-    # canonical = most-populated md5; ties → lexicographically smallest hash
-    # (sorted iteration + max-by-count is deterministic, run-stable).
-    canonical = max(sorted(by_hash), key=lambda h: len(by_hash[h]))
-    for h in sorted(by_hash):
-        if h == canonical:
-            continue
-        for path in by_hash[h]:
+        if not MECHANIZE_PTR.search(block):
             out.append(("mechanize", "DRIFT",
-                        f"mechanize DRIFT: {path} MECHANIZE block diverges from "
-                        f"canonical (md5 {h[:8]} != {canonical[:8]})"))
+                        f"mechanize DRIFT: {path} MECHANIZE section missing "
+                        f"pointer to skills/_fragments/MECHANIZE"))
     return out
 
 
 def audit_mechanize_block(skill_md):
-    """File-reading wrapper around classify_mechanize_blocks (mechanize-scan +
-    mechanical-realization invariants). Asserts every user-invocable
-    `skills/*/SKILL.md` carries the byte-identical canonical MECHANIZE block —
-    realized once here, retiring the hand-run `awk|md5|uniq` verbatim check."""
+    """File-reading wrapper around classify_mechanize_blocks (mechanize-scan
+    invariant). Asserts every user-invocable `skills/*/SKILL.md` points at the
+    shared MECHANIZE fragment — realized once here."""
     texts = {}
     for path in skill_md:
         try:
@@ -1879,6 +1924,29 @@ def parse_archive_ids(arch_text):
     return ids
 
 
+
+def audit_reorganize_advisory(v_rows):
+    """ADVISORY when live §V ids look sparse (renumber / cluster debt smell).
+    Heuristic: span of ids / count ≥ 3 and span − count ≥ 15 → suggest reorganize.
+    Not dirty. Operator discoverability for reorganize vs condense."""
+    if len(v_rows) < 8:
+        return []
+    ids = []
+    for r in v_rows:
+        m = re.match(r'V(\d+)', r["id"])
+        if m:
+            ids.append(int(m.group(1)))
+    if not ids:
+        return []
+    lo, hi = min(ids), max(ids)
+    span = hi - lo + 1
+    n = len(ids)
+    if span >= 3 * n and (span - n) >= 15:
+        return [("reorganize", ADVISORY,
+                 f"§V id span {lo}..{hi} ({span} slots for {n} live rows) — "
+                 f"consider /sdd:reorganize for cluster + renumber clarity")]
+    return []
+
 def run_audit(repo_root, spec_path, run_hook=True, full=False):
     text, spec_bytes, arch_text = load_spec(repo_root, spec_path)
     sections, order = parse_sections(text)
@@ -1923,6 +1991,7 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
     findings += audit_sembr(discover_sembr_files(repo_root))
     findings += audit_batch_advisory(v_rows, published_md)
     findings += audit_token_estimate(spec_bytes)
+    findings += audit_reorganize_advisory(v_rows)
     findings += audit_memo(memo_path, v_rows)
     findings += audit_scope_feed(repo_root, memo, t_rows, v_rows, spec_path)
     if run_hook:
@@ -1942,14 +2011,59 @@ def cmd_audit(args):
 def cmd_emit_v_slices(args):
     text, _, _ = load_spec(args.repo_root, args.spec)
     sections, _ = parse_sections(text)
-    slices = collect_v_slices(sections)
+    slices = collect_v_slices(sections, repo_root=args.repo_root)
     if args.dirty:
         wanted = {t.strip() for t in args.dirty.split(',') if t.strip()}
         slices = [s for s in slices if s["id"] in wanted]
     for s in slices:
-        print(f"## {s['id']} SPEC.md:{s['line_start']}-{s['line_end']}")
+        src = s.get("source") or "SPEC.md"
+        print(f"## {s['id']} {src}:{s['line_start']}-{s['line_end']}")
         print(s["text"])
         print()
+    return 0
+
+
+CANONICAL_CHECK_AGENT_PROMPT = """You are an invariants audit sub-agent. Read-only tools (Explore-class palette). No edits, no commits.
+
+INPUT — SPEC.md invariants slice (lines {LINE_START}–{LINE_END}):
+
+{V_SLICE}
+
+INPUT — audit recipe (CHECK invariants step 5 behavioral-claim classification + judgment-class REPO-LOCAL extras from `.spec/check-extras.md`, verbatim):
+
+{RECIPE_EXCERPT}
+
+INPUT — scope sets (per scope-set invariant in SPEC.md):
+
+PUBLISHED = {PUBLISHED_PATHS}
+REPO-LOCAL = {REPO_LOCAL_PATHS}
+SPEC-ADJACENT = {SPEC_ADJACENT_PATHS}
+GITHUB-FACING = {GITHUB_FACING_PATHS}
+
+OUTPUT — pipe-table only. Columns: `id|verdict|evidence`.
+
+- `id` is invariant row identifier (`V<n>`).
+- `verdict` in {HOLD, VIOLATE, VIOLATE-CAPTURED, UNVERIFIABLE, SCOPE-EMPTY, HOLD-SINCE-CLEAN, LATENT}.
+- `evidence` ≤ 1 line, one of `file:line` or `no test covers …` or `scope-touch overlap empty` or `HOLD-since-clean @ <sha>` or `<file:line>; see §B.<n>` (VIOLATE-CAPTURED form) or `<trigger-condition-absent reason>` (LATENT form).
+
+No prose preamble before the table. No trailing summary after the table. No commentary between rows. Pipe-table only — first line is header `id|verdict|evidence`, subsequent lines one row per assigned V<n>.
+"""
+
+
+def cmd_emit_check_agent_prompt(args):
+    """Emit the canonical §V-classification sub-agent prompt (single source with
+    skills/_fragments/CHECK-AGENT-PROMPT.md when present)."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    frag = os.path.normpath(
+        os.path.join(here, "..", "skills", "_fragments", "CHECK-AGENT-PROMPT.md")
+    )
+    if os.path.isfile(frag):
+        body = read_text(frag)
+        sys.stdout.write(body if body.endswith("\n") else body + "\n")
+        return 0
+    sys.stdout.write(CANONICAL_CHECK_AGENT_PROMPT)
+    if not CANONICAL_CHECK_AGENT_PROMPT.endswith("\n"):
+        sys.stdout.write("\n")
     return 0
 
 
@@ -2612,11 +2726,13 @@ def selftest():
           == [("batch", ADVISORY, "recommended: 1 agents")],
           "batch: advisory honors narrow-scope override")
 
-    # mechanize-block audit (mechanize-scan + mechanical-realization invariants):
-    # every user-invocable SKILL.md carries the byte-identical canonical block;
-    # sub-skills (user-invocable: false) excluded. Replaces hand-run awk|md5|uniq.
-    mblock = "## MECHANIZE — scan\n\nscan body\n\n- rule a\n- rule b\n"
-    mblock2 = "## MECHANIZE — scan\n\nscan body\n\n- rule a\n- rule DIFFERENT\n"
+    # mechanize-pointer audit (mechanize-scan invariant): every user-invocable
+    # SKILL.md carries a ## MECHANIZE section pointing at skills/_fragments/
+    # MECHANIZE; sub-skills (user-invocable: false) excluded. No byte-identity.
+    mblock = ("## MECHANIZE\n\n"
+              "Load `${GROK_PLUGIN_ROOT}/skills/_fragments/MECHANIZE.md`. "
+              "Run probe.\n")
+    mblock_nopointer = "## MECHANIZE\n\nscan body inlined — no fragment ptr\n"
 
     def _mk(fm_extra="", block=mblock, tail="\n## OUTPUT\n\nnext\n"):
         return ("---\nname: s\n" + fm_extra + "---\n\n# s\n\nintro\n\n"
@@ -2631,8 +2747,8 @@ def selftest():
     check(is_user_invocable(_mk()) is True, "is_user_invocable: default true")
     check(is_user_invocable(_mk("user-invocable: false\n")) is False,
           "is_user_invocable: frontmatter false → false")
-    body_mention = _mk(block="## MECHANIZE — scan\n\nsets `user-invocable: "
-                             "false` in prose\n\n- rule a\n- rule b\n")
+    body_mention = _mk(block="## MECHANIZE\n\nsets `user-invocable: "
+                             "false` in prose; skills/_fragments/MECHANIZE.md\n")
     check(is_user_invocable(body_mention) is True,
           "is_user_invocable: body mention of flag ignored (frontmatter-only)")
     # block extraction: header → next H2, trailing blank trimmed; absent → None
@@ -2642,28 +2758,28 @@ def selftest():
           "extract_mechanize_block: sentinel absent → None")
     check(extract_mechanize_block(_mk(tail="")) == mblock.rstrip("\n"),
           "extract_mechanize_block: block at EOF extracts")
-    # uniform set → clean (silent)
+    # pointer present → clean
     check(classify_mechanize_blocks({"a/SKILL.md": _mk(), "b/SKILL.md": _mk()})
-          == [], "mechanize: uniform blocks → clean")
-    # divergent block → DRIFT on the minority only
-    dr = classify_mechanize_blocks({"a/SKILL.md": _mk(), "b/SKILL.md": _mk(),
-                                    "c/SKILL.md": _mk(block=mblock2)})
+          == [], "mechanize: pointer present → clean")
+    # section present but pointer missing → DRIFT
+    dr = classify_mechanize_blocks({"a/SKILL.md": _mk(),
+                                    "c/SKILL.md": _mk(block=mblock_nopointer)})
     check(len(dr) == 1 and dr[0][1] == "DRIFT" and "c/SKILL.md" in dr[0][2],
-          "mechanize: divergent block flagged DRIFT on minority")
-    # user-invocable skill missing the block → MISSING
+          "mechanize: missing pointer flagged DRIFT")
+    # user-invocable skill missing the section → MISSING
     mr = classify_mechanize_blocks({"a/SKILL.md": _mk(),
                                     "b/SKILL.md": _mk(block="## OTHER\n\nx\n")})
     check(any(v == "MISSING" and "b/SKILL.md" in e for _, v, e in mr),
-          "mechanize: user-invocable skill missing block → MISSING")
-    # sub-skill (user-invocable: false) without block excluded — no MISSING
+          "mechanize: user-invocable skill missing section → MISSING")
+    # sub-skill (user-invocable: false) without section excluded — no MISSING
     check(classify_mechanize_blocks(
-        {"a/SKILL.md": _mk(), "b/SKILL.md": _mk(),
+        {"a/SKILL.md": _mk(),
          "sub/SKILL.md": _mk("user-invocable: false\n",
                              block="## OTHER\n\nx\n")}) == [],
-          "mechanize: sub-skill without block excluded")
-    # single user-invocable block → no comparison possible, clean
+          "mechanize: sub-skill without section excluded")
+    # single pointed skill → clean
     check(classify_mechanize_blocks({"a/SKILL.md": _mk()}) == [],
-          "mechanize: single block → no divergence possible")
+          "mechanize: single pointed skill → clean")
     # DRIFT + MISSING make the run dirty; pseudo-id row unrestricted vocab
     check(compute_clean([("mechanize", "DRIFT", "")])[0] is False,
           "mechanize: DRIFT is dirty")
@@ -2978,7 +3094,8 @@ def main(argv=None):
                                          "emit-v-slices", "emit-superseded",
                                          "emit-fold-seeds", "emit-v-weights",
                                          "emit-row-ids", "emit-overview",
-                                         "emit-token-estimate", "emit-residue"])
+                                         "emit-token-estimate", "emit-residue",
+                                         "emit-check-agent-prompt"])
     parser.add_argument("--repo-root", default=os.environ.get("CHECK_REPO_ROOT", "."))
     parser.add_argument("--spec", default="SPEC.md")
     parser.add_argument("--no-hook", action="store_true",
@@ -3021,6 +3138,8 @@ def main(argv=None):
         return cmd_emit_token_estimate(args)
     if args.mode == "emit-residue":
         return cmd_emit_residue(args)
+    if args.mode == "emit-check-agent-prompt":
+        return cmd_emit_check_agent_prompt(args)
     return cmd_write_memo(args)
 
 

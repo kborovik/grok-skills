@@ -16,14 +16,15 @@ LLM writes code faster than humans read → standards + logic drift unchecked; c
 
 external surface — what operator + consuming repo see.
 
-- design: `/sdd:design <topic>` → propose-critique loop → `designs/<slug>.md` (SPEC.md untouched; slash-only via `disable-model-invocation`, not bundled `/design`)
-- spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit
-- build: `/sdd:build [§T.n|--next|--all]` → plan → edit → verify → flip §T `.`→`x` + commit per task
-- check: `/sdd:check [--full]` → read-only drift REPORT (severity blocks, checkpoint, advisory, summary) + Next block
+- shape: `/sdd:shape <topic>` → Grok Plan mode propose-critique → approved plan; fold via `/sdd:spec fold-shape` (not bundled `/design`; no default `designs/` write)
+- spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit; fold-shape + micro-AMEND paths
+- build: `/sdd:build [§T.n|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path chain default-on → check
+- check: `/sdd:check [--full|--no-chain]` → thin recipe + script; read-only REPORT + Next; clean chain → build --next
 - explain: `/sdd:explain [§-cite|--next]` → prose expansion w/ cited siblings, zero writes
 - condense: `/sdd:condense` → six-prong token sweep, single atomic commit
 - reorganize: `/sdd:reorganize [--taxonomy-only]` → §V cluster + renumber + cite sweep, single atomic commit
-- script: `python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py <mode>` → pipe-table `id|verdict|evidence`; modes: audit, write-memo, fix-sembr, emit-v-slices, emit-superseded, emit-fold-seeds, emit-v-weights, emit-row-ids, emit-overview, emit-token-estimate, emit-residue, --self-test
+- script: `python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py <mode>` → pipe-table `id|verdict|evidence`; modes: audit, write-memo, fix-sembr, emit-v-slices, emit-superseded, emit-fold-seeds, emit-v-weights, emit-row-ids, emit-overview, emit-token-estimate, emit-residue, emit-check-agent-prompt, --self-test
+- fragments: `skills/_fragments/*` shared recipe text (MECHANIZE, NEXT, CHAIN, CHECK-RECIPE, …) — not slash surfaces
 - format: `SPEC-FORMAT.md` → row shape + section catalog contract; loaded by spec, check, condense, reorganize
 
 ## §V INVARIANTS
@@ -43,7 +44,7 @@ V15: renumber-chain-walk — `.spec/spec-renumber-map.json` append-only; histori
 V16: archive-semantics — archived §T/§B + retired §V rows migrate verbatim to SPEC.archive.md w/ per-section markers per SPEC-FORMAT; archived rows stay cite-resolvable, never edited.
 V20: write-ownership — → `.spec/check-extras.md §V20`
 V21: write-serialize — SPEC.md + code writes serialize main-thread; reads delegable to read-only sub-agents.
-V22: recipe-step-no-dispatch — slash-cmd dispatch = operator turn only; recipes end @ commit + Next block; sole exclusion: /sdd:build verify-fail routes cause to spec skill mid-loop.
+V22: recipe-step-no-dispatch — slash-cmd dispatch = operator turn only; recipes end @ commit + Next block; exclusions: (1) /sdd:build verify-fail → mid-loop spec BACKPROP; (2) green-path chain default-on per `skills/_fragments/CHAIN.md` — build pass → check cascade same turn; check clean + pending `.` §T → build --next same turn; `--no-chain` disables; dirty check never auto-remedy.
 V23: decision-gate — → `.spec/check-extras.md §V23`
 V24: response-shape — → `.spec/check-extras.md §V24`
 V25: socratic-gate — /sdd:spec mode {NEW, DISTILL, BACKPROP, AMEND, FOLD-IN} = gate byproduct of free-form `$ARGUMENTS`; no mode prefixes, no skip flags; concrete intent converges ≤ 1 turn.
@@ -52,7 +53,7 @@ V27: backprop-protocol — → `.spec/check-extras.md §V27`
 V28: freshness-contract — → `.spec/check-extras.md §V28`
 V29: fold-first — new §V row vs amend of closest existing row ! operator gate; split justification = §B recurrence cite or declared orthogonal concept; "mirrors existing row" alone insufficient.
 V30: sweep-scope — sweep-class §T row ! declare scope as grep pattern or vocab table; named-procedure + named-site lists rejected.
-V31: design-lifecycle — /sdd:design writes `designs/<slug>.md` only (write-new); slash-only (`disable-model-invocation: true` on `skills/design`, not bundled `/design` auto-route); fold-in mutates SPEC.md only; draft persists in working tree, operator disposes.
+V31: shape-lifecycle — /sdd:shape uses Grok Plan mode (enter_plan_mode → plan.md → exit_plan_mode); primary artifact = session plan, not `designs/`; fold-in via `/sdd:spec fold-shape` mutates SPEC.md only; legacy `designs/*.md` still folds; optional `--export designs/<slug>.md` only on operator ask; not bundled `/design`.
 V40: mechanical-realization — → `.spec/check-extras.md §V40`
 V41: parametric-recipe — → `.spec/check-extras.md §V41`
 V42: scope-set — → `.spec/check-extras.md §V42`
@@ -73,7 +74,13 @@ V66: mechanize-scan — → `.spec/check-extras.md §V66`
 V67: human-clarity — → `.spec/check-extras.md §V67`
 V68: table-use — → `.spec/check-extras.md §V68`
 V69: github-workflow — → `.spec/check-extras.md §V69`
-V70: sembr — repo `.md` prose source lines ! semantic line breaks (sembr.org): one sentence per line, clause-boundary break OK; source-format only — rendered output unchanged; scope: README.md, AGENTS.md, `designs/*.md`, `skills/**/SKILL.md`; exempt: pipe-row files (SPEC.md, SPEC.archive.md, `.spec/check-extras.md`), fenced blocks, `|`-tables, frontmatter; GitHub issue/PR/comment bodies out of scope (GFM renders single newline as hard break); register-orthogonal — sibling to table-use.
+V70: sembr — repo `.md` prose source lines ! semantic line breaks (sembr.org): one sentence per line, clause-boundary break OK; source-format only — rendered output unchanged; scope: README.md, AGENTS.md, `designs/*.md`, `skills/**/SKILL.md`, `skills/_fragments/**`; exempt: pipe-row files (SPEC.md, SPEC.archive.md, `.spec/check-extras.md`), fenced blocks, `|`-tables, frontmatter; GitHub issue/PR/comment bodies out of scope (GFM renders single newline as hard break); register-orthogonal — sibling to table-use.
+V71: consumer-core-profile — core loop = shape? → spec → build → check → explain; maintenance = condense/reorganize; plugin-meta (UPSTREAM-FR fragment, monitor issue path for plugin repo) loads only when cwd is plugin `.repository` or operator targets plugin; consumer non-plugin repos skip UPSTREAM-FR body weight.
+V72: shared-fragments — canonical cross-skill recipe text lives in `skills/_fragments/` (MECHANIZE, NEXT, PROGRESS, PATH-SCOPED-COMMIT, CHAIN, CHECK-RECIPE, CHECK-AGENT-PROMPT, UPSTREAM-FR); user-invocable skills point, never copy; `_fragments` is not a slash surface.
+V73: backprop-resume-card — BACKPROP APPLY writes `.spec/backprop-handoff.json` `{B,V,T,test_name_hint}`; Next leads with concrete `/sdd:build §T.n`; build LOAD consumes + deletes on close; card is resume pointer, not design truth.
+V74: micro-amend — single-§ single-line AMEND with no new §V row uses shortened APPLY gate (preview + Apply-led ask_user_question; skip fold-first); structural modes keep full gate.
+V75: auto-fire-engage-log — auto-fire sub-skills (telegraph, steno, monitor, github) emit one telegraph `engaged sdd:<name>` line when they fire so the operator sees the governor.
+V76: thin-check — check SKILL.md is phase + script orchestration only; long recipe detail in `_fragments/CHECK-RECIPE.md`; sub-agent prompt from `emit-check-agent-prompt` / CHECK-AGENT-PROMPT fragment.
 
 ## §T TASKS
 
@@ -128,6 +135,15 @@ T47|x|script: sembr multi-sentence-line advisory + self-test|V70,V40
 T48|x|script: fix-sembr mode rewrite multi-sentence lines|V70,V40
 T49|x|build: auto-send Grok Build feedback for upstream-FR §T rows|V62
 T50|x|script emit-residue mode (section|id|pattern|line; share HR_*/pre-filter/oversized w/ audit_history_residue; self-test emit=audit); condense prong 4 consumes table (empty → skip)|V28,V40,V48
+T51|x|MECHANIZE de-dupe: fragment pointer + script pointer audit (retire byte-identity)|V66,V72,V40
+T52|x|thin check recipe + emit-check-agent-prompt + CHECK-RECIPE fragment|V76,V64,V40
+T53|x|emit-v-slices resolve check-extras stubs|V49,V64,V40
+T54|x|backprop resume card + concrete Next §T id|V73,V27,V24
+T55|x|green-path chain default-on + --no-chain|V22,V24
+T56|x|consumer-core-profile + UPSTREAM-FR fragment gate|V71,V62
+T57|x|rename design → shape; Plan mode artifact; fold-shape|V31,V72
+T58|x|micro-AMEND path for trivial amends|V74,V23
+T59|x|medium: DISTILL 2nd pass, explain-first remedies, engage log, socratic concrete escape, reorganize advisory, shared fragments|V25,V75,V72,V76
 
 ## §B BUGS
 
@@ -155,3 +171,5 @@ B20|2026-06-18|manifest token-cut figure stale 30% vs measured ~40%|-
 B21|2026-06-19|steno/design + missing clarity carrier predate V4/V67 sync|V67
 B22|2026-06-19|README banned idiom; audit scanned symbols not idiom set|V67
 B23|2026-06-22|spec AMEND assumed SPEC.md body; condense stubs redirect to check-extras|V49
+B24|2026-07-21|MECHANIZE byte-identity forced multi-skill copy-paste; DRIFT class on any edit drift|V66,V72
+B25|2026-07-21|/sdd:design slash-only + designs/ file fought Plan mode + bundled /design name collision|V31

@@ -121,23 +121,11 @@ EXECUTE ends @ commit.
 Rollback `git revert <condense-sha>`.
 Drift cascade → Next-block item #1; operator dispatches next turn.
 
-## MECHANIZE — script-candidate scan
+## MECHANIZE
 
-Recipe end → before the `## Next` block, scan this run for a mechanization candidate.
-Candidate = any of:
-
-- ≥ 2 same-shape deterministic calls this run (identical command modulo args)
-- LLM-side join / sort / count / dedup over script-emittable data
-- multi-step parse collapsible to one script emit mode
-- fresh regex paraphrase of an existing mechanical rule (mechanical-realization invariant class)
-
-Hit → emit exactly one `## Next` item naming the observed pattern + proposed script mode; none → no item.
-Never self-implement the mechanization mid-run (recipe-step-no-dispatch + write-ownership invariants).
-Route by cwd:
-
-- dev repo (this plugin) → /sdd:spec → new §T row
-- consumer repo, plugin-target → monitor dispatched `mechanization-candidate` path (monitor-protocol invariant)
-- consumer repo-local → consumer /sdd:spec → `.spec/check-extras` row
+Load `${GROK_PLUGIN_ROOT}/skills/_fragments/MECHANIZE.md`.
+Run probe.
+Emit Next item per fragment.
 
 ## OUTPUT — "Next" block
 

@@ -20,6 +20,11 @@ Ships PUBLISHED to every consumer → every plugin user is a data source.
 Trigger lives in this frontmatter description only — zero edits to existing skill bodies (byte-identical).
 Body LLM-facing → telegraph.
 
+## ENGAGE LOG
+
+When this skill fires, emit one telegraph line before PROTOCOL: `engaged sdd:monitor — <auto-fire|mechanization-candidate>`.
+Operator must see the governor (auto-fire visibility).
+
 ## WHEN — fires mid-skill-run when an sdd skill deviates:
 
 - instruction ambiguous or self-contradictory

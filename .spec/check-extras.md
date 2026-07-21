@@ -20,7 +20,7 @@ V23: decision-gate — enumerable runtime choice ! AskUserQuestion w/ mutually-e
 
 ## §V24 response-shape
 
-V24: response-shape — user-typeable skill output ends `## Next` (1–5 atomic items, no `Reply` prefix, positional dispatch `run <int>` / `run /<plugin>:<cmd> [args]`); dispatched `<cmd>` + any "route through" prose name only `user-invocable` skills — auto-fire sub-skills (telegraph, backprop, socratic, steno, monitor, github) never a dispatch target (read-only, `user-invocable: false` per §V.61); bug→spec user route = `/sdd:spec <intent>` (gate→BACKPROP per §V.25), never `/sdd:backprop`; optional `## Hint` ≤ 3 lines precedes; multi-phase run {check, build `--all`, condense, reorganize} ! emit live harness checklist — TaskCreate per recipe phase @ start, TaskUpdate in_progress→completed @ transition; checklist ephemeral harness UI, never repo state, never substitutes REPORT or `## Next` (closes §B.14).
+V24: response-shape — user-typeable skill output ends `## Next` (1–5 atomic items, no `Reply` prefix, positional dispatch `run <int>` / `run /sdd:<cmd> [args]`); canonical contract in `skills/_fragments/NEXT.md`; dispatched `<cmd>` names only `user-invocable` skills — auto-fire sub-skills never a dispatch target; bug→spec user route = `/sdd:spec <intent>`, never `/sdd:backprop`; optional `## Hint` ≤ 3 lines precedes; multi-phase run {check, build `--all`, condense, reorganize} ! emit live harness checklist per PROGRESS fragment; BACKPROP Next leads with concrete `/sdd:build §T.n` (resume card); green-path chain may hop once per CHAIN fragment without operator re-type (closes §B.14).
 
 ## §V27 backprop-protocol
 
@@ -88,7 +88,7 @@ V65: monitor-protocol — entry paths: auto-fire deviation (consumer-repo skill 
 
 ## §V66 mechanize-scan
 
-V66: mechanize-scan — user-invocable recipe ({design, spec, build, check, explain, condense, reorganize}) ends w/ MECHANIZE probe — canonical verbatim block per SKILL.md, sentinel `MECHANIZE` grep-sweepable; auto-fire sub-skills excluded; candidate = ≥ 2 same-shape deterministic calls (identical command modulo args) | LLM-side join/sort/count/dedup over script-emittable data | multi-step parse collapsible to one emit mode | fresh regex paraphrase (§V.40 class); hit → exactly one `## Next` item carrying observed pattern + proposed script mode, none → no item; never self-implement mid-run (§V.22, §V.20); routing: dev repo → /sdd:spec → §T row; consumer plugin-target → monitor dispatched path (§V.65); consumer repo-local → consumer /sdd:spec → extras row.
+V66: mechanize-scan — user-invocable recipe ({shape, spec, build, check, explain, condense, reorganize}) ends w/ MECHANIZE probe; canonical criteria live once in `skills/_fragments/MECHANIZE.md`; each skill carries `## MECHANIZE` section pointing at that fragment (script audits pointer presence — MISSING/DRIFT — not multi-file byte-identity; closes §B.24); auto-fire sub-skills excluded; candidate = ≥ 2 same-shape deterministic calls | LLM-side join/sort/count/dedup over script-emittable data | multi-step parse collapsible to one emit mode | fresh regex paraphrase (mechanical-realization class); hit → exactly one `## Next` item with pattern + proposed script mode; never self-implement mid-run; routing: dev repo → /sdd:spec → §T; consumer plugin-target → monitor mechanization-candidate; consumer repo-local → consumer /sdd:spec → extras.
 
 ## §V67 human-clarity
 

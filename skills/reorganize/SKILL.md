@@ -11,7 +11,8 @@ allowed-tools: ask_user_question, read_file, search_replace, write, grep, run_te
 # reorganize — §V cluster + renumber + cite-DAG sweep
 
 Operator-triggered clarity-shape pass over SPEC.md §V.
-Cadence ≤ once per major epoch (months) — skill body documents intent, not /sdd:check - enforced.
+Cadence ≤ once per major epoch (months).
+`/sdd:check` may emit a reorganize advisory when §V numbering looks sparse or cluster debt is high — that is the discoverability signal (token advisory alone is not enough).
 Single atomic commit, rollback via `git revert`.
 
 ## PREAMBLE
@@ -130,23 +131,11 @@ Map is append-only history of all runs; stacked runs admit duplicate `old:` keys
 Walk landing on `archive` sentinel → emit `archived → SPEC.archive.md ## §V.retired V<n>`, not resolve to live row — distinct terminus from "no further mapping" (current live id).
 Consumers: reorganize re-runs + explain skill LOAD (historical-id resolution); both walk newest-first, read-only per cite-resolution invariant.
 
-## MECHANIZE — script-candidate scan
+## MECHANIZE
 
-Recipe end → before the `## Next` block, scan this run for a mechanization candidate.
-Candidate = any of:
-
-- ≥ 2 same-shape deterministic calls this run (identical command modulo args)
-- LLM-side join / sort / count / dedup over script-emittable data
-- multi-step parse collapsible to one script emit mode
-- fresh regex paraphrase of an existing mechanical rule (mechanical-realization invariant class)
-
-Hit → emit exactly one `## Next` item naming the observed pattern + proposed script mode; none → no item.
-Never self-implement the mechanization mid-run (recipe-step-no-dispatch + write-ownership invariants).
-Route by cwd:
-
-- dev repo (this plugin) → /sdd:spec → new §T row
-- consumer repo, plugin-target → monitor dispatched `mechanization-candidate` path (monitor-protocol invariant)
-- consumer repo-local → consumer /sdd:spec → `.spec/check-extras` row
+Load `${GROK_PLUGIN_ROOT}/skills/_fragments/MECHANIZE.md`.
+Run probe.
+Emit Next item per fragment.
 
 ## OUTPUT — "Next" block
 

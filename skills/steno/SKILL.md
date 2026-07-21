@@ -10,6 +10,10 @@ user-invocable: false
 
 # steno — simple technical language
 
+## ENGAGE LOG
+
+When engaged for human-facing prose, emit one telegraph line once per run: `engaged sdd:steno`.
+
 Audience: human reviewer scanning prose for facts — not a token-optimised model.
 Anchor: simple technical language — clarity primary, compression subordinate; a word that aids the skim stays.
 LLM-facing register → `telegraph` skill (same plugin).

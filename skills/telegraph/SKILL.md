@@ -9,6 +9,10 @@ user-invocable: false
 
 # telegraph — LLM-facing telegraph encoding
 
+## ENGAGE LOG
+
+When engaged for a SPEC-adjacent write, emit one telegraph line once per run: `engaged sdd:telegraph`.
+
 Audience: LLM re-reading SPEC.md into context.
 Humans operate via /sdd:* cmds; /sdd:explain decodes telegraph → prose.
 Compression = telegraphic grammar (content words kept, function words dropped, as in telegrams), not symbols — heavy math operators cost 2–4 tokens vs 1-token word.

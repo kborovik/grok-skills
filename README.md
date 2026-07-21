@@ -70,7 +70,7 @@ Plugin layout is Grok-native (`.grok-plugin/plugin.json` + `skills/*/SKILL.md` +
 
 ```
    ┌────────────┐   ┌────────────┐   ┌────────────┐   ┌────────────┐
-   │/sdd:design │──►│ /sdd:spec  │──►│ /sdd:build │──►│ /sdd:check │
+   │/sdd:shape │──►│ /sdd:spec  │──►│ /sdd:build │──►│ /sdd:check │
    │  propose   │   │  mutator   │   │ plan→exec  │   │ read-only  │
    └────────────┘   └─────▲──────┘   └─────┬──────┘   └─────┬──────┘
                           │                │                │
@@ -143,22 +143,23 @@ Backticks OK.
 
 ## Commands
 
-### `/sdd:design` — propose-then-critique
+### `/sdd:shape` — propose-then-critique (Plan mode)
 
 Use when there's a structural choice to weigh — tradeoffs, named alternatives, subsystem shape.
-**Slash-only:** run `/sdd:design <topic>`.
-The model does not auto-start this skill from bare "design …" prose.
-That keeps it clear of the bundled Grok `/design` skill (write, then review, then revise a design doc with a PR plan).
-The model proposes a shape, you critique, the loop converges only when `## Open Questions` is empty.
-Persists to `designs/<slug>.md`.
-`/sdd:spec` later folds the converged design into `§V` / `§T` rows; the draft file stays in the working tree for you to remove or keep.
+Run `/sdd:shape <topic>` (or natural language that clearly asks to shape an SDD structure).
+The skill enters **Grok Plan mode**, writes the proposal only to the session plan file, and iterates until `## Open Questions` is empty.
+You approve the plan in the Plan mode UI.
+Then fold with `/sdd:spec fold-shape` (mutates `SPEC.md` only).
+No default `designs/` file — optional export only if you ask.
+Name is `shape` on purpose so it does not collide with the bundled Grok `/design` skill.
 
 ```bash
-/sdd:design how should the release pipeline split monorepo plugins?
+/sdd:shape how should the release pipeline split monorepo plugins?
+/sdd:spec fold-shape
 ```
 
-Distinct from `/sdd:spec`'s socratic gate: socratic converges on **enough** (sharpen vague intent); design converges on **exhausted** (every structural question has a decision).
-Distinct from bundled `/design`: that skill is a general design-doc loop; `/sdd:design` is the SDD funnel step that writes `designs/<slug>.md` for fold-in.
+Distinct from `/sdd:spec`'s socratic gate: socratic converges on **enough** (sharpen vague intent); shape converges on **exhausted** (every structural question has a decision).
+Distinct from bundled `/design`: that skill is a general design-doc loop with a PR plan; `/sdd:shape` is the SDD funnel step.
 
 ### `/sdd:spec` — mutate the spec
 
@@ -186,7 +187,10 @@ EXECUTE serializes on main thread; PLAN reads may delegate to sub-agents.
 - `§T.n` — implement that one task
 - `--next` — lowest-numbered row with status `.`
 - `--all` — every `.` row in §T order
+- `--no-chain` — skip the default same-turn hop into `/sdd:check` after a green pass
 - (empty) — same as `--next`
+
+**Green-path chain (default on):** after a successful close, the run continues into `/sdd:check` on the just-closed task in the same turn unless you passed `--no-chain`.
 
 Loop per task:
 
@@ -207,9 +211,11 @@ Always audits §V + §I + §T together.
 
 - (empty) — memo-driven sweep: re-audits §V rows touched since last clean run; rest HOLD-SINCE-CLEAN.
 - `--full` — force full re-classify: deletes `.spec/check-state.json` upfront, rebuilds memo.
+- `--no-chain` — skip the default same-turn hop into `/sdd:build --next` after a clean report with pending tasks.
 
-Output groups violations by severity (`VIOLATE` / `RISK` / `STALE`) and suggests a remedy — usually `/sdd:spec <intent>` or `/sdd:build`.
-It never runs them itself.
+Output groups violations by severity and suggests a remedy — usually `/sdd:explain`, `/sdd:spec <intent>`, or `/sdd:build`.
+On a dirty report it never auto-remedies.
+On a clean report with pending work it chains into build by default (solo-operator default).
 
 ### `/sdd:explain` — telegraph to prose
 
@@ -241,7 +247,7 @@ Renumber history persists to `.spec/spec-renumber-map.json` so old citations sti
 Each skill dir surfaces directly as a slash command (e.g. `skills/spec/` becomes `/sdd:spec`).
 SKILL.md frontmatter (`description`, `allowed-tools`, `model`) is honored on dispatch.
 
-- `design` — slash-only `/sdd:design`; propose-then-critique writes `designs/<slug>.md` (not bundled `/design`)
+- `shape` — `/sdd:shape` Plan-mode structural funnel; Grok Plan mode propose-critique; fold via `/sdd:spec fold-shape` (not bundled `/design`)
 - `spec` — sole mutator
 - `build` — plan, then execute loop
 - `check` — drift report
@@ -260,7 +266,7 @@ You don't usually invoke `telegraph`, `backprop`, `socratic`, or `steno` directl
 ### Greenfield — new project
 
 ```bash
-/sdd:design how should we shape the parser / renderer split?   # optional — only if structural Qs
+/sdd:shape how should we shape the parser / renderer split?   # optional — only if structural Qs
 /sdd:spec build a static-site generator that converts a Markdown directory into a single-page HTML bundle
 # review §G/§C/§I/§V in SPEC.md, amend if needed
 /sdd:build --next   # plan, implement, verify T<n> (scaffold)
@@ -366,13 +372,14 @@ Optional in syntax, expensive in practice.
 ```
 .grok-plugin/plugin.json         Grok-native plugin manifest (name: sdd)
 AGENTS.md                        human-facing output rules (Grok project rules)
-skills/design/                   /sdd:design — propose-then-critique → designs/<slug>.md
+skills/shape/                    /sdd:shape — Plan-mode structural funnel
 skills/spec/                     /sdd:spec — sole SPEC.md mutator
-skills/build/                    /sdd:build — plan-execute loop
-skills/check/                    /sdd:check — read-only drift report
+skills/build/                    /sdd:build — plan-execute loop (+ green-path chain)
+skills/check/                    /sdd:check — thin drift report recipe
 skills/explain/                  /sdd:explain — telegraph to prose decoder
 skills/condense/                 /sdd:condense — token-budget condensation sweep
 skills/reorganize/               /sdd:reorganize — §V cluster + renumber + cite-DAG sweep
+skills/_fragments/               shared recipe text (MECHANIZE, CHAIN, CHECK-RECIPE, …)
 skills/telegraph/                auto-fire telegraph encoder for SPEC-adjacent writes
 skills/backprop/                 auto-fire bug → spec protocol on /sdd:build verify-fail
 skills/socratic/                 intent-sharpening gate invoked by /sdd:spec
