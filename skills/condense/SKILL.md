@@ -18,11 +18,9 @@ Writes serialize main-thread; per-prong scan reads delegable to sub-agents.
 
 ## PROGRESS
 
-Multi-phase run per response-shape invariant → emit live harness checklist.
+Per `skills/_fragments/PROGRESS.md`.
 Phases: LOAD, PROPOSE (six-prong scan), CONFIRM, EXECUTE.
-todo_write: one task per phase @ LOAD start; todo_write status `in_progress` @ phase entry → `completed` @ phase exit.
 CONFIRM cancel / subset-skip → unreached phases `deleted`, not `completed`.
-Checklist = ephemeral harness UI: never repo state, never substitutes the `## Next` block.
 
 ## LOAD
 
@@ -129,21 +127,9 @@ Emit Next item per fragment.
 
 ## OUTPUT — "Next" block
 
-Heading `## Next`; 1–5 atomic items (one sentence each, no `Reply` prefix); positional dispatch (`run <int>` or `run /<plugin>:<cmd> [args]`).
-Optional `## Hint` (≤ 3 lines) precedes when item selection needs hidden state.
+Per `skills/_fragments/NEXT.md`.
 State-mutator → post-EXECUTE prefer `/sdd:check` (confirm cite-DAG + format-layer + token-budget clean).
-
-Example after EXECUTE (firing-set {1,2,3,4,5}; commit auto-fired):
-
-```
-## Next
-
-1. /sdd:check — cascade scan over condensed SPEC.md
-2. /sdd:build --next — start the next pending §T row
-3. git revert <condense-sha> — rollback if condensation breaks downstream
-```
-
-Variants: CONFIRM cancel (no commit) → swap item 1 for `/sdd:condense` (re-run to apply after spec review), drop item 3.
+CONFIRM cancel (no commit) → `/sdd:condense` re-run; drop revert item.
 CONFIRM subset → Next-block unchanged.
 
 ## NON-GOALS
