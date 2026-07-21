@@ -190,6 +190,7 @@ ADVISORY = "ADVISORY"
 
 TOKEN_BUDGET = 20000       # token-budget invariant advisory threshold
 TOKEN_RATIO = 3.4          # bytes-per-token for telegraph register (token-budget invariant)
+ARCHIVE_CLOSED_T = 50      # closed-§T window-vs-archive split (token-budget; condense prong 3)
 OVERSIZE_CELL = 300        # history-residue oversized-cell advisory (chars)
 MEMO_SCHEMA = 3            # memo schema version (memo invariant)
 HISTORY_AGGREGATE_THRESHOLD = 10  # per-section body-row aggregation (drift-verdict-vocab invariant)
@@ -3115,6 +3116,13 @@ def selftest():
         check(discover_sembr_fragments(empty_td) == [],
               "sembr-discover: missing _fragments dir → empty")
 
+    # ARCHIVE_CLOSED_T mirrors the token-budget closed-§T archive threshold
+    # (token-budget invariant + §B.29) — single source for condense prong 3.
+    check(ARCHIVE_CLOSED_T == 50,
+          "token-budget: ARCHIVE_CLOSED_T == 50 (condense prong 3 source)")
+    check(isinstance(ARCHIVE_CLOSED_T, int) and ARCHIVE_CLOSED_T > 0,
+          "token-budget: ARCHIVE_CLOSED_T positive int")
+
     if fails:
         sys.stderr.write("SELF-TEST FAIL:\n  " + "\n  ".join(fails) + "\n")
         return 1
@@ -3124,7 +3132,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 214
+    return 216
 
 
 # --- entry -------------------------------------------------------------------

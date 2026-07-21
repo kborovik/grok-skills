@@ -57,7 +57,7 @@ Preserves row id; closes cite-DAG-miss audit noise.
 
 ### Prong 3 — §T/§B window-vs-archive split
 
-Trigger: closed §T rows > 50.
+Trigger: closed §T rows > `check-mechanical.py` `ARCHIVE_CLOSED_T` (single source; not hardcode).
 Older closed rows → `SPEC.archive.md` (repo-root sibling, committed, id ascending). §T/§B gain per-section marker `## archived: §<S>.<a>..§<S>.<b> → SPEC.archive.md (<n> rows)`.
 Archive carries verbatim row text. /sdd:check cite-DAG sweep eager-probes archive; archived rows stable so memo HOLD-SINCE-CLEAN across runs.
 
@@ -136,4 +136,4 @@ CONFIRM subset → Next-block unchanged.
 
 - not auto-fire — /sdd:check emits advisory; operator invokes /sdd:condense next turn.
 - not partial commit — every firing prong applies or none.
-- not retune thresholds (20k-token advisory, > 50 closed-§T archive trigger) in this skill body — canonical values live in the token-budget-condense invariant row (SPEC.md) w/ mechanical mirrors in `check-mechanical.py` constants; retune via /sdd:spec AMEND + sync the script constant same commit.
+- not retune thresholds (`TOKEN_BUDGET` 20k-token advisory, `ARCHIVE_CLOSED_T` closed-§T archive trigger) in this skill body — canonical values live in the token-budget invariant row (SPEC.md) w/ mechanical mirrors in `check-mechanical.py` constants; retune via /sdd:spec AMEND + sync the script constant same commit.

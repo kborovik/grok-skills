@@ -147,7 +147,7 @@ T59|x|medium: DISTILL 2nd pass, explain-first remedies, engage log, socratic con
 T60|x|script: discover_sembr_files include skills/_fragments/** + self-test; fix multi-sentence fragment lines|V70,B26
 T61|x|condense+reorganize: replace PROGRESS/Next body copies with _fragments pointers|V72,B27
 T62|x|telegraph+steno frontmatter: socratic-desc caller-engagement form (drop user-says triggers)|V61,B28
-T63|.|script: ARCHIVE_CLOSED_T=50 constant; condense prong 3 consumes it; self-test|V48,B29
+T63|x|script: ARCHIVE_CLOSED_T=50 constant; condense prong 3 consumes it; self-test|V48,B29
 
 ## §B BUGS
 
