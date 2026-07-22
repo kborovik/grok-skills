@@ -150,7 +150,7 @@ T62|x|telegraph+steno frontmatter: socratic-desc caller-engagement form (drop us
 T63|x|script: ARCHIVE_CLOSED_T=50 constant; condense prong 3 consumes it; self-test|V48,B29
 T64|x|condense+reorganize PROGRESS: name todo_write (mirror check; clear grant VIOLATE)|V62,B30
 T65|x|acceptance-gate: build+github load ## Acceptance; block unproven close; post evidence comment|V69,B31
-T66|.|document linear issue track + `/sdd:spec github issue N` fold route; no-Acceptance advisory|V69
+T66|x|document linear issue track + `/sdd:spec github issue N` fold route; no-Acceptance advisory|V69
 
 ## §B BUGS
 

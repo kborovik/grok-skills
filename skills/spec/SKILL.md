@@ -5,11 +5,12 @@ description: |
   or backprop bugs (§T status-flip → build, archive → condense, §V renumber →
   reorganize; those carve-outs not authoring paths).
   Triggers when user asks to write spec, start new spec, distill spec from
-  code, add invariants, amend a section, or record a bug. Common phrasings:
-  "write the spec for...", "new spec", "distill spec from code",
-  "spec this idea", "import existing repo", "pull invariants out of code",
-  "this bug keeps biting", "post-mortem on Y", "fold-shape".
-allowed-tools: ask_user_question, read_file, search_replace, write, grep, run_terminal_command(git *), run_terminal_command(grep *), spawn_subagent, skill
+  code, add invariants, amend a section, record a bug, or fold a GitHub
+  issue. Common phrasings: "write the spec for...", "new spec",
+  "distill spec from code", "spec this idea", "import existing repo",
+  "pull invariants out of code", "this bug keeps biting", "post-mortem on Y",
+  "fold-shape", "github issue N".
+allowed-tools: ask_user_question, read_file, search_replace, write, grep, run_terminal_command(git *), run_terminal_command(grep *), run_terminal_command(gh *), spawn_subagent, skill
 ---
 
 # spec — spec mutator
@@ -23,6 +24,7 @@ allowed-tools: ask_user_question, read_file, search_replace, write, grep, run_te
 **Step 1 (fold-in shortcut):** any of:
 - `$ARGUMENTS` is `fold-shape` / `fold the shape plan` / free-form fold of current shape plan → FOLD-IN from approved session plan (shape skill).
 - `$ARGUMENTS` matches `designs/*.md`, file exists → FOLD-IN from legacy design draft.
+- `$ARGUMENTS` matches `github issue <N>` / free-form "fold issue N" → FOLD-IN from GitHub issue (see FOLD-IN — github issue).
 SPEC.md must exist @ repo root else bail w/ "fold-in needs SPEC.md; init via NEW or DISTILL first".
 Else → gate.
 
@@ -113,23 +115,35 @@ Ask user what changes when delta incomplete.
 
 Never silently rewrite §s user did not name.
 
-## FOLD-IN — shape plan or design draft → §V / §T amend
+## FOLD-IN — shape plan, design draft, or github issue → §V / §T amend
 
 Input (any of):
 - approved Grok Plan mode body from `/sdd:shape` (`fold-shape`)
 - legacy `designs/<slug>.md`
+- GitHub issue `N` via `/sdd:spec github issue N` (or free-form fold of issue N)
 
-No socratic gate — shape/design already enforced Open-Questions-empty (or park) pre-approve.
-Multi-target: one shape may propose new §V / §T / §I / §B rows in one apply.
+No socratic gate — shape/design already enforced Open-Questions-empty (or park) pre-approve; issue fold is operator-named target.
+Multi-target: one shape or issue may propose new §V / §T / §I / §B rows in one apply.
 
-1. Read plan or draft; parse proposed amendments.
+1. Read plan, draft, or issue; parse proposed amendments.
 2. Draft each in telegraph (target §s + delta text).
 
 → APPLY.
 
 Rule: fold-in mutates SPEC.md only.
 Plan file stays in session; legacy design file stays in working tree (no auto `rm`).
-Provenance: slug or "fold-shape" in commit msg.
+Provenance: slug, "fold-shape", or `github-issue-<N>` in commit msg.
+
+### FOLD-IN — github issue
+
+Ordered:
+
+1. **LOAD** — `gh issue view <N> --json number,title,body,labels` against the cwd repo (no `--repo` slug).
+2. **MAP** — problem / body prose → candidate §V / §T rows (telegraph); title → short task goal when one §T fits.
+3. **Acceptance** — if body has `## Acceptance` checklist, fold open bullets into §T goals or task notes so `/sdd:build` can prove them; if no `## Acceptance` → surface **ADVISORY** in the preview (not silent-verified; github-workflow invariant) and continue fold without inventing bullets.
+4. **Link** — record issue number in commit body (`github-issue-<N>`); do not auto-close the issue from this fold.
+
+Linear solo track after fold: `/sdd:build` → push with close trailer only after ACCEPTANCE-GATE (see `skills/_fragments/ACCEPTANCE-GATE.md` + github skill LINEAR).
 
 ## APPLY (all modes, post-delta)
 

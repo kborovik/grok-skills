@@ -177,7 +177,28 @@ Examples (all free-form — the gate classifies):
 /sdd:spec build the spec from this codebase
 /sdd:spec V<n>'s `≤` should be `<` for unsigned tokens
 /sdd:spec rate-limiter dropped requests under 100rps
+/sdd:spec github issue 12   # fold issue → §V / §T (see Linear issue track)
 ```
+
+### Linear issue track (solo, no PR required)
+
+When work starts from a GitHub issue and you are solo on a linear SPEC, you do not need a branch/PR ceremony:
+
+```text
+/sdd:spec github issue N   # fold issue body → SPEC §V / §T
+/sdd:build                 # implement; verify
+git push                   # close trailer only after Acceptance gate
+```
+
+**Acceptance gate (issue close).**
+Before any path that closes issue `N` (`Closes #N` / `Fixes #N` / `Resolves #N` on a commit or PR, or `gh issue close N`), build and the github workflow load the issue's `## Acceptance` checklist.
+Each open bullet needs evidence (test name, code path, or CLI probe).
+Unproven bullets **block** the close trailer.
+When all open bullets pass, close is allowed and an Acceptance-evidence comment is posted on the issue.
+If the issue has **no** `## Acceptance` section, that is an **advisory** (not a silent verified close).
+The gate surfaces the gap; it does not pretend the work was acceptance-checked.
+
+BRANCH / PR / MERGE stay available when you want them; they are optional on this linear track.
 
 ### `/sdd:build` — plan, then execute
 
@@ -192,6 +213,8 @@ EXECUTE serializes on main thread; PLAN reads may delegate to sub-agents.
 
 **Green-path chain (default on):** after a successful close, the run continues into `/sdd:check` on the just-closed task in the same turn unless you passed `--no-chain`.
 
+**Issue-linked close:** when the task or commit will close a GitHub issue, verify also runs the Acceptance gate (see Linear issue track above) before any close trailer lands.
+
 Loop per task:
 
 1. **PLAN** — cite every §V / §I the task touches, then proceed to EDIT.
@@ -199,7 +222,7 @@ Loop per task:
    Gaps are annotated so you can route them back to `/sdd:spec` post-hoc; the build never invents rules.
 2. **EDIT** — make the change, run tests / build.
 3. **VERIFY** — on failure, classify: (a) code bug, then fix and re-run; (b) spec wrong or unspecified edge case, then invoke `backprop` (via `/sdd:spec <cause>`), let it append `§B` and usually a new `§V`, resume against the updated spec.
-4. **CLOSE** — flip `.` to `x` only when verification is green.
+4. **CLOSE** — flip `.` to `x` only when verification is green (and Acceptance gate allows any issue close trailer).
 
 **Ambiguity is a spec defect, not a coding judgement.** `/sdd:build` never silently retries and never edits `SPEC.md` beyond flipping a status cell — every rule-shaped question routes back to `/sdd:spec`.
 
