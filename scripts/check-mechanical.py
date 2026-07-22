@@ -1135,42 +1135,6 @@ def audit_sembr(sembr_files):
     return out
 
 
-# --- AGENTS.md presence + direct-instruction marker block -------------------
-# human-clarity invariant: repo-root AGENTS.md carries the plain-imperative
-# restatement of the clarity standard governing chat + human-facing output,
-# wrapped in a stable marker block.
-
-AGENTS_MD = "AGENTS.md"
-AGENTS_MARKER_BEGIN = "<!-- sdd:direct-instruction:begin -->"
-AGENTS_MARKER_END = "<!-- sdd:direct-instruction:end -->"
-
-
-def classify_agents_md(text, carrier_name=AGENTS_MD):
-    """AGENTS.md presence + marker-block audit core (human-clarity invariant).
-    `text` is file content, or None when absent. MISSING when carrier absent;
-    VIOLATE when present but marker block absent or mis-ordered.
-    Present + well-formed → no row."""
-    if text is None:
-        return [("agents-md", "MISSING",
-                 f"agents-md MISSING: {carrier_name} absent @ repo root — "
-                 f"human-clarity invariant requires the plain-imperative "
-                 f"restatement carrier")]
-    b = text.find(AGENTS_MARKER_BEGIN)
-    e = text.find(AGENTS_MARKER_END)
-    if b < 0 or e < 0 or e <= b:
-        return [("agents-md", "VIOLATE",
-                 f"agents-md VIOLATE: {carrier_name} missing direct-instruction "
-                 f"marker block ({AGENTS_MARKER_BEGIN} ... {AGENTS_MARKER_END})")]
-    return []
-
-
-def audit_agents_md(repo_root):
-    """Read repo-root AGENTS.md and run the marker-block audit."""
-    path = os.path.join(repo_root, AGENTS_MD)
-    text = read_text(path) if os.path.isfile(path) else None
-    return classify_agents_md(text, carrier_name=AGENTS_MD)
-
-
 # --- mechanize pointer -------------------------------------------------------
 
 MECHANIZE_HDR = re.compile(r'^## MECHANIZE\b')
@@ -2006,7 +1970,6 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
     findings += audit_grants(discover_grant_skills(repo_root))
     findings += audit_human_symbols(discover_human_facing(repo_root))
     findings += audit_human_idiom(discover_human_facing(repo_root))
-    findings += audit_agents_md(repo_root)
     findings += audit_sembr(discover_sembr_files(repo_root))
     findings += audit_batch_advisory(v_rows, published_md)
     findings += audit_token_estimate(spec_bytes)
@@ -3029,21 +2992,6 @@ def selftest():
     after_fence = "```\na → b\n```\nthen x → y in plain prose"
     check(any(v == "VIOLATE" for _, v, _ in scan_human_symbols("p", after_fence)),
           "human-symbols: scanning resumes after fence close")
-
-    # AGENTS.md presence + direct-instruction marker block (human-clarity
-    # invariant): absent → MISSING, present-without-block → VIOLATE, present
-    # with well-formed begin/end block → clean (silent); end-before-begin →
-    # VIOLATE. Symbol-cleanliness rides the human-symbol scan, not re-checked.
-    check(classify_agents_md(None)[0][1] == "MISSING",
-          "agents-md: absent file → MISSING")
-    check(classify_agents_md("# AGENTS.md\nno marker here")[0][1] == "VIOLATE",
-          "agents-md: present without marker block → VIOLATE")
-    well_formed = f"intro\n{AGENTS_MARKER_BEGIN}\nrules\n{AGENTS_MARKER_END}\nrest"
-    check(classify_agents_md(well_formed) == [],
-          "agents-md: well-formed marker block → clean")
-    end_first = f"{AGENTS_MARKER_END}\nrules\n{AGENTS_MARKER_BEGIN}"
-    check(classify_agents_md(end_first)[0][1] == "VIOLATE",
-          "agents-md: end-before-begin marker → VIOLATE")
 
     # human-facing banned-idiom audit (human-clarity invariant): a banned idiom /
     # jargon-idiom phrase in prose flagged; backtick span + fenced block exempt;

@@ -151,7 +151,7 @@ T63|x|script: ARCHIVE_CLOSED_T=50 constant; condense prong 3 consumes it; self-t
 T64|x|condense+reorganize PROGRESS: name todo_write (mirror check; clear grant VIOLATE)|V62,B30
 T65|x|acceptance-gate: build+github load ## Acceptance; block unproven close; post evidence comment|V69,B31
 T66|x|document linear issue track + `/sdd:spec github issue N` fold route; no-Acceptance advisory|V69
-T67|.|script: drop agents-md presence + marker-block audit; retire self-tests|V67,V40
+T67|x|script: drop agents-md presence + marker-block audit; retire self-tests|V67,V40
 
 ## §B BUGS
 

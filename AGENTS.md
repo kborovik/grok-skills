@@ -5,9 +5,6 @@ SPEC.md and the skill bodies use the compressed telegraph register instead, so t
 
 This is a plain restatement of the human-clarity invariant in SPEC.md.
 SPEC.md stays the source of truth.
-When that invariant changes, this file is updated in the same commit.
-
-<!-- sdd:direct-instruction:begin -->
 
 ## Simple technical language for human-facing output
 
@@ -41,5 +38,3 @@ Write so a reviewer reads each point once and moves on.
   The same rule covers issue and pull-request references such as `#123`.
 - **When the operator asks you to decide,** state the choice in one sentence, list the options plainly with one line each, and recommend one option in one sentence.
   Do not end with a prose "or keep going?" question; a same-turn choice is a gate, not a sentence.
-
-<!-- sdd:direct-instruction:end -->
