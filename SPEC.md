@@ -17,8 +17,8 @@ LLM writes code faster than humans read → standards + logic drift unchecked; c
 external surface — what operator + consuming repo see.
 
 - shape: `/sdd:shape <topic>` → Grok Plan mode propose-critique → approved plan; fold via `/sdd:spec fold-shape` (not bundled `/design`; no default `designs/` write)
-- spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit; fold-shape + micro-AMEND paths
-- build: `/sdd:build [§T.n|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path chain default-on → check
+- spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit; fold-shape + micro-AMEND paths; `github issue N` folds issue → §V/§T
+- build: `/sdd:build [§T.n|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path chain default-on → check; issue-linked close ! acceptance-gate per github-workflow invariant
 - check: `/sdd:check [--full|--no-chain]` → thin recipe + script; read-only REPORT + Next; clean chain → build --next
 - explain: `/sdd:explain [§-cite|--next]` → prose expansion w/ cited siblings, zero writes
 - condense: `/sdd:condense` → six-prong token sweep, single atomic commit
@@ -149,6 +149,8 @@ T61|x|condense+reorganize: replace PROGRESS/Next body copies with _fragments poi
 T62|x|telegraph+steno frontmatter: socratic-desc caller-engagement form (drop user-says triggers)|V61,B28
 T63|x|script: ARCHIVE_CLOSED_T=50 constant; condense prong 3 consumes it; self-test|V48,B29
 T64|x|condense+reorganize PROGRESS: name todo_write (mirror check; clear grant VIOLATE)|V62,B30
+T65|.|acceptance-gate: build+github load ## Acceptance; block unproven close; post evidence comment|V69,B31
+T66|.|document linear issue track + `/sdd:spec github issue N` fold route; no-Acceptance advisory|V69
 
 ## §B BUGS
 
@@ -183,3 +185,4 @@ B27|2026-07-21|condense+reorganize copy PROGRESS/NEXT body instead of _fragments
 B28|2026-07-21|telegraph+steno frontmatter advertise user-says triggers; collide w/ caller dispatch|V61
 B29|2026-07-21|closed-§T archive threshold 50 hardcode in condense; not script constant per V48|V48
 B30|2026-07-21|T61 PROGRESS pointer left todo_write grant without body literal on condense+reorganize|V62
+B31|2026-07-21|Closes #N / issue close w/o Acceptance audit → silent-pass|V69
