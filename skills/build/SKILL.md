@@ -57,9 +57,15 @@ Per task in order:
    Stage explicit paths for step-3 probe; commit path-scoped (see `skills/_fragments/PATH-SCOPED-COMMIT.md`).
 2. Run verification cmd.
 3. Staged diff touches PUBLISHED → probe `.spec/check-extras.md` judgment recipes when present.
-4. **Pass** → flip §T.n `.`→`x`; path-scoped commit `T<n>: <goal line>` + §V cites on listed paths + SPEC.md.
+4. **Acceptance-gate** — when this task or its commit will close a GitHub issue (`Closes #N` / `Fixes #N` / `Resolves #N` trailer, or issue-linked work from `/sdd:spec github issue N`):
+   load `skills/_fragments/ACCEPTANCE-GATE.md` and run the gate (github-workflow invariant).
+   - **BLOCK** → verify FAIL; no close trailer; status stays `.`; go FAIL → BACKPROP only if class (b)/(c), else fix evidence and re-run gate.
+   - **ADVISORY** (no `## Acceptance`) → surface advisory (not silent-verified); continue only after the advisory is stated.
+   - **ALLOW** → may emit close trailer; post Acceptance-evidence comment per fragment.
+   No issue linkage → skip.
+5. **Pass** → flip §T.n `.`→`x`; path-scoped commit `T<n>: <goal line>` + §V cites on listed paths + SPEC.md.
    Clear `.spec/backprop-handoff.json` if present.
-5. **Fail** → FAIL → BACKPROP.
+6. **Fail** → FAIL → BACKPROP.
    No blind retry.
    Status stays `.`.
 

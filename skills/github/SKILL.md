@@ -42,24 +42,32 @@ No gh issue/PR op → no fire.
 ## ISSUE — `gh issue create`
 
 `gh issue create --title "<summary>" --body <steno>` against the cwd repo (no `--repo` slug per the parametric-recipe invariant).
-Title = one-line summary; body = steno per the github-facing-register invariant — problem statement + acceptance lines, no fixed template scaffold assumed.
+Title = one-line summary; body = steno per the github-facing-register invariant.
+Body shape: problem statement + `## Acceptance` checklist (`- [ ]` bullets).
+No fixed template scaffold beyond that heading.
 
 ## BRANCH — issue-linked branch
 
 `gh issue develop <n> --checkout` — creates + checks out the issue-linked branch in place (native gh linkage; branch named by gh, never hand-named).
 One branch per session.
+Optional on the linear solo track (see LINEAR).
 
 ## PR — `gh pr create`
 
 `gh pr create --title "<summary>" --body <steno>` from the linked branch.
-Body = steno per the github-facing-register invariant + carries `Closes #<issue>` (links PR to issue; auto-closes the issue on merge).
+Body = steno per the github-facing-register invariant + carries `Closes #<issue>` only after ACCEPTANCE-GATE ALLOW (or ADVISORY after advisory surfaced).
 Generic structure: change summary + verification line, no fixed template assumed.
+Optional on the linear solo track (see LINEAR).
 
 ## MERGE — squash + branch delete
 
-`gh pr merge <n> --squash --delete-branch` — commits squashed to one, remote branch deleted.
+Run ACCEPTANCE-GATE first when the PR body would auto-close an issue (`Closes #N` / `Fixes #N` / `Resolves #N`).
+BLOCK → do not merge.
+ALLOW → `gh pr merge <n> --squash --delete-branch` (commits squashed, remote branch deleted); post evidence comment per fragment if not already posted.
+ADVISORY → surface advisory, then merge only after the advisory is stated.
 
 `Closes #<issue>` in the PR body auto-closes the linked issue on merge → no separate `gh issue close`.
+Optional on the linear solo track (see LINEAR).
 
 ## CLOSE — unmerged
 
@@ -70,6 +78,33 @@ PR abandoned, not merged → cleanup only, no squash:
 
 No squash, no `--delete-branch` merge path.
 The linked issue stays open — nothing merged to close it.
+Unmerged PR close does not run ACCEPTANCE-GATE (issue not closed).
+
+## ACCEPTANCE-GATE — issue close
+
+Load `skills/_fragments/ACCEPTANCE-GATE.md` before any path that closes an issue:
+
+- PR body or commit with `Closes #N` / `Fixes #N` / `Resolves #N`
+- `gh issue close N` after issue-linked work
+- linear push that would close via trailer
+
+BLOCK → no close trailer, no merge, no `gh issue close`; emit FAIL table.
+ALLOW → close path proceeds; post Acceptance-evidence comment on the issue.
+ADVISORY (no `## Acceptance`) → not silent-verified; surface advisory before close.
+
+## LINEAR — solo track (no PR)
+
+BRANCH / PR / MERGE are optional when the operator works solo on a linear SPEC:
+
+```
+/sdd:spec github issue N   # fold issue → SPEC §V / §T
+/sdd:build                 # implement (main or local branch)
+# ACCEPTANCE-GATE on close trailer
+git push                   # Closes #N only after ALLOW (or ADVISORY surfaced)
+```
+
+Same gate as PR merge close.
+Do not require BRANCH/PR/MERGE ceremony for solo linear work.
 
 ## NON-GOALS
 

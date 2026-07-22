@@ -2342,6 +2342,63 @@ def cmd_write_memo(args):
     return 0
 
 
+# --- acceptance-gate (github-workflow; closes §B.31) --------------------------
+# Pure parse + verdict helpers for the ACCEPTANCE-GATE fragment.
+# LLM still maps open bullets to evidence; script owns section/bullet parse and
+# the BLOCK/ALLOW/ADVISORY decision so unproven close cannot silent-pass.
+
+_ACCEPTANCE_HEADING = re.compile(r"^##\s+Acceptance\s*$", re.MULTILINE | re.I)
+_ACCEPTANCE_BULLET = re.compile(
+    r"^[\t ]*[-*]\s+\[([ xX])\]\s+(.+?)\s*$", re.MULTILINE
+)
+# Next ATX heading ends the Acceptance section (## or deeper).
+_NEXT_HEADING = re.compile(r"^#{1,6}\s+\S", re.MULTILINE)
+
+
+def parse_acceptance_bullets(body):
+    """Parse `## Acceptance` checklist bullets from an issue body.
+
+    Returns:
+      None  — no `## Acceptance` heading (ADVISORY path)
+      list of {"text": str, "checked": bool} — possibly empty
+    """
+    if body is None:
+        return None
+    m = _ACCEPTANCE_HEADING.search(body)
+    if not m:
+        return None
+    rest = body[m.end():]
+    end = _NEXT_HEADING.search(rest)
+    section = rest[: end.start()] if end else rest
+    out = []
+    for bm in _ACCEPTANCE_BULLET.finditer(section):
+        mark, text = bm.group(1), bm.group(2).strip()
+        out.append({"text": text, "checked": mark.lower() == "x"})
+    return out
+
+
+def acceptance_gate_verdict(bullets, proven):
+    """Decide ACCEPTANCE-GATE verdict.
+
+    bullets: None (no section) or list from parse_acceptance_bullets.
+    proven:  iterable of bullet texts (or indices) the caller has evidence for.
+             Only open bullets require proof; checked bullets are already done.
+
+    Returns: "ADVISORY" | "BLOCK" | "ALLOW"
+    """
+    if bullets is None:
+        return "ADVISORY"
+    proven_set = set(proven) if proven is not None else set()
+    for i, b in enumerate(bullets):
+        if b.get("checked"):
+            continue
+        text = b.get("text", "")
+        if text in proven_set or i in proven_set:
+            continue
+        return "BLOCK"
+    return "ALLOW"
+
+
 # --- self-test ---------------------------------------------------------------
 
 def _vrow(n, body):
@@ -3123,6 +3180,47 @@ def selftest():
     check(isinstance(ARCHIVE_CLOSED_T, int) and ARCHIVE_CLOSED_T > 0,
           "token-budget: ARCHIVE_CLOSED_T positive int")
 
+    # acceptance-gate parse + verdict (github-workflow invariant; closes §B.31)
+    # test_name_hint: acceptance_gate_blocks_unproven_close
+    ag_body = (
+        "## Problem\n\nSomething broke.\n\n"
+        "## Acceptance\n\n"
+        "- [ ] load linked issue Acceptance\n"
+        "- [x] already checked criterion\n"
+        "- [ ] post evidence comment\n\n"
+        "## Other\n\nIgnore me.\n"
+    )
+    ag_bullets = parse_acceptance_bullets(ag_body)
+    check(ag_bullets is not None and len(ag_bullets) == 3,
+          "acceptance-gate: parse three bullets under ## Acceptance")
+    check(ag_bullets[0]["text"] == "load linked issue Acceptance"
+          and ag_bullets[0]["checked"] is False,
+          "acceptance-gate: first bullet open")
+    check(ag_bullets[1]["checked"] is True,
+          "acceptance-gate: second bullet checked")
+    check(parse_acceptance_bullets("## Problem\n\nNo gate here.\n") is None,
+          "acceptance-gate: missing ## Acceptance → None")
+    check(parse_acceptance_bullets("## Acceptance\n\nNo bullets yet.\n") == [],
+          "acceptance-gate: empty section → empty list")
+    check(acceptance_gate_verdict(None, []) == "ADVISORY",
+          "acceptance-gate: no section → ADVISORY (not silent-verified)")
+    check(acceptance_gate_verdict(ag_bullets, []) == "BLOCK",
+          "acceptance_gate_blocks_unproven_close")
+    check(acceptance_gate_verdict(
+              ag_bullets,
+              ["load linked issue Acceptance"]) == "BLOCK",
+          "acceptance-gate: partial evidence still BLOCK")
+    check(acceptance_gate_verdict(
+              ag_bullets,
+              ["load linked issue Acceptance",
+               "post evidence comment"]) == "ALLOW",
+          "acceptance-gate: all open proven → ALLOW")
+    check(acceptance_gate_verdict(
+              [{"text": "done", "checked": True}], []) == "ALLOW",
+          "acceptance-gate: only checked bullets → ALLOW")
+    check(acceptance_gate_verdict(ag_bullets, [0, 2]) == "ALLOW",
+          "acceptance-gate: index-based proven set → ALLOW")
+
     if fails:
         sys.stderr.write("SELF-TEST FAIL:\n  " + "\n  ".join(fails) + "\n")
         return 1
@@ -3132,7 +3230,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 216
+    return 227
 
 
 # --- entry -------------------------------------------------------------------
