@@ -23,7 +23,7 @@ external surface — what operator + consuming repo see.
 - explain: `/sdd:explain [§-cite|--next]` → prose expansion w/ cited siblings, zero writes
 - condense: `/sdd:condense` → six-prong token sweep, single atomic commit
 - reorganize: `/sdd:reorganize [--taxonomy-only]` → §V cluster + renumber + cite sweep, single atomic commit
-- script: `python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py <mode>` → pipe-table `id|verdict|evidence`; modes: audit, write-memo, fix-sembr, emit-v-slices, emit-superseded, emit-fold-seeds, emit-v-weights, emit-row-ids, emit-overview, emit-token-estimate, emit-residue, emit-check-agent-prompt, --self-test
+- script: `python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py <mode>` → pipe-table `id|verdict|evidence`; modes: audit, write-memo, fix-sembr, emit-v-slices, emit-superseded, emit-fold-seeds, emit-v-weights, emit-row-ids, emit-overview, emit-token-estimate, emit-residue, emit-archive-window, emit-check-agent-prompt, --self-test
 - fragments: `skills/_fragments/*` shared recipe text (MECHANIZE, NEXT, CHAIN, CHECK-RECIPE, …) — not slash surfaces
 - format: `SPEC-FORMAT.md` → row shape + section catalog contract; loaded by spec, check, condense, reorganize
 
@@ -152,6 +152,7 @@ T64|x|condense+reorganize PROGRESS: name todo_write (mirror check; clear grant V
 T65|x|acceptance-gate: build+github load ## Acceptance; block unproven close; post evidence comment|V69,B31
 T66|x|document linear issue track + `/sdd:spec github issue N` fold route; no-Acceptance advisory|V69
 T67|x|script: drop agents-md presence + marker-block audit; retire self-tests|V67,V40
+T68|.|script emit-archive-window mode (action|tid_lo|tid_hi|count|marker; archive/keep/skip; ARCHIVE_CLOSED_T single source; keep newest N closed live, archive older id-asc); condense prong 3 consumes table only (skip → no archive); self-test|V48,V40,V16
 
 ## §B BUGS
 
