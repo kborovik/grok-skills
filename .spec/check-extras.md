@@ -10,9 +10,25 @@ V3: verbatim-preservation — code, backticked text, paths, URLs, identifiers, n
 
 V4: symbol-set — telegraph (LLM-facing: SPEC.md, skill bodies) keeps `→ ≥ ≤ ! ? §`; human-facing prose (steno surfaces, AGENTS.md, chat) spells out `→ ≥ ≤ &` as words, retains `|` for list/table separators + `§` for cites only; heavier math operators ! ASCII words.
 
+## §V13 cite-resolution
+
+V13: cite-resolution — every cite ! resolve: `cites` tokens → live/archived V/T/B row or live §I kind, `fix` tokens → §V row, free-text `§<S>.<n>` → §<S> row; renumber sweeps citers same commit.
+
+## §V15 renumber-chain-walk
+
+V15: renumber-chain-walk — `.spec/spec-renumber-map.json` append-only; historical id resolves newest-first to live id or `archive` sentinel (→ SPEC.archive.md §V.retired block, never live row).
+
+## §V16 archive-semantics
+
+V16: archive-semantics — archived §T/§B + retired §V rows migrate verbatim to SPEC.archive.md w/ per-section markers per SPEC-FORMAT; archived rows stay cite-resolvable, never edited.
+
 ## §V20 write-ownership
 
 V20: write-ownership — /sdd:spec sole SPEC.md author; exclusions: /sdd:build flips one §T status cell per closed task; /sdd:condense + /sdd:reorganize apply operator-confirmed structural sweeps; /sdd:check + /sdd:explain write nothing; every skill auto-commit path-scoped to owned files (`git commit -m <subject> [-m <body>] -- <paths>` / `--only`; `-m` flags ! precede `--` — tokens after `--` parse as pathspecs, commit aborts) — bare `git add <paths>` + `git commit` banned (commits whole index → pre-staged file leaks into the scoped commit), subsumes per-skill `never git add -A` (closes §B.12, §B.13).
+
+## §V22 recipe-step-no-dispatch
+
+V22: recipe-step-no-dispatch — slash-cmd dispatch = operator turn only; recipes end @ commit + Next block; exclusions: (1) /sdd:build verify-fail → mid-loop spec BACKPROP; (2) green-path chain default-on per `skills/_fragments/CHAIN.md` — build pass → check cascade same turn; check clean + pending `.` §T → build --next same turn; `--no-chain` disables; dirty check never auto-remedy.
 
 ## §V23 decision-gate
 
@@ -22,6 +38,10 @@ V23: decision-gate — enumerable runtime choice ! AskUserQuestion w/ mutually-e
 
 V24: response-shape — user-typeable skill output ends `## Next` (1–5 atomic items, no `Reply` prefix, positional dispatch `run <int>` / `run /sdd:<cmd> [args]`); canonical contract in `skills/_fragments/NEXT.md`; dispatched `<cmd>` names only `user-invocable` skills — auto-fire sub-skills never a dispatch target; bug→spec user route = `/sdd:spec <intent>`, never `/sdd:backprop`; optional `## Hint` ≤ 3 lines precedes; multi-phase run {check, build `--all`, condense, reorganize} ! emit live harness checklist per PROGRESS fragment; BACKPROP Next leads with concrete `/sdd:build §T.n` (resume card); green-path chain may hop once per CHAIN fragment without operator re-type (closes §B.14).
 
+## §V25 socratic-gate
+
+V25: socratic-gate — /sdd:spec mode {NEW, DISTILL, BACKPROP, AMEND, FOLD-IN} = gate byproduct of free-form `$ARGUMENTS`; no mode prefixes, no skip flags; concrete intent converges ≤ 1 turn.
+
 ## §V27 backprop-protocol
 
 V27: backprop-protocol — every bug → §B row; recurrence class → new or tightened §V preferred; two commits cross-cited: spec commit (§B + §V + §T) first, build commit (failing test first, then fix) cites the new rows.
@@ -29,6 +49,14 @@ V27: backprop-protocol — every bug → §B row; recurrence class → new or ti
 ## §V28 freshness-contract
 
 V28: freshness-contract — live rows = clean current design; history → commit-msg bodies + archive; residue set {amendment-counter `(∆)`, dated-retirement, supersession-narration} pruned @ spec write, audited @ check, trimmed @ condense — one shared pattern set, owned by script.
+
+## §V29 fold-first
+
+V29: fold-first — new §V row vs amend of closest existing row ! operator gate; split justification = §B recurrence cite or declared orthogonal concept; "mirrors existing row" alone insufficient.
+
+## §V31 shape-lifecycle
+
+V31: shape-lifecycle — /sdd:shape uses Grok Plan mode (enter_plan_mode → plan.md → exit_plan_mode); primary artifact = session plan, not `designs/`; fold-in via `/sdd:spec fold-shape` mutates SPEC.md only; legacy `designs/*.md` still folds; optional `--export designs/<slug>.md` only on operator ask; not bundled `/design`.
 
 ## §V40 mechanical-realization
 
@@ -101,3 +129,27 @@ V68: table-use — info presented as prose or short list, never `|`-table; `|`-t
 ## §V69 github-workflow
 
 V69: github-workflow — passive `skills/github/SKILL.md` (`user-invocable: false`, auto-fire on gh issue/PR ops per sub-skill-flags invariant) governs gh-CLI workflow: issues via `gh issue create` (body problem + `## Acceptance` lines), PRs via `gh pr create` to generic structures (github-facing bodies steno per github-facing-register invariant); per-PR branch via `gh issue develop <n> --checkout` (in-place checkout, one branch per session — no dedicated worktree); merge = `gh pr merge --squash --delete-branch` (commits squashed, branch deleted); unmerged close → `gh pr close` + `git branch -D <branch>`, no squash; BRANCH/PR/MERGE optional for solo linear track (`/sdd:spec github issue N` → `/sdd:build` → push); issue/PR linkage = native `gh issue develop` linked branch when used; issue close (`Closes #N`/`Fixes #N`/`Resolves #N` in commit or PR body, or `gh issue close N` after issue-linked work) ! acceptance-gate shared by build verify + github close: load issue N (`gh issue view`), parse `## Acceptance` bullets (`- [ ]`/`- [x]`); each open bullet ! evidence (test name, code path, or CLI probe); miss → block close trailer / block close + FAIL table; all pass → allow close + post Acceptance-evidence comment on issue (? flip checks); no `## Acceptance` → advisory not silent-verified; consumer-repo no hardcoded owner/repo (parametric-recipe invariant).
+
+## §V70 sembr
+
+V70: sembr — repo `.md` prose source lines ! semantic line breaks (sembr.org): one sentence per line, clause-boundary break OK; source-format only — rendered output unchanged; scope: README.md, AGENTS.md, `designs/*.md`, `skills/**/SKILL.md`, `skills/_fragments/**`; exempt: pipe-row files (SPEC.md, SPEC.archive.md, `.spec/check-extras.md`), fenced blocks, `|`-tables, frontmatter; GitHub issue/PR/comment bodies out of scope (GFM renders single newline as hard break); register-orthogonal — sibling to table-use.
+
+## §V71 consumer-core-profile
+
+V71: consumer-core-profile — core loop = shape? → spec → build → check → explain; maintenance = condense/reorganize; plugin-meta (UPSTREAM-FR fragment, monitor issue path for plugin repo) loads only when cwd is plugin `.repository` or operator targets plugin; consumer non-plugin repos skip UPSTREAM-FR body weight.
+
+## §V72 shared-fragments
+
+V72: shared-fragments — canonical cross-skill recipe text lives in `skills/_fragments/` (MECHANIZE, NEXT, PROGRESS, PATH-SCOPED-COMMIT, CHAIN, CHECK-RECIPE, CHECK-AGENT-PROMPT, UPSTREAM-FR); user-invocable skills point, never copy; `_fragments` is not a slash surface.
+
+## §V73 backprop-resume-card
+
+V73: backprop-resume-card — BACKPROP APPLY writes `.spec/backprop-handoff.json` `{B,V,T,test_name_hint}`; Next leads with concrete `/sdd:build §T.n`; build LOAD consumes + deletes on close; card is resume pointer, not design truth.
+
+## §V74 micro-amend
+
+V74: micro-amend — single-§ single-line AMEND with no new §V row uses shortened APPLY gate (preview + Apply-led ask_user_question; skip fold-first); structural modes keep full gate.
+
+## §V76 thin-check
+
+V76: thin-check — check SKILL.md is phase + script orchestration only; long recipe detail in `_fragments/CHECK-RECIPE.md`; sub-agent prompt from `emit-check-agent-prompt` / CHECK-AGENT-PROMPT fragment.

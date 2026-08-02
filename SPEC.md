@@ -38,22 +38,22 @@ V4: symbol-set — → `.spec/check-extras.md §V4`
 V10: sole-source-of-truth — SPEC.md @ repo root is sole live spec; no docs/ tree, no sidecars; SPEC.archive.md sibling carries immutable archived rows only.
 V11: shape-semantics-split — SPEC-FORMAT.md binds row shape + section catalog + citation grammar; §V rows bind semantics + enforcement; neither restates the other.
 V12: monotonic-numbering — V/T/B ids strictly increasing in section order; gaps OK, reuse banned; sole renumber path = /sdd:reorganize (map append + cite sweep, same commit).
-V13: cite-resolution — every cite ! resolve: `cites` tokens → live/archived V/T/B row or live §I kind, `fix` tokens → §V row, free-text `§<S>.<n>` → §<S> row; renumber sweeps citers same commit.
+V13: cite-resolution — → `.spec/check-extras.md §V13`
 V14: pinned-cite-ban — PUBLISHED bodies ! placeholder (`§V.<n>`) or named-invariant form, never pinned §-digit cites; SPEC.md-narrative + REPO-LOCAL pinned cites ! resolve live.
-V15: renumber-chain-walk — `.spec/spec-renumber-map.json` append-only; historical id resolves newest-first to live id or `archive` sentinel (→ SPEC.archive.md §V.retired block, never live row).
-V16: archive-semantics — archived §T/§B + retired §V rows migrate verbatim to SPEC.archive.md w/ per-section markers per SPEC-FORMAT; archived rows stay cite-resolvable, never edited.
+V15: renumber-chain-walk — → `.spec/check-extras.md §V15`
+V16: archive-semantics — → `.spec/check-extras.md §V16`
 V20: write-ownership — → `.spec/check-extras.md §V20`
 V21: write-serialize — SPEC.md + code writes serialize main-thread; reads delegable to read-only sub-agents.
-V22: recipe-step-no-dispatch — slash-cmd dispatch = operator turn only; recipes end @ commit + Next block; exclusions: (1) /sdd:build verify-fail → mid-loop spec BACKPROP; (2) green-path chain default-on per `skills/_fragments/CHAIN.md` — build pass → check cascade same turn; check clean + pending `.` §T → build --next same turn; `--no-chain` disables; dirty check never auto-remedy.
+V22: recipe-step-no-dispatch — → `.spec/check-extras.md §V22`
 V23: decision-gate — → `.spec/check-extras.md §V23`
 V24: response-shape — → `.spec/check-extras.md §V24`
-V25: socratic-gate — /sdd:spec mode {NEW, DISTILL, BACKPROP, AMEND, FOLD-IN} = gate byproduct of free-form `$ARGUMENTS`; no mode prefixes, no skip flags; concrete intent converges ≤ 1 turn.
+V25: socratic-gate — → `.spec/check-extras.md §V25`
 V26: first-principle-probe — NEW mode fires foundational-claim question exactly once, declinable; `first-principle-asked` recorded regardless of answer.
 V27: backprop-protocol — → `.spec/check-extras.md §V27`
 V28: freshness-contract — → `.spec/check-extras.md §V28`
-V29: fold-first — new §V row vs amend of closest existing row ! operator gate; split justification = §B recurrence cite or declared orthogonal concept; "mirrors existing row" alone insufficient.
+V29: fold-first — → `.spec/check-extras.md §V29`
 V30: sweep-scope — sweep-class §T row ! declare scope as grep pattern or vocab table; named-procedure + named-site lists rejected.
-V31: shape-lifecycle — /sdd:shape uses Grok Plan mode (enter_plan_mode → plan.md → exit_plan_mode); primary artifact = session plan, not `designs/`; fold-in via `/sdd:spec fold-shape` mutates SPEC.md only; legacy `designs/*.md` still folds; optional `--export designs/<slug>.md` only on operator ask; not bundled `/design`.
+V31: shape-lifecycle — → `.spec/check-extras.md §V31`
 V40: mechanical-realization — → `.spec/check-extras.md §V40`
 V41: parametric-recipe — → `.spec/check-extras.md §V41`
 V42: scope-set — → `.spec/check-extras.md §V42`
@@ -74,35 +74,18 @@ V66: mechanize-scan — → `.spec/check-extras.md §V66`
 V67: human-clarity — → `.spec/check-extras.md §V67`
 V68: table-use — → `.spec/check-extras.md §V68`
 V69: github-workflow — → `.spec/check-extras.md §V69`
-V70: sembr — repo `.md` prose source lines ! semantic line breaks (sembr.org): one sentence per line, clause-boundary break OK; source-format only — rendered output unchanged; scope: README.md, AGENTS.md, `designs/*.md`, `skills/**/SKILL.md`, `skills/_fragments/**`; exempt: pipe-row files (SPEC.md, SPEC.archive.md, `.spec/check-extras.md`), fenced blocks, `|`-tables, frontmatter; GitHub issue/PR/comment bodies out of scope (GFM renders single newline as hard break); register-orthogonal — sibling to table-use.
-V71: consumer-core-profile — core loop = shape? → spec → build → check → explain; maintenance = condense/reorganize; plugin-meta (UPSTREAM-FR fragment, monitor issue path for plugin repo) loads only when cwd is plugin `.repository` or operator targets plugin; consumer non-plugin repos skip UPSTREAM-FR body weight.
-V72: shared-fragments — canonical cross-skill recipe text lives in `skills/_fragments/` (MECHANIZE, NEXT, PROGRESS, PATH-SCOPED-COMMIT, CHAIN, CHECK-RECIPE, CHECK-AGENT-PROMPT, UPSTREAM-FR); user-invocable skills point, never copy; `_fragments` is not a slash surface.
-V73: backprop-resume-card — BACKPROP APPLY writes `.spec/backprop-handoff.json` `{B,V,T,test_name_hint}`; Next leads with concrete `/sdd:build §T.n`; build LOAD consumes + deletes on close; card is resume pointer, not design truth.
-V74: micro-amend — single-§ single-line AMEND with no new §V row uses shortened APPLY gate (preview + Apply-led ask_user_question; skip fold-first); structural modes keep full gate.
+V70: sembr — → `.spec/check-extras.md §V70`
+V71: consumer-core-profile — → `.spec/check-extras.md §V71`
+V72: shared-fragments — → `.spec/check-extras.md §V72`
+V73: backprop-resume-card — → `.spec/check-extras.md §V73`
+V74: micro-amend — → `.spec/check-extras.md §V74`
 V75: auto-fire-engage-log — auto-fire sub-skills (telegraph, steno, monitor, github) emit one telegraph `engaged sdd:<name>` line when they fire so the operator sees the governor.
-V76: thin-check — check SKILL.md is phase + script orchestration only; long recipe detail in `_fragments/CHECK-RECIPE.md`; sub-agent prompt from `emit-check-agent-prompt` / CHECK-AGENT-PROMPT fragment.
+V76: thin-check — → `.spec/check-extras.md §V76`
 
 ## §T TASKS
+## archived: §T.1..§T.18 → SPEC.archive.md (18 rows)
 
 id|status|task|cites
-T1|x|add CI: script --self-test + audit dirty-verdict gate on push/PR|V40,V62
-T2|x|bump plugin version 1.1.0 + sync manifest description|-
-T3|x|create REPO-LOCAL release skill (gh release flow)|V24,V41,V42
-T4|x|add script emit-overview mode; check LOAD uses it|V64,V40
-T5|x|add PROGRESS checklist to multi-phase recipes|V24,V62
-T6|x|script batch-advisory row; check consumes it|V46,V40
-T7|x|init skills/monitor auto-fire deviation capture|V65,V61
-T8|x|script: admit MATCH clean verdict on §I rows|V43,V40
-T9|x|script write-memo --from-audit; check drops hand-merge|V44,V40
-T10|x|script write-memo dirty → exit 1; self-test exit codes|V44
-T11|x|sweep frontmatter Bash grants: drop zero-use; pin script python3|V62
-T12|x|open upstream FR: env-var expansion in allowed-tools|V62
-T13|x|monitor: assert gh --repo == manifest .repository pre-write|V65,B11
-T14|x|sweep skill auto-commits to path-scoped git commit -- <paths>|V20,B12
-T15|x|sweep body rg → builtin Grep / grep -v -E invert|V62,V3
-T16|x|copy canonical MECHANIZE block into user-invocable skills|V66,V30
-T17|x|monitor: add mechanization-candidate dispatch path|V65,V66
-T18|x|pin git commit -m before -- in path-scoped recipes|V20,V30
 T19|x|script: MECHANIZE block byte-identity audit + self-test|V66,V40
 T20|x|script: ban slash-dispatch of auto-fire sub-skills|V24,V40,B14
 T21|x|reframe backprop frontmatter as caller-engaged sub-skill|V24,V61,B14
