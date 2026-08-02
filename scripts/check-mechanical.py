@@ -135,6 +135,15 @@ Modes:
                 of a per-run LLM regex paraphrase. Empty body (header only) =
                 no residue = prong 4 skip. Single source with the audit path —
                 never a second spelling of the freshness-contract pattern set.
+  emit-archive-window — read SPEC.md, print the condenser's prong-3
+                window-vs-archive decision: closed §T (status `x`) vs
+                ARCHIVE_CLOSED_T (single source; never hardcode in skill body).
+                Prints `action|tid_lo|tid_hi|count|marker` with action in
+                {archive, keep, skip}. Closed count ≤ threshold → one skip row
+                (prong 3 no-ops). Over threshold → archive older closed rows
+                id-asc + keep newest N live; archive row's marker cell is the
+                SPEC-FORMAT §T archive-marker H2. Condense consumes this table
+                only — no hand-count of closed §T.
   fix-sembr   — rewrite flagged multi-sentence prose lines one sentence per
                 line, in place, over the sembr file set (`--files <comma-list>`
                 overrides discovery). Shares the audit scan's exemption walk +
@@ -435,6 +444,44 @@ def emit_superseded_candidates(v_rows, t_rows):
         if unresolved:
             out.append({"id": r["id"], "unresolved": unresolved, "cites": cites})
     return out
+
+
+def emit_archive_window(t_rows, threshold=None):
+    """Prong-3 window-vs-archive split (token-budget + archive-semantics +
+    mechanical-realization): closed §T (status `x`) ordered id ascending.
+    threshold defaults to ARCHIVE_CLOSED_T — single source; skill bodies never
+    hardcode the number. Closed count ≤ threshold → one skip row (condense
+    prong 3 no-ops). Over threshold → archive older (count − N) closed rows
+    id-asc, keep newest N live; archive row carries the SPEC-FORMAT §T
+    archive-marker H2 in `marker`. Returns [{action, tid_lo, tid_hi, count,
+    marker}] with action in {archive, keep, skip}. Open (`.`) §T never count."""
+    if threshold is None:
+        threshold = ARCHIVE_CLOSED_T
+    closed = []
+    for r in t_rows:
+        status = (r.get("body") or "").split('|', 1)[0].strip()
+        if status == "x":
+            closed.append(r["id"])
+    closed.sort(key=lambda tid: int(tid[1:]))
+    n = len(closed)
+    if n <= threshold:
+        return [{"action": "skip", "tid_lo": "", "tid_hi": "",
+                 "count": 0, "marker": ""}]
+    archive_ids = closed[: n - threshold]
+    keep_ids = closed[n - threshold:]
+    a_lo, a_hi = archive_ids[0], archive_ids[-1]
+    a_n = len(archive_ids)
+    # marker built from numeric tails so source never holds letter+digit pin
+    lo_n, hi_n = a_lo[1:], a_hi[1:]
+    marker = (f"## archived: §T.{lo_n}..§T.{hi_n} "
+              f"→ SPEC.archive.md ({a_n} rows)")
+    k_lo, k_hi = keep_ids[0], keep_ids[-1]
+    return [
+        {"action": "archive", "tid_lo": a_lo, "tid_hi": a_hi,
+         "count": a_n, "marker": marker},
+        {"action": "keep", "tid_lo": k_lo, "tid_hi": k_hi,
+         "count": len(keep_ids), "marker": ""},
+    ]
 
 
 def _live_v_cites(cites, live_v):
@@ -2131,6 +2178,22 @@ def cmd_emit_residue(args):
     return 0
 
 
+def cmd_emit_archive_window(args):
+    """emit-archive-window mode (token-budget + archive-semantics +
+    mechanical-realization): print action|tid_lo|tid_hi|count|marker for the
+    prong-3 window split. Condense consumes this table only; skip → no archive.
+    ARCHIVE_CLOSED_T is the sole threshold source."""
+    text, _, _ = load_spec(args.repo_root, args.spec)
+    sections, _ = parse_sections(text)
+    t_rows = parse_pipe_rows(sections, "T", T_ROW)
+    rows = emit_archive_window(t_rows)
+    print("action|tid_lo|tid_hi|count|marker")
+    for r in rows:
+        print(f"{r['action']}|{r['tid_lo']}|{r['tid_hi']}|{r['count']}|"
+              f"{r['marker']}")
+    return 0
+
+
 def cmd_fix_sembr(args):
     """fix-sembr mode (sembr + mechanical-realization invariants): rewrite
     flagged multi-sentence prose lines one sentence per line, in place, over
@@ -3128,6 +3191,44 @@ def selftest():
     check(isinstance(ARCHIVE_CLOSED_T, int) and ARCHIVE_CLOSED_T > 0,
           "token-budget: ARCHIVE_CLOSED_T positive int")
 
+    # emit-archive-window: skip under threshold; archive older / keep newest over
+    # (token-budget + archive-semantics + mechanical-realization)
+    aw_under = [{"id": f"T{i}", "body": "x|done"} for i in range(1, 6)]
+    aw_skip = emit_archive_window(aw_under, threshold=10)
+    check(len(aw_skip) == 1 and aw_skip[0]["action"] == "skip"
+          and aw_skip[0]["count"] == 0,
+          "emit-archive-window: closed ≤ threshold → skip")
+    aw_exact = [{"id": f"T{i}", "body": "x|done"} for i in range(1, 11)]
+    check(emit_archive_window(aw_exact, threshold=10)[0]["action"] == "skip",
+          "emit-archive-window: closed == threshold → skip")
+    # open §T ignored; over threshold → archive older id-asc + keep newest N
+    aw_mix = ([{"id": f"T{i}", "body": "x|done"} for i in range(1, 8)]
+              + [{"id": f"T{8}", "body": ".|open"},
+                 {"id": f"T{9}", "body": "x|done"},
+                 {"id": f"T{10}", "body": "x|done"}])
+    aw_over = emit_archive_window(aw_mix, threshold=5)
+    check(len(aw_over) == 2
+          and aw_over[0]["action"] == "archive"
+          and aw_over[1]["action"] == "keep",
+          "emit-archive-window: over threshold → archive + keep rows")
+    check(aw_over[0]["tid_lo"] == f"T{1}" and aw_over[0]["tid_hi"] == f"T{4}"
+          and aw_over[0]["count"] == 4,
+          "emit-archive-window: archive older closed id-asc (open excluded)")
+    check(aw_over[1]["tid_lo"] == f"T{5}" and aw_over[1]["tid_hi"] == f"T{10}"
+          and aw_over[1]["count"] == 5 and aw_over[1]["marker"] == "",
+          "emit-archive-window: keep newest N closed live")
+    check(ARCHIVE_MARK_TB.match(aw_over[0]["marker"]) is not None
+          and f"({4} rows)" in aw_over[0]["marker"],
+          "emit-archive-window: marker matches SPEC-FORMAT §T form")
+    # default threshold is ARCHIVE_CLOSED_T (single source; not a skill hardcode)
+    many = [{"id": f"T{i}", "body": "x|d"} for i in range(1, ARCHIVE_CLOSED_T + 3)]
+    aw_def = emit_archive_window(many)
+    check(aw_def[0]["action"] == "archive" and aw_def[0]["count"] == 2
+          and aw_def[1]["count"] == ARCHIVE_CLOSED_T,
+          "emit-archive-window: default threshold = ARCHIVE_CLOSED_T")
+    check(emit_archive_window([])[0]["action"] == "skip",
+          "emit-archive-window: empty §T → skip")
+
     # acceptance-gate parse + verdict (github-workflow invariant; closes §B.31)
     # test_name_hint: acceptance_gate_blocks_unproven_close
     ag_body = (
@@ -3178,7 +3279,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 227
+    return 235
 
 
 # --- entry -------------------------------------------------------------------
@@ -3194,6 +3295,7 @@ def main(argv=None):
                                          "emit-fold-seeds", "emit-v-weights",
                                          "emit-row-ids", "emit-overview",
                                          "emit-token-estimate", "emit-residue",
+                                         "emit-archive-window",
                                          "emit-check-agent-prompt"])
     parser.add_argument("--repo-root", default=os.environ.get("CHECK_REPO_ROOT", "."))
     parser.add_argument("--spec", default="SPEC.md")
@@ -3237,6 +3339,8 @@ def main(argv=None):
         return cmd_emit_token_estimate(args)
     if args.mode == "emit-residue":
         return cmd_emit_residue(args)
+    if args.mode == "emit-archive-window":
+        return cmd_emit_archive_window(args)
     if args.mode == "emit-check-agent-prompt":
         return cmd_emit_check_agent_prompt(args)
     return cmd_write_memo(args)

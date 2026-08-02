@@ -152,7 +152,7 @@ T64|x|condense+reorganize PROGRESS: name todo_write (mirror check; clear grant V
 T65|x|acceptance-gate: build+github load ## Acceptance; block unproven close; post evidence comment|V69,B31
 T66|x|document linear issue track + `/sdd:spec github issue N` fold route; no-Acceptance advisory|V69
 T67|x|script: drop agents-md presence + marker-block audit; retire self-tests|V67,V40
-T68|.|script emit-archive-window mode (action|tid_lo|tid_hi|count|marker; archive/keep/skip; ARCHIVE_CLOSED_T single source; keep newest N closed live, archive older id-asc); condense prong 3 consumes table only (skip → no archive); self-test|V48,V40,V16
+T68|x|script emit-archive-window mode (action|tid_lo|tid_hi|count|marker; archive/keep/skip; ARCHIVE_CLOSED_T single source; keep newest N closed live, archive older id-asc); condense prong 3 consumes table only (skip → no archive); self-test|V48,V40,V16
 
 ## §B BUGS
 

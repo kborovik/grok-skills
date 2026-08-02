@@ -57,8 +57,11 @@ Preserves row id; closes cite-DAG-miss audit noise.
 
 ### Prong 3 — §T/§B window-vs-archive split
 
-Trigger: closed §T rows > `check-mechanical.py` `ARCHIVE_CLOSED_T` (single source; not hardcode).
-Older closed rows → `SPEC.archive.md` (repo-root sibling, committed, id ascending). §T/§B gain per-section marker `## archived: §<S>.<a>..§<S>.<b> → SPEC.archive.md (<n> rows)`.
+Candidates script-computed: `check-mechanical.py emit-archive-window` emits `action|tid_lo|tid_hi|count|marker` table — closed §T (status `x`) vs `ARCHIVE_CLOSED_T` (single source; not hardcode).
+`skip` action → prong 3 skip (no archive).
+`archive` + `keep` rows → keep newest N closed live, archive older closed id-asc; `marker` cell is the SPEC-FORMAT §T archive-marker H2.
+Consume table only; not hand-count closed §T.
+On archive: older closed rows → `SPEC.archive.md` (repo-root sibling, committed, id ascending). §T/§B gain per-section marker from table (form `## archived: §<S>.<a>..§<S>.<b> → SPEC.archive.md (<n> rows)`).
 Archive carries verbatim row text. /sdd:check cite-DAG sweep eager-probes archive; archived rows stable so memo HOLD-SINCE-CLEAN across runs.
 
 ### Prong 4 — history-residue prune
