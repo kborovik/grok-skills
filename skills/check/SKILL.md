@@ -3,10 +3,14 @@ name: check
 description: |
   Read-only drift detector. Diffs SPEC.md vs current code, reports violations
   grouped by severity. Writes nothing — suggests remedies via spec or build
-  skills, never invokes them. Triggers when user asks to check drift, audit
-  spec, or verify invariants. Phrasings: "check drift", "audit the spec",
-  "check invariants", "spec vs code", "is the spec still accurate?",
-  "did the code drift?".
+  skills, never invokes them.
+when-to-use: |
+  Use when asked to check drift, audit the spec, verify invariants, or run
+  /sdd:check. Phrasings: "check drift", "audit the spec", "check invariants",
+  "spec vs code", "is the spec still accurate?", "did the code drift?".
+argument-hint: "[--full | --no-chain]"
+metadata:
+  short-description: "Read-only SPEC.md vs code drift report"
 allowed-tools: read_file, run_terminal_command(python3 */check-mechanical.py *), spawn_subagent, todo_write
 disallowed-tools: search_replace, write
 ---

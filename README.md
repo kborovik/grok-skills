@@ -267,22 +267,31 @@ Renumber history persists to `.spec/spec-renumber-map.json` so old citations sti
 
 ## Skills
 
-Each skill dir surfaces directly as a slash command (e.g. `skills/spec/` becomes `/sdd:spec`).
-SKILL.md frontmatter (`description`, `allowed-tools`, `model`) is honored on dispatch.
+Each skill directory surfaces as a slash command (for example `skills/spec/` becomes `/sdd:spec` when the plugin name is `sdd`).
+SKILL.md frontmatter is honored on dispatch: `description`, `when-to-use`, `argument-hint`, `allowed-tools`, optional `metadata.short-description`, and `user-invocable`.
+`disallowed-tools` on read-only skills (`check`, `explain`) is a recipe contract (zero writes); treat it as prompt-level unless the host documents skill-level denylists.
 
-- `shape` — `/sdd:shape` Plan-mode structural funnel; Grok Plan mode propose-critique; fold via `/sdd:spec fold-shape` (not bundled `/design`)
-- `spec` — sole mutator
+**User-invocable**
+
+- `shape` — `/sdd:shape <topic>` Plan-mode structural funnel; fold via `/sdd:spec fold-shape` (not bundled `/design`)
+- `spec` — sole SPEC.md mutator
 - `build` — plan, then execute loop
 - `check` — drift report
 - `explain` — telegraph to prose decoder
 - `condense` — token-budget condensation sweep
 - `reorganize` — §V cluster + renumber + cite sweep
-- `telegraph` — telegraph encoder (about 40% reduction vs prose); auto-fires on writes
-- `backprop` — bug to spec protocol; fires on non-code-bug verification failures
-- `socratic` — single-question intent gate; invoked by `/sdd:spec`
-- `steno` — human-facing terse-prose register for reviewer-read text
 
-You don't usually invoke `telegraph`, `backprop`, `socratic`, or `steno` directly — Grok picks them up from the command flow. `backprop`, for example, fires automatically when a `/sdd:build` verification failure appears to stem from under-specification (clear code bugs are just fixed).
+**Auto-fire / caller-engaged** (`user-invocable: false`)
+
+- `telegraph` — telegraph encoder (about 40% reduction vs prose); engaged on SPEC-adjacent writes
+- `backprop` — bug to spec protocol; engaged from `/sdd:spec` BACKPROP and build verify-fail
+- `socratic` — single-question intent gate; engaged by `/sdd:spec`
+- `steno` — human-facing terse-prose register for reviewer-read text
+- `github` — gh issue/PR workflow shape
+- `monitor` — skill-deviation capture for the plugin repo
+
+You do not usually invoke the auto-fire skills by slash command.
+Grok loads them from the command flow.
 
 ## Workflows
 

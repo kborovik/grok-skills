@@ -1,11 +1,15 @@
 ---
 name: condense
 description: |
-  SPEC.md condenser — token-budget sweep.
-  Triggers when user invokes `/sdd:condense` or asks to condense spec or /sdd:check
-  emits `## advisory` token-budget overflow line. Phrasings: "/sdd:condense",
-  "condense SPEC.md", "SPEC too big", "shrink the spec", "token budget".
-allowed-tools: ask_user_question, read_file, search_replace, write, run_terminal_command(git *), run_terminal_command(python3 */check-mechanical.py *), spawn_subagent, skill, todo_write
+  SPEC.md condenser — token-budget sweep across six prongs (fold, supersede,
+  archive, residue prune, telegraph rewrite, extract heavy recipes).
+when-to-use: |
+  Use when the user runs /sdd:condense, asks to condense SPEC.md, or /sdd:check
+  emits a token-budget advisory. Phrasings: "condense SPEC.md", "SPEC too big",
+  "shrink the spec", "token budget".
+metadata:
+  short-description: "Token-budget sweep for an oversized SPEC.md"
+allowed-tools: ask_user_question, read_file, search_replace, write, run_terminal_command(git *), run_terminal_command(python3 */check-mechanical.py *), spawn_subagent, todo_write
 ---
 
 # condense — SPEC.md condenser

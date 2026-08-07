@@ -1,10 +1,15 @@
 ---
 name: explain
 description: |
-  Telegraph → prose. Expand one SPEC.md citation into plain English. Read-only;
-  inverse of telegraph skill (telegraph encoder). Triggers: "/sdd:explain",
-  "what does §V.<n> mean", "decompress this", "explain in prose", "I don't
-  read telegraph". Writes → /sdd:spec.
+  Telegraph to prose. Expand one SPEC.md citation into plain English.
+  Read-only; inverse of telegraph skill (telegraph encoder). Zero writes.
+when-to-use: |
+  Use when asked to decompress a citation, explain in prose, or run
+  /sdd:explain. Phrasings: "what does §V.<n> mean", "decompress this",
+  "explain in prose", "I don't read telegraph".
+argument-hint: "[§-cite | --next]"
+metadata:
+  short-description: "Expand one SPEC.md cite into plain English"
 allowed-tools: read_file
 disallowed-tools: search_replace, write
 ---

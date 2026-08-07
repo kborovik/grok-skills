@@ -4,13 +4,16 @@ description: |
   Sole semantic author of SPEC.md @ repo root — create, amend, fold shapes,
   or backprop bugs (§T status-flip → build, archive → condense, §V renumber →
   reorganize; those carve-outs not authoring paths).
-  Triggers when user asks to write spec, start new spec, distill spec from
-  code, add invariants, amend a section, record a bug, or fold a GitHub
-  issue. Common phrasings: "write the spec for...", "new spec",
-  "distill spec from code", "spec this idea", "import existing repo",
-  "pull invariants out of code", "this bug keeps biting", "post-mortem on Y",
+when-to-use: |
+  Use when asked to write or amend a spec, start a new spec, distill from code,
+  record a bug, fold a shape plan, fold a GitHub issue, or run /sdd:spec.
+  Phrasings: "write the spec for...", "new spec", "distill spec from code",
+  "spec this idea", "import existing repo", "this bug keeps biting",
   "fold-shape", "github issue N".
-allowed-tools: ask_user_question, read_file, search_replace, write, grep, run_terminal_command(git *), run_terminal_command(grep *), run_terminal_command(gh *), spawn_subagent, skill
+argument-hint: "<intent | fold-shape | github issue N>"
+metadata:
+  short-description: "Sole writer of SPEC.md (create / amend / fold / backprop)"
+allowed-tools: ask_user_question, read_file, search_replace, write, grep, run_terminal_command(git *), run_terminal_command(grep *), run_terminal_command(gh *), spawn_subagent
 ---
 
 # spec — spec mutator

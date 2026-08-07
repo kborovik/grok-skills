@@ -3,9 +3,14 @@ name: reorganize
 description: |
   SPEC.md §V cluster + renumber + cite-DAG sweep. Operator-triggered
   clarity-shape pass — distinct from /sdd:condense (token reduction).
-  Phrasings: "/sdd:reorganize", "reorganize the spec", "regroup §V by topic",
-  "renumber invariants", "cluster §V rows", "tidy §V order", "taxonomy pass".
-allowed-tools: ask_user_question, read_file, search_replace, write, grep, run_terminal_command(git *), run_terminal_command(jq *), run_terminal_command(python3 *), spawn_subagent, skill, todo_write
+when-to-use: |
+  Use when asked to reorganize the spec, regroup §V by topic, renumber
+  invariants, or run /sdd:reorganize. Phrasings: "reorganize the spec",
+  "cluster §V rows", "tidy §V order", "taxonomy pass".
+argument-hint: "[--taxonomy-only]"
+metadata:
+  short-description: "Cluster, renumber §V, and sweep cites"
+allowed-tools: ask_user_question, read_file, search_replace, write, grep, run_terminal_command(git *), run_terminal_command(jq *), run_terminal_command(python3 *), spawn_subagent, todo_write
 ---
 
 # reorganize — §V cluster + renumber + cite-DAG sweep

@@ -1,11 +1,16 @@
 ---
 name: build
 description: |
-  Plan-then-execute impl vs SPEC.md. Triggers when user asks to build,
-  implement, or execute spec or specific §T task. Phrasings: "build §T.<n>",
-  "build --next", "implement next task", "run the build", "does the
-  implementation run?", "is §T.<n> done?".
-allowed-tools: ask_user_question, read_file, search_replace, write, run_terminal_command, skill, todo_write
+  Plan-then-execute implementation against SPEC.md §T tasks. Single-thread
+  main agent; no swarm.
+when-to-use: |
+  Use when asked to build, implement, or execute the spec or a specific §T
+  task, or run /sdd:build. Phrasings: "build §T.<n>", "build --next",
+  "implement next task", "run the build", "is §T.<n> done?".
+argument-hint: "[§T.n | --next | --all | --no-chain]"
+metadata:
+  short-description: "Plan then implement next §T task vs SPEC.md"
+allowed-tools: ask_user_question, read_file, search_replace, write, run_terminal_command, todo_write
 ---
 
 # build — implement spec

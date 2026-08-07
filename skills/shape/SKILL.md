@@ -2,10 +2,15 @@
 name: shape
 description: |
   SDD structural shape: propose-then-critique via Grok Plan mode → approved
-  plan folds into SPEC.md via `/sdd:spec fold-shape`. Invoke via `/sdd:shape
-  <topic>` or natural language "shape the X for SDD". Exhausts structural Open
+  plan folds into SPEC.md via `/sdd:spec fold-shape`. Exhausts structural Open
   Questions (distinct from socratic "enough"). Not the bundled Grok `/design`
   skill (write-review-revise design doc + PR plan).
+when-to-use: |
+  Use when asked to shape SDD structure, run /sdd:shape, or natural language
+  "shape the X for SDD".
+argument-hint: "<topic>"
+metadata:
+  short-description: "Plan-mode structural shape before /sdd:spec fold"
 allowed-tools: ask_user_question, read_file, grep, enter_plan_mode, exit_plan_mode
 ---
 
