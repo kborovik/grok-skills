@@ -68,7 +68,7 @@ LLM adjudicates only `cite|ambiguous|…`.
 
 Telegraph H2 blocks: invariant / cite / interface / task drift; optional checkpoint; optional advisory; summary.
 Silence-class → summary `suppressed` only.
-Clean → write-memo via emit-row-ids skeleton + `write-memo --from-audit` (memo invariant).
+Clean → write-memo via `emit-row-ids --from-audit` pre-fill + `write-memo --from-audit` (memo invariant).
 Dirty → no memo advance.
 
 Advisory sources: token, sembr, memo-invalidation, history-oversized, **reorganize** (sparse §V numbering / cluster gap smell when script or LLM notes renumber debt).

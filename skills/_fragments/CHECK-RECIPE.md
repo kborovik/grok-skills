@@ -82,8 +82,8 @@ Dirty → omit checkpoint.
 ## WRITE-MEMO
 
 ```
-python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py emit-row-ids
-# fill behavioral verdicts
+python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py emit-row-ids --from-audit
+# fill remaining blank verdicts (dirty §V, flipped §T)
 python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py write-memo --from-audit < filled
 ```
 

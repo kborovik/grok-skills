@@ -114,12 +114,15 @@ Modes:
                 first — the condenser extracts the heavy rows' audit recipes
                 without a by-inspection guess.
   emit-row-ids — read SPEC.md, print the canonical live id-set skeleton: every
-                live §V + §I + §T id as a verdict-table row with blank verdict
-                and evidence cells (`id||`). The drift-detector fills verdicts
-                against this skeleton instead of hand-enumerating the live row
-                set, so a live row can't be silently dropped from the verdict
-                table (omitted-row undercoverage class). §I ids derive from
-                kind-prefixed interface rows (`- api: POST /x → …` → `I.api`).
+                live §V + §I + §T id as a verdict-table row. Default is blank
+                verdict and evidence (`id||`). With --from-audit, pre-fill from
+                the same memo + scope-feed sources audit emits: HOLD-SINCE-CLEAN
+                for clean §V/§T, MATCH for §I, blank verdict for dirty §V and
+                flipped §T. The drift-detector fills only the remaining blanks
+                instead of joining advisory ids by hand. A live row can't be
+                silently dropped from the verdict table (omitted-row
+                undercoverage class). §I ids derive from kind-prefixed
+                interface rows (`- api: POST /x → …` → `I.api`).
   emit-overview — read SPEC.md, print the LOAD-step spec overview: §G/§C/§I/§T/§B
                 headers + bodies verbatim plus the §V id list only (no §V row
                 bodies). The drift-detector loads this in place of a whole-file
@@ -309,13 +312,72 @@ def parse_i_ids(sections):
 def emit_row_ids(v_rows, i_ids, t_rows):
     """Canonical live id-set skeleton (memo invariant): every live §V + §I + §T
     id, in section order. Returned as a flat id list; the caller renders one
-    blank-verdict verdict-table row per id (`id||`). The drift-detector fills
-    verdicts against this script-emitted skeleton instead of hand-enumerating
-    the live row set, closing the omitted-row silent-undercoverage class — the
-    skeleton enumerates exactly the set the script already parses/hashes."""
+    verdict-table row per id. The drift-detector fills verdicts against this
+    script-emitted skeleton instead of hand-enumerating the live row set,
+    closing the omitted-row silent-undercoverage class — the skeleton
+    enumerates exactly the set the script already parses/hashes."""
     return ([r["id"] for r in v_rows]
             + [r["id"] for r in i_ids]
             + [r["id"] for r in t_rows])
+
+
+def dirty_v_ids(v_rows, memo, touched, full=False):
+    """Live §V ids that need behavioral classification (scope-feed + memo).
+
+    full or unusable memo (None / bad schema) → every live V id.
+    Else union of v_row_shas drift and v_path_dirty(touched).
+    Reachable-sha gate is the caller's: pass memo=None when last_clean_sha
+    is unreachable so this stays git-free and unit-testable.
+    """
+    if full or not memo or memo.get("schema_version") != MEMO_SCHEMA:
+        return [r["id"] for r in v_rows]
+    stored = memo.get("v_row_shas", {})
+    cur = compute_v_row_shas(v_rows)
+    sha_dirty = [rid for rid, h in cur.items() if stored.get(rid) != h]
+    return sorted(set(sha_dirty) | set(v_path_dirty(v_rows, touched)),
+                  key=lambda x: int(x[1:]))
+
+
+def prefill_verdicts(ids, dirty_v, flipped_t):
+    """Pre-fill emit-row-ids --from-audit table (memo + mechanical-realization).
+
+    Clean §V/§T → HOLD-SINCE-CLEAN; dirty §V + flipped §T → blank; §I → MATCH.
+    Evidence cells stay blank — the drift-detector fills remaining blanks.
+    """
+    dirty = set(dirty_v)
+    flipped = set(flipped_t)
+    out = []
+    for rid in ids:
+        if ID_NUM.match(rid) and rid[0] == "V":
+            v = "" if rid in dirty else "HOLD-SINCE-CLEAN"
+        elif rid.startswith("I."):
+            v = "MATCH"
+        elif ID_NUM.match(rid) and rid[0] == "T":
+            v = "" if rid in flipped else "HOLD-SINCE-CLEAN"
+        else:
+            v = ""
+        out.append((rid, v, ""))
+    return out
+
+
+def emit_row_id_scope(v_rows, t_rows, memo, repo_root, spec_path="SPEC.md",
+                      full=False):
+    """Dirty §V + flipped §T from the same sources audit emits (scope-feed).
+
+    Unusable memo → all live V dirty; flipped = flipped_since([], t_rows)
+    (every current `x`, same as first-run). Usable memo → dirty_v_ids +
+    flipped_since(spec at last_clean_sha, t_rows). --full with a usable
+    memo still re-classifies every V; flipped set stays the real delta.
+    """
+    unusable = (not memo or memo.get("schema_version") != MEMO_SCHEMA
+                or not git_sha_reachable(memo.get("last_clean_sha", "")))
+    if unusable:
+        return [r["id"] for r in v_rows], flipped_since([], t_rows)
+    sha = memo.get("last_clean_sha", "")
+    old_t = spec_t_rows_at(repo_root, sha, spec_path)
+    touched = exclude_spec_paths(git_touched_paths(repo_root, sha), spec_path)
+    return (dirty_v_ids(v_rows, memo, touched, full=full),
+            flipped_since(old_t, t_rows))
 
 
 # Condense prong-6 stub: body redirects to `.spec/check-extras.md §Vn`
@@ -2139,9 +2201,17 @@ def cmd_emit_row_ids(args):
     v_rows = parse_v_rows(sections)
     i_ids = parse_i_ids(sections)
     t_rows = parse_pipe_rows(sections, "T", T_ROW)
+    ids = emit_row_ids(v_rows, i_ids, t_rows)
     print("id|verdict|evidence")
-    for rid in emit_row_ids(v_rows, i_ids, t_rows):
-        print(f"{rid}||")
+    if args.from_audit:
+        memo = load_memo(os.path.join(args.repo_root, ".spec", "check-state.json"))
+        dirty, flipped = emit_row_id_scope(
+            v_rows, t_rows, memo, args.repo_root, args.spec, full=args.full)
+        for rid, v, e in prefill_verdicts(ids, dirty, flipped):
+            print(f"{rid}|{v}|{e}")
+    else:
+        for rid in ids:
+            print(f"{rid}||")
     return 0
 
 
@@ -2769,6 +2839,49 @@ def selftest():
     parsed = parse_table(skel_table)
     check([r[0] for r in parsed] == skel and all(v == "" for _, v, _ in parsed),
           "emit-row-ids: pipe-table parses for fill-verdicts hand-off")
+    filled = prefill_verdicts(
+        [f"V{1}", f"V{2}", "I.cmd", f"T{9}", f"T{10}"],
+        dirty_v=[f"V{2}"], flipped_t=[f"T{10}"])
+    check(filled == [
+        (f"V{1}", "HOLD-SINCE-CLEAN", ""),
+        (f"V{2}", "", ""),
+        ("I.cmd", "MATCH", ""),
+        (f"T{9}", "HOLD-SINCE-CLEAN", ""),
+        (f"T{10}", "", ""),
+    ], "emit-row-ids --from-audit: pre-fill HOLD-SINCE-CLEAN/MATCH/blank")
+    filled_table = "id|verdict|evidence\n" + "\n".join(
+        f"{rid}|{v}|{e}" for rid, v, e in filled)
+    check(parse_table(filled_table) == filled,
+          "emit-row-ids --from-audit: pre-fill table parses for write-memo")
+    check(validate_vocab(filled) == [],
+          "emit-row-ids --from-audit: pre-fill verdicts in row-type vocab")
+    check(memo_exit_code(filled)[0] == 0,
+          "write-memo: pre-filled clean table still exit 0")
+    vfix = [{"id": f"V{1}", "body": "alpha"}, {"id": f"V{2}", "body": "beta"}]
+    memo_ok = {"schema_version": MEMO_SCHEMA,
+               "v_row_shas": {f"V{1}": row_body_sha("alpha"),
+                              f"V{2}": row_body_sha("beta")}}
+    check(dirty_v_ids(vfix, memo_ok, []) == [],
+          "dirty-v: matching shas + no path-dirty → empty")
+    memo_drift = {"schema_version": MEMO_SCHEMA,
+                  "v_row_shas": {f"V{1}": row_body_sha("alpha"),
+                                 f"V{2}": "deadbeef"}}
+    check(dirty_v_ids(vfix, memo_drift, []) == [f"V{2}"],
+          "dirty-v: v_row_shas drift → that id")
+    check(dirty_v_ids(vfix, None, []) == [f"V{1}", f"V{2}"],
+          "dirty-v: no memo → all V (first-run)")
+    check(dirty_v_ids(vfix, memo_ok, [], full=True) == [f"V{1}", f"V{2}"],
+          "dirty-v: --full → all V")
+    vpath = [{"id": f"V{1}", "body": "see `skills/check/SKILL.md`"},
+             {"id": f"V{2}", "body": "no path"}]
+    memo_match = {"schema_version": MEMO_SCHEMA,
+                  "v_row_shas": {f"V{1}": row_body_sha(vpath[0]["body"]),
+                                 f"V{2}": row_body_sha(vpath[1]["body"])}}
+    check(dirty_v_ids(vpath, memo_match, ["skills/check/SKILL.md"]) == [f"V{1}"],
+          "dirty-v: v-path-dirty unions with sha set")
+    check(flipped_since([], [{"id": f"T{1}", "body": "x|done"},
+                             {"id": f"T{2}", "body": ".|open"}]) == [f"T{1}"],
+          "flipped: first-run empty baseline → every current x")
 
     # emit-overview: non-§V sections verbatim + §V id list only (no bodies)
     spec_ov = ("## §G GOAL\n" "goal prose line\n"
@@ -3279,7 +3392,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 235
+    return 245
 
 
 # --- entry -------------------------------------------------------------------
@@ -3310,7 +3423,9 @@ def main(argv=None):
     parser.add_argument("--from-audit", action="store_true",
                         help="write-memo: re-run the mechanical audit internally "
                              "and merge it with the behavioral verdicts on stdin "
-                             "(stdin = behavioral rows only; hand-merge banned)")
+                             "(stdin = behavioral rows only; hand-merge banned). "
+                             "emit-row-ids: pre-fill HOLD-SINCE-CLEAN / MATCH / "
+                             "blank from the same memo + scope-feed sources")
     parser.add_argument("--files", default="",
                         help="fix-sembr: comma-list of files to rewrite "
                              "(default: the discovered sembr file set)")
