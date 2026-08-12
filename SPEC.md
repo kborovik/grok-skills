@@ -139,6 +139,7 @@ T68|x|script emit-archive-window mode (action|tid_lo|tid_hi|count|marker; archiv
 T69|x|script: emit-row-ids --from-audit pre-fills HOLD-SINCE-CLEAN (clean §V/§T) + MATCH (§I) + blank verdict (dirty §V + flipped §T); write-memo --from-audit accepts table; check WRITE-MEMO recipe consumes (no hand-join advisory ids); self-test|V44,V40
 
 ## §B BUGS
+## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)
 
 id|date|cause|fix
 B1|2026-06-11|sub-skill flags inverted: disable-model-invocation hid auto-fire from Skill tool|V61
