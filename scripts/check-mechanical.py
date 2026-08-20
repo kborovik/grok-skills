@@ -147,6 +147,14 @@ Modes:
                 id-asc + keep newest N live; archive row's marker cell is the
                 SPEC-FORMAT §T archive-marker H2. Condense consumes this table
                 only — no hand-count of closed §T.
+  emit-condense-propose — read SPEC.md, print the condenser's five PROPOSE seed
+                tables in one invocation (fold-seeds, superseded,
+                archive-window, residue, v-weights). Each table keeps its
+                standalone columns; blocks labeled `## <name>` so PROPOSE
+                splits by exact name (archive-marker `## archived: …` is not a
+                block). /sdd:condense PROPOSE consumes this emit instead of
+                five separate emit-* calls (mechanize-scan: ≥ 2 same-shape
+                deterministic calls collapsed). Standalone modes remain.
   fix-sembr   — rewrite flagged multi-sentence prose lines one sentence per
                 line, in place, over the sembr file set (`--files <comma-list>`
                 overrides discovery). Shares the audit scan's exemption walk +
@@ -644,6 +652,90 @@ def emit_v_weights(v_rows):
             if cum >= half:
                 heavy_done = True
     return ranked, total
+
+
+# Condense PROPOSE seed tables (mechanize-scan: five same-shape emit-* calls
+# collapsed). Order + names are the consume contract; columns stay those of the
+# standalone modes (mechanical-realization — formatters shared, not restated).
+CONDENSE_PROPOSE_TABLES = (
+    "fold-seeds", "superseded", "archive-window", "residue", "v-weights",
+)
+CONDENSE_PROPOSE_HEAD = re.compile(
+    r"^## (" + "|".join(re.escape(n) for n in CONDENSE_PROPOSE_TABLES) + r")$",
+    re.M,
+)
+
+
+def format_fold_seeds_table(seeds):
+    lines = ["cluster_members|co_citers"]
+    for s in seeds:
+        lines.append(f"{','.join(s['members'])}|{','.join(s['citers'])}")
+    return "\n".join(lines)
+
+
+def format_superseded_table(candidates):
+    lines = ["tid|superseded_v|original_cites"]
+    for c in candidates:
+        lines.append(f"{c['id']}|{','.join(c['unresolved'])}|{c['cites']}")
+    return "\n".join(lines)
+
+
+def format_archive_window_table(rows):
+    lines = ["action|tid_lo|tid_hi|count|marker"]
+    for r in rows:
+        lines.append(f"{r['action']}|{r['tid_lo']}|{r['tid_hi']}|{r['count']}|"
+                     f"{r['marker']}")
+    return "\n".join(lines)
+
+
+def format_residue_table(rows):
+    lines = ["section|id|pattern|line"]
+    for r in rows:
+        lines.append(f"{r['section']}|{r['id']}|{r['pattern']}|{r['line']}")
+    return "\n".join(lines)
+
+
+def format_v_weights_table(ranked):
+    lines = ["v_row|bytes|tokens|cum_pct|heavy"]
+    for w in ranked:
+        lines.append(f"{w['id']}|{w['bytes']}|{w['tokens']}|{w['cum_pct']}|"
+                     f"{'yes' if w['heavy'] else 'no'}")
+    return "\n".join(lines)
+
+
+def collect_condense_propose(v_rows, t_rows, b_rows):
+    """Five PROPOSE seed tables, columns unchanged vs standalone emit modes.
+    Returns [(name, table_text), ...] in CONDENSE_PROPOSE_TABLES order."""
+    ranked, _ = emit_v_weights(v_rows) if v_rows else ([], 0)
+    return [
+        ("fold-seeds",
+         format_fold_seeds_table(emit_fold_seeds(v_rows, t_rows, b_rows))),
+        ("superseded",
+         format_superseded_table(emit_superseded_candidates(v_rows, t_rows))),
+        ("archive-window",
+         format_archive_window_table(emit_archive_window(t_rows))),
+        ("residue",
+         format_residue_table(collect_residue_rows(v_rows, t_rows, b_rows))),
+        ("v-weights", format_v_weights_table(ranked)),
+    ]
+
+
+def format_condense_propose(tables):
+    """Labeled `## <name>` blocks so PROPOSE splits by exact name.
+    Archive-marker `## archived: …` lives inside a pipe cell, not a block."""
+    return "\n\n".join(f"## {name}\n{table}" for name, table in tables)
+
+
+def parse_condense_propose(text):
+    """Split labeled ## <name> blocks. Exact-name only so an archive-marker
+    line-cell never starts a block. Returns {name: table_text}."""
+    matches = list(CONDENSE_PROPOSE_HEAD.finditer(text))
+    out = {}
+    for i, m in enumerate(matches):
+        start = m.end()
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+        out[m.group(1)] = text[start:end].strip("\n")
+    return out
 
 
 def parse_pipe_rows(sections, letter, pat):
@@ -2164,9 +2256,7 @@ def cmd_emit_superseded(args):
     v_rows = parse_v_rows(sections)
     t_rows = parse_pipe_rows(sections, "T", T_ROW)
     candidates = emit_superseded_candidates(v_rows, t_rows)
-    print("tid|superseded_v|original_cites")
-    for c in candidates:
-        print(f"{c['id']}|{','.join(c['unresolved'])}|{c['cites']}")
+    print(format_superseded_table(candidates))
     return 0
 
 
@@ -2177,9 +2267,7 @@ def cmd_emit_fold_seeds(args):
     t_rows = parse_pipe_rows(sections, "T", T_ROW)
     b_rows = parse_pipe_rows(sections, "B", B_ROW)
     seeds = emit_fold_seeds(v_rows, t_rows, b_rows)
-    print("cluster_members|co_citers")
-    for s in seeds:
-        print(f"{','.join(s['members'])}|{','.join(s['citers'])}")
+    print(format_fold_seeds_table(seeds))
     return 0
 
 
@@ -2188,10 +2276,7 @@ def cmd_emit_v_weights(args):
     sections, _ = parse_sections(text)
     v_rows = parse_v_rows(sections)
     ranked, _ = emit_v_weights(v_rows)
-    print("v_row|bytes|tokens|cum_pct|heavy")
-    for w in ranked:
-        print(f"{w['id']}|{w['bytes']}|{w['tokens']}|{w['cum_pct']}|"
-              f"{'yes' if w['heavy'] else 'no'}")
+    print(format_v_weights_table(ranked))
     return 0
 
 
@@ -2242,9 +2327,7 @@ def cmd_emit_residue(args):
     t_rows = parse_pipe_rows(sections, "T", T_ROW)
     b_rows = parse_pipe_rows(sections, "B", B_ROW)
     rows = collect_residue_rows(v_rows, t_rows, b_rows)
-    print("section|id|pattern|line")
-    for r in rows:
-        print(f"{r['section']}|{r['id']}|{r['pattern']}|{r['line']}")
+    print(format_residue_table(rows))
     return 0
 
 
@@ -2257,10 +2340,21 @@ def cmd_emit_archive_window(args):
     sections, _ = parse_sections(text)
     t_rows = parse_pipe_rows(sections, "T", T_ROW)
     rows = emit_archive_window(t_rows)
-    print("action|tid_lo|tid_hi|count|marker")
-    for r in rows:
-        print(f"{r['action']}|{r['tid_lo']}|{r['tid_hi']}|{r['count']}|"
-              f"{r['marker']}")
+    print(format_archive_window_table(rows))
+    return 0
+
+
+def cmd_emit_condense_propose(args):
+    """emit-condense-propose mode (mechanical-realization + mechanize-scan +
+    token-budget): print the five PROPOSE seed tables in one invocation.
+    Columns unchanged vs standalone emit-* modes. Condense PROPOSE consumes
+    this emit; never five separate calls."""
+    text, _, _ = load_spec(args.repo_root, args.spec)
+    sections, _ = parse_sections(text)
+    v_rows = parse_v_rows(sections)
+    t_rows = parse_pipe_rows(sections, "T", T_ROW)
+    b_rows = parse_pipe_rows(sections, "B", B_ROW)
+    print(format_condense_propose(collect_condense_propose(v_rows, t_rows, b_rows)))
     return 0
 
 
@@ -3342,6 +3436,51 @@ def selftest():
     check(emit_archive_window([])[0]["action"] == "skip",
           "emit-archive-window: empty §T → skip")
 
+    # emit-condense-propose: five labeled tables, columns unchanged vs
+    # standalone formatters (mechanical-realization + mechanize-scan)
+    empty_cp = collect_condense_propose([], [], [])
+    check([n for n, _ in empty_cp] == list(CONDENSE_PROPOSE_TABLES),
+          "emit-condense-propose: five tables in named order")
+    check(empty_cp[3][1] == "section|id|pattern|line",
+          "emit-condense-propose: empty residue → header only")
+    check(empty_cp[2][1].splitlines()[0]
+          == "action|tid_lo|tid_hi|count|marker"
+          and empty_cp[2][1].splitlines()[1].startswith("skip|"),
+          "emit-condense-propose: empty §T → archive-window skip")
+    # columns unchanged: combined tables == standalone formatters on same input
+    cp_tables = [
+        ("fold-seeds", format_fold_seeds_table(seeds)),
+        ("superseded", format_superseded_table(cand)),
+        ("archive-window", format_archive_window_table(aw_over)),
+        ("residue", format_residue_table(res_mix)),
+        ("v-weights", format_v_weights_table(ranked)),
+    ]
+    cp_blob = format_condense_propose(cp_tables)
+    cp_parsed = parse_condense_propose(cp_blob)
+    check(list(cp_parsed.keys()) == list(CONDENSE_PROPOSE_TABLES),
+          "emit-condense-propose: parse yields five named blocks")
+    check(cp_parsed["fold-seeds"] == format_fold_seeds_table(seeds),
+          "emit-condense-propose: fold-seeds columns unchanged")
+    check(cp_parsed["superseded"] == format_superseded_table(cand),
+          "emit-condense-propose: superseded columns unchanged")
+    check(cp_parsed["archive-window"] == format_archive_window_table(aw_over),
+          "emit-condense-propose: archive-window columns unchanged")
+    check(cp_parsed["residue"] == format_residue_table(res_mix),
+          "emit-condense-propose: residue columns unchanged")
+    check(cp_parsed["v-weights"] == format_v_weights_table(ranked),
+          "emit-condense-propose: v-weights columns unchanged")
+    check("## archived:" in cp_parsed["archive-window"]
+          and cp_parsed["archive-window"].splitlines()[0]
+          == "action|tid_lo|tid_hi|count|marker",
+          "emit-condense-propose: archive-marker stays inside table block")
+    check(cp_parsed["fold-seeds"].splitlines()[0] == "cluster_members|co_citers"
+          and cp_parsed["superseded"].splitlines()[0]
+          == "tid|superseded_v|original_cites"
+          and cp_parsed["residue"].splitlines()[0] == "section|id|pattern|line"
+          and cp_parsed["v-weights"].splitlines()[0]
+          == "v_row|bytes|tokens|cum_pct|heavy",
+          "emit-condense-propose: standalone headers preserved")
+
     # acceptance-gate parse + verdict (github-workflow invariant; closes §B.31)
     # test_name_hint: acceptance_gate_blocks_unproven_close
     ag_body = (
@@ -3392,7 +3531,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 245
+    return 256
 
 
 # --- entry -------------------------------------------------------------------
@@ -3409,6 +3548,7 @@ def main(argv=None):
                                          "emit-row-ids", "emit-overview",
                                          "emit-token-estimate", "emit-residue",
                                          "emit-archive-window",
+                                         "emit-condense-propose",
                                          "emit-check-agent-prompt"])
     parser.add_argument("--repo-root", default=os.environ.get("CHECK_REPO_ROOT", "."))
     parser.add_argument("--spec", default="SPEC.md")
@@ -3456,6 +3596,8 @@ def main(argv=None):
         return cmd_emit_residue(args)
     if args.mode == "emit-archive-window":
         return cmd_emit_archive_window(args)
+    if args.mode == "emit-condense-propose":
+        return cmd_emit_condense_propose(args)
     if args.mode == "emit-check-agent-prompt":
         return cmd_emit_check_agent_prompt(args)
     return cmd_write_memo(args)

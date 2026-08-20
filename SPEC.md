@@ -137,7 +137,7 @@ T66|x|document linear issue track + `/sdd:spec github issue N` fold route; no-Ac
 T67|x|script: drop agents-md presence + marker-block audit; retire self-tests|V67,V40
 T68|x|script emit-archive-window mode (action|tid_lo|tid_hi|count|marker; archive/keep/skip; ARCHIVE_CLOSED_T single source; keep newest N closed live, archive older id-asc); condense prong 3 consumes table only (skip → no archive); self-test|V48,V40,V16
 T69|x|script: emit-row-ids --from-audit pre-fills HOLD-SINCE-CLEAN (clean §V/§T) + MATCH (§I) + blank verdict (dirty §V + flipped §T); write-memo --from-audit accepts table; check WRITE-MEMO recipe consumes (no hand-join advisory ids); self-test|V44,V40
-T70|.|script emit-condense-propose mode (fold-seeds|superseded|archive-window|residue|v-weights tables; columns unchanged); condense PROPOSE consumes combined emit; self-test|V40,V66,V48
+T70|x|script emit-condense-propose mode (fold-seeds|superseded|archive-window|residue|v-weights tables; columns unchanged); condense PROPOSE consumes combined emit; self-test|V40,V66,V48
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)

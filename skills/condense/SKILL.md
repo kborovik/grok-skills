@@ -40,19 +40,22 @@ CONFIRM cancel / subset-skip → unreached phases `deleted`, not `completed`.
 Six prongs, execution order 1 → 6.
 Per prong: scan SPEC.md for trigger match; emit firing-set + skip-set w/ 1-line rationale each.
 
-Script modes below run `python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py <mode>`; `${GROK_PLUGIN_ROOT}` no-expand in frontmatter → python3 grant pinned mid-glob `run_terminal_command(python3 */check-mechanical.py *)` (script-sole use, leading `*` absorbs the plugin-root prefix) per tooling-preference invariant.
+One script call: `python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py emit-condense-propose`.
+`${GROK_PLUGIN_ROOT}` no-expand in frontmatter → python3 grant pinned mid-glob `run_terminal_command(python3 */check-mechanical.py *)` (script-sole use, leading `*` absorbs the plugin-root prefix) per tooling-preference invariant.
+Emit labeled tables (`## fold-seeds`, `## superseded`, `## archive-window`, `## residue`, `## v-weights`) with columns unchanged vs standalone modes.
+Consume this emit — never five separate emit-* calls.
 
 ### Prong 1 — §V fold-first sweep
 
 Fold pattern-mirrored sibling §V rows into target row inline.
-Seed script-computed: `check-mechanical.py emit-fold-seeds` emits `cluster_members|co_citers` table — connected components of live §V rows sharing a citer (§T `cites` or §B `fix` naming ≥ 2 live §V rows).
+Seed = `## fold-seeds` table (`cluster_members|co_citers`) — connected components of live §V rows sharing a citer (§T `cites` or §B `fix` naming ≥ 2 live §V rows).
 Seed advisory not auto-apply: co-citation is candidacy signal not proof; operator confirms each fold @ CONFIRM (LLM judges topic coherence).
 Augment seed w/ topic-keyword overlap (shared scope tokens / procedure refs / verb pattern) where co-citation thin.
 Fires first — fold reshapes later prongs (prong 6 inherits folded shape).
 
 ### Prong 2 — SUPERSEDED §T inline marker
 
-Candidates script-computed: `check-mechanical.py emit-superseded` emits `tid|superseded_v|original_cites` table — closed §T (status `x`) whose §V cite resolves into no live §V row (only archived §V.retired block or nowhere) → SUPERSEDED candidate.
+Candidates = `## superseded` table (`tid|superseded_v|original_cites`) — closed §T (status `x`) whose §V cite resolves into no live §V row (only archived §V.retired block or nowhere) → SUPERSEDED candidate.
 Live-only resolution — distinct from cite-DAG audit live+archive scope.
 Consume table; not by-hand per-cite resolution.
 Operator confirms each (content-amend-away not cite-detectable).
@@ -61,7 +64,7 @@ Preserves row id; closes cite-DAG-miss audit noise.
 
 ### Prong 3 — §T/§B window-vs-archive split
 
-Candidates script-computed: `check-mechanical.py emit-archive-window` emits `action|tid_lo|tid_hi|count|marker` table — closed §T (status `x`) vs `ARCHIVE_CLOSED_T` (single source; not hardcode).
+Candidates = `## archive-window` table (`action|tid_lo|tid_hi|count|marker`) — closed §T (status `x`) vs `ARCHIVE_CLOSED_T` (single source; not hardcode).
 `skip` action → prong 3 skip (no archive).
 `archive` + `keep` rows → keep newest N closed live, archive older closed id-asc; `marker` cell is the SPEC-FORMAT §T archive-marker H2.
 Consume table only; not hand-count closed §T.
@@ -71,7 +74,7 @@ Archive carries verbatim row text. /sdd:check cite-DAG sweep eager-probes archiv
 ### Prong 4 — history-residue prune
 
 Prune history residue across live §V/§T/§B row bodies — SPEC.md is clean current design; history lives in commit log + archive.
-Candidates script-computed: `check-mechanical.py emit-residue` emits `section|id|pattern|line` table — every live row hit by the shared HR_* patterns (amendment-counter, dated-retirement, supersession-narration) or oversized §T `task` / §B `cause` cells (`oversized-cell`), after the same pre-filters as the audit path.
+Candidates = `## residue` table (`section|id|pattern|line`) — every live row hit by the shared HR_* patterns (amendment-counter, dated-retirement, supersession-narration) or oversized §T `task` / §B `cause` cells (`oversized-cell`), after the same pre-filters as the audit path.
 Empty body (header only) → prong 4 skip.
 Consume table; not hand regex / per-run pattern paraphrase (freshness-contract + mechanical-realization invariants — single source with `audit_history_residue`).
 
@@ -94,7 +97,7 @@ Verbatim-preservation holds: code, paths, URLs, identifiers, numbers, versions, 
 
 ### Prong 6 — §V audit-recipe extraction
 
-Heavy set script-computed: `check-mechanical.py emit-v-weights` emits `v_row|bytes|tokens|cum_pct|heavy` table, heaviest first; heavy = top rows whose cumulative weight first reaches ≥ 50% of §V-section total (tie-break descending weight then ascending id — run-stable).
+Heavy set = `## v-weights` table (`v_row|bytes|tokens|cum_pct|heavy`), heaviest first; heavy = top rows whose cumulative weight first reaches ≥ 50% of §V-section total (tie-break descending weight then ascending id — run-stable).
 Not by inspection.
 Heavy rows: extract audit-recipe content → `.spec/check-extras.md` (REPO-LOCAL extension); SPEC.md row keeps 1-line ref.
 Check skill loader already path-probes `.spec/check-extras.md` — no check-skill amend.
