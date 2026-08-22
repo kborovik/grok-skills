@@ -6,7 +6,8 @@ description: |
   one, open a PR, push an issue-linked branch with an open PR, mark a PR ready,
   merge a PR, or close one unmerged. Shapes the gh workflow:
   generic issue/PR structures, per-PR issue-linked branch,
-  draft PR then review-apply then `gh pr ready`,
+  draft PR then (spec-fold) `/sdd:build --all` write-capable sub-agent then bundled `review` sub-agent then READY remainder (no operator wait),
+  operator-run code complete then review-apply then `gh pr ready`,
   squash-merge with branch cleanup, `Closes #<issue>` at merge.
   Not for plain git ops (commit, or push with no issue/PR) nor `gh release`
   — the release skill owns version tag + release notes.
@@ -34,9 +35,10 @@ Operator must see the governor (auto-fire visibility).
 
 - new issue requested → ISSUE
 - start work on an issue (issue-linked branch) → BRANCH
-- open a PR → PR (`--draft`; no review; no Closes)
+- open a PR → PR (`--draft`; no review; no Closes); spec-fold PR continues post-spec-commit chain
 - issue-linked `git push` w/ open PR → PUSH
-- issue-linked code complete → READY
+- operator-run issue-linked code complete → READY
+- post-spec-commit remainder (review already ran as sub-agent) → READY remainder
 - merge a PR → MERGE
 - close a PR unmerged → CLOSE
 
@@ -44,8 +46,9 @@ Not: plain git ops (commit, push with no issue/PR), `gh release` (release skill 
 No gh issue/PR op → no fire.
 
 Every worked GitHub issue ! one issue-linked PR: BRANCH then PR (`--draft`).
+Spec-fold PR → post-spec-commit chain (github-workflow invariant): `/sdd:build --all` write-capable sub-agent then bundled `review` sub-agent then READY remainder; no operator wait.
 Later issue-linked commits → PUSH.
-After issue-linked code complete → READY.
+After operator-run issue-linked code complete → READY.
 Close → MERGE (ACCEPTANCE-GATE then add Closes then squash).
 
 ## ISSUE — `gh issue create`
@@ -74,6 +77,12 @@ Never `Closes`/`Fixes`/`Resolves` trailer @ create.
 Body = steno per the github-facing-register invariant.
 Generic structure: change summary; no close trailer; no fixed template.
 
+**After spec APPLY commit + this draft PR** (github-workflow invariant; no operator wait):
+
+1. run write-capable `/sdd:build --all` sub-agent (child drops READY; write-serialize exclusion).
+2. load-and-run bundled Grok `review` skill as sub-agent on the issue-linked branch vs default base (not slash-dispatch `/review`; recipe-step-no-dispatch invariant).
+3. READY remainder — parse findings; apply open bug + suggestion; `git push` (PUSH); `gh pr ready`.
+
 ## PUSH — `git push` issue-linked branch w/ open PR
 
 Fires on later issue-linked commits while a PR is open.
@@ -84,8 +93,10 @@ Plain git push w/ no issue/PR still out of scope — no fire.
 
 Required after issue-linked code complete.
 Never skip.
+Post-spec-commit path already ran `review` as sub-agent → start at remainder (step 2).
 
 1. load-and-run bundled Grok `review` skill on the issue-linked branch vs default base (not slash-dispatch `/review`; recipe-step-no-dispatch invariant).
+   Skip when post-spec-commit already ran `review` as sub-agent.
 2. Parse findings.
 3. Apply open bug + suggestion (nits listed; apply unless operator declines).
 4. `git push` (PUSH).
