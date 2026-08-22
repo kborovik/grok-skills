@@ -2,7 +2,8 @@
 name: build
 description: |
   Plan-then-execute implementation against SPEC.md §T tasks. Single-thread
-  main agent; no swarm.
+  main agent; no swarm. Exclusion: github post-spec-commit `/sdd:build --all`
+  child is write-capable (drops github READY; parent runs review next).
 when-to-use: |
   Use when asked to build, implement, or execute the spec or a specific §T
   task, or run /sdd:build. Phrasings: "build §T.<n>", "build --next",
@@ -18,6 +19,7 @@ allowed-tools: ask_user_question, read_file, search_replace, write, run_terminal
 Single-thread native plan→execute.
 You are the main Grok agent.
 No swarm.
+Exclusion: github post-spec-commit `/sdd:build --all` child write-capable (write-serialize + github-workflow invariants); this child ! spawn further build children.
 
 ## LOAD
 
@@ -71,8 +73,10 @@ Per task in order:
    No issue linkage → skip.
 5. **Pass** → flip §T.n `.`→`x`; path-scoped commit `T<n>: <goal line>` + §V cites on listed paths + SPEC.md.
    Clear `.spec/backprop-handoff.json` if present.
-   Issue-linked (open PR from `/sdd:spec github issue N`): github PUSH then load-and-run review-apply + push + `gh pr ready` (github READY; not slash-dispatch `/review` per recipe-step-no-dispatch invariant).
-   Next merge when approved.
+   Issue-linked (open PR from `/sdd:spec github issue N`):
+   - operator-run `/sdd:build`: github PUSH then load-and-run review-apply + push + `gh pr ready` (github READY; not slash-dispatch `/review` per recipe-step-no-dispatch invariant).
+     Next merge when approved.
+   - post-spec-commit child: write-capable; github PUSH only; drop READY (parent runs review next; github-workflow invariant).
 6. **Fail** → FAIL → BACKPROP.
    No blind retry.
    Status stays `.`.
@@ -110,7 +114,8 @@ Emit Next item per fragment.
 
 Per `skills/_fragments/NEXT.md`.
 Pass (chain off) → check leads, then build --next.
-Issue-linked pass → merge when approved (github MERGE).
+Issue-linked operator-run pass → merge when approved (github MERGE).
+Post-spec-commit child → drop READY (parent runs review next).
 Backlog clear → `/sdd:spec` seed.
 
 ## NON-GOALS
