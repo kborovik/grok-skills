@@ -33,6 +33,13 @@ Modes:
                 ISSUE accepts `--label`. Realized once here so the
                 drift-detector retires a hand-run skill-body grep of the
                 post-approve recipe.
+                Emits `github-workflow|VIOLATE|…` / `github-workflow|MISSING|…`
+                — the github-workflow invariant's PR-per-issue contract:
+                `skills/github/SKILL.md` requires `gh issue develop`,
+                load-and-run review, apply bug + suggestion, then
+                `gh pr create`; leftover LINEAR / no-PR optional-track
+                wording in that body is VIOLATE. Realized once here so the
+                drift-detector retires a hand-run github-skill grep.
                 Emits `grant|VIOLATE|…` — the tooling-preference invariant's
                 grant-use rule: no frontmatter `allowed-tools` grant is
                 zero-body-use (a granted tool the skill body never invokes).
@@ -1500,6 +1507,65 @@ def audit_shape_post_approve(repo_root):
     return classify_shape_post_approve(shape_text, github_text)
 
 
+# --- github-workflow PR-per-issue audit --------------------------------------
+
+# Needles the github skill body must carry (github-workflow invariant):
+# every worked issue ! issue-linked PR; after code complete, load-and-run
+# bundled review, apply bug + suggestion, then gh pr create.
+GITHUB_PR_PER_ISSUE_NEEDLES = (
+    ("gh issue develop", "gh issue develop"),
+    ("gh pr create", "gh pr create"),
+    ("load-and-run", "load-and-run review"),
+    ("bug + suggestion", "apply bug + suggestion"),
+)
+# Leftover LINEAR / no-PR optional-track wording in the github skill body
+# (github-workflow invariant). Substring match; any hit → VIOLATE.
+GITHUB_LINEAR_NO_PR_MARKERS = (
+    "Optional on the linear solo track",
+    "## LINEAR",
+    "solo track (no PR)",
+)
+
+
+def classify_github_pr_per_issue(github_text):
+    """github-workflow PR-per-issue contract — pure, unit-testable without the
+    filesystem. `github_text` is `skills/github/SKILL.md`; empty/unreadable →
+    MISSING. Each required needle absent → VIOLATE (one row per miss).
+    Leftover LINEAR / no-PR optional-track markers → VIOLATE so the governor
+    cannot keep a solo-push exclusion."""
+    if not github_text:
+        return [("github-workflow", "MISSING",
+                 "github-workflow MISSING: skills/github/SKILL.md unreadable")]
+    out = []
+    for needle, what in GITHUB_PR_PER_ISSUE_NEEDLES:
+        if needle not in github_text:
+            out.append(("github-workflow", "VIOLATE",
+                        "github-workflow VIOLATE: skills/github/SKILL.md "
+                        f"missing {what}"))
+    for marker in GITHUB_LINEAR_NO_PR_MARKERS:
+        if marker in github_text:
+            out.append(("github-workflow", "VIOLATE",
+                        "github-workflow VIOLATE: skills/github/SKILL.md "
+                        f"leftover {marker}"))
+    return out
+
+
+def audit_github_pr_per_issue(repo_root):
+    """File-reading wrapper around classify_github_pr_per_issue
+    (github-workflow invariant). Resolves PUBLISHED `skills/github/SKILL.md`
+    via discover_skill_md — realized once here so the drift-detector retires
+    a hand-run PR-per-issue recipe grep."""
+    by_name = {}
+    for path in discover_skill_md(repo_root):
+        by_name[os.path.basename(os.path.dirname(path))] = path
+    github_p = by_name.get("github")
+    try:
+        github_text = read_text(github_p) if github_p else ""
+    except OSError:
+        github_text = ""
+    return classify_github_pr_per_issue(github_text)
+
+
 # --- dispatch-target audit ---------------------------------------------------
 
 
@@ -2240,6 +2306,7 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
     skill_md = discover_skill_md(repo_root)
     findings += audit_mechanize_block(skill_md)
     findings += audit_shape_post_approve(repo_root)
+    findings += audit_github_pr_per_issue(repo_root)
     findings += audit_dispatch_targets(skill_md, plugin_names(repo_root))
     findings += audit_grants(discover_grant_skills(repo_root))
     findings += audit_human_symbols(discover_human_facing(repo_root))
@@ -3215,6 +3282,50 @@ def selftest():
     check(validate_vocab([("shape-lifecycle", "VIOLATE", "")]) == [],
           "shape-lifecycle: pseudo-id unrestricted vocab")
 
+    # github-workflow PR-per-issue: gh issue develop + load-and-run review +
+    # apply bug + suggestion + gh pr create; leftover LINEAR / no-PR markers
+    # are VIOLATE (github-workflow invariant).
+    gw_good = (
+        "BRANCH: gh issue develop n --checkout\n"
+        "PR: load-and-run bundled review\n"
+        "Apply open bug + suggestion; then gh pr create\n"
+    )
+    check(classify_github_pr_per_issue(gw_good) == [],
+          "github-workflow: complete PR-per-issue recipe → clean")
+    miss_dev = classify_github_pr_per_issue(
+        "load-and-run review\nbug + suggestion\ngh pr create\n")
+    check(any(v == "VIOLATE" and "gh issue develop" in e
+              for _, v, e in miss_dev),
+          "github-workflow: missing gh issue develop → VIOLATE")
+    miss_pr = classify_github_pr_per_issue(
+        "gh issue develop\nload-and-run review\nbug + suggestion\n")
+    check(any(v == "VIOLATE" and "gh pr create" in e for _, v, e in miss_pr),
+          "github-workflow: missing gh pr create → VIOLATE")
+    miss_load = classify_github_pr_per_issue(
+        "gh issue develop\ngh pr create\nbug + suggestion\n")
+    check(any(v == "VIOLATE" and "load-and-run" in e
+              for _, v, e in miss_load),
+          "github-workflow: missing load-and-run review → VIOLATE")
+    miss_apply = classify_github_pr_per_issue(
+        "gh issue develop\nload-and-run review\ngh pr create\n")
+    check(any(v == "VIOLATE" and "bug + suggestion" in e
+              for _, v, e in miss_apply),
+          "github-workflow: missing apply bug + suggestion → VIOLATE")
+    check(classify_github_pr_per_issue("")[0][1] == "MISSING",
+          "github-workflow: empty github body → MISSING")
+    gw_linear = gw_good + "Optional on the linear solo track (see LINEAR).\n"
+    check(any(v == "VIOLATE" and "linear solo" in e.lower()
+              for _, v, e in classify_github_pr_per_issue(gw_linear)),
+          "github-workflow: leftover LINEAR optional-track → VIOLATE")
+    check(any(v == "VIOLATE" and "## LINEAR" in e
+              for _, v, e in classify_github_pr_per_issue(
+                  gw_good + "## LINEAR — solo track (no PR)\n")),
+          "github-workflow: leftover ## LINEAR heading → VIOLATE")
+    check(compute_clean([("github-workflow", "VIOLATE", "")])[0] is False,
+          "github-workflow: VIOLATE is dirty")
+    check(validate_vocab([("github-workflow", "VIOLATE", "")]) == [],
+          "github-workflow: pseudo-id unrestricted vocab")
+
     # dispatch-target audit (response-shape + sub-skill-flags invariants, closes
     # §B.14): no skill body slash-dispatches an auto-fire sub-skill; the slash
     # form is never user-invocable. Plugin name from the manifest, sub-skill set
@@ -3649,7 +3760,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 266
+    return 277
 
 
 # --- entry -------------------------------------------------------------------

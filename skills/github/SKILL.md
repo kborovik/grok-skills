@@ -32,12 +32,15 @@ Operator must see the governor (auto-fire visibility).
 
 - new issue requested → ISSUE
 - start work on an issue (issue-linked branch) → BRANCH
-- open a PR → PR
+- open a PR → PR (review-apply first)
 - merge a PR → MERGE
 - close a PR unmerged → CLOSE
 
 Not: plain git ops (commit, push) with no issue/PR, `gh release` (release skill owns version tag + notes).
 No gh issue/PR op → no fire.
+
+Every worked GitHub issue ! one issue-linked PR: BRANCH then PR.
+BRANCH / PR / MERGE not optional.
 
 ## ISSUE — `gh issue create`
 
@@ -53,14 +56,19 @@ No fixed template scaffold beyond that heading.
 
 `gh issue develop <n> --checkout` — creates + checks out the issue-linked branch in place (native gh linkage; branch named by gh, never hand-named).
 One branch per session.
-Optional on the linear solo track (see LINEAR).
+Required when starting work on an issue.
 
-## PR — `gh pr create`
+## PR — review-apply then `gh pr create`
 
-`gh pr create --title "<summary>" --body <steno>` from the linked branch.
-Body = steno per the github-facing-register invariant + carries `Closes #<issue>` only after ACCEPTANCE-GATE ALLOW (or ADVISORY after advisory surfaced).
-Generic structure: change summary + verification line, no fixed template assumed.
-Optional on the linear solo track (see LINEAR).
+Required after issue-linked code complete.
+Never skip.
+
+1. load-and-run bundled Grok `review` skill on the issue-linked branch vs default base (not slash-dispatch `/review`; recipe-step-no-dispatch invariant).
+2. Parse findings.
+3. Apply open bug + suggestion (nits listed; apply unless operator declines).
+4. Then `gh pr create --title "<summary>" --body <steno>` from the linked branch.
+   Body = steno per the github-facing-register invariant + carries `Closes #<issue>` only after ACCEPTANCE-GATE ALLOW (or ADVISORY after advisory surfaced).
+   Generic structure: change summary + verification line, no fixed template assumed.
 
 ## MERGE — squash + branch delete
 
@@ -70,7 +78,6 @@ ALLOW → `gh pr merge <n> --squash --delete-branch` (commits squashed, remote b
 ADVISORY → surface advisory, then merge only after the advisory is stated.
 
 `Closes #<issue>` in the PR body auto-closes the linked issue on merge → no separate `gh issue close`.
-Optional on the linear solo track (see LINEAR).
 
 ## CLOSE — unmerged
 
@@ -89,25 +96,10 @@ Load `skills/_fragments/ACCEPTANCE-GATE.md` before any path that closes an issue
 
 - PR body or commit with `Closes #N` / `Fixes #N` / `Resolves #N`
 - `gh issue close N` after issue-linked work
-- linear push that would close via trailer
 
 BLOCK → no close trailer, no merge, no `gh issue close`; emit FAIL table.
 ALLOW → close path proceeds; post Acceptance-evidence comment on the issue.
 ADVISORY (no `## Acceptance`) → not silent-verified; surface advisory before close.
-
-## LINEAR — solo track (no PR)
-
-BRANCH / PR / MERGE are optional when the operator works solo on a linear SPEC:
-
-```
-/sdd:spec github issue N   # fold issue → SPEC §V / §T
-/sdd:build                 # implement (main or local branch)
-# ACCEPTANCE-GATE on close trailer
-git push                   # Closes #N only after ALLOW (or ADVISORY surfaced)
-```
-
-Same gate as PR merge close.
-Do not require BRANCH/PR/MERGE ceremony for solo linear work.
 
 ## NON-GOALS
 
@@ -115,3 +107,4 @@ Do not require BRANCH/PR/MERGE ceremony for solo linear work.
 - no `gh release` — the release skill (REPO-LOCAL) owns version tag + release notes.
 - no hardcoded repo slug, no `--repo` flag — every op runs against the cwd repo (parametric-recipe invariant).
 - never edits SPEC.md or any skill body.
+- no close of a worked issue without an issue-linked PR.
