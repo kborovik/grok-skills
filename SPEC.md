@@ -9,7 +9,7 @@ LLM writes code faster than humans read → standards + logic drift unchecked; c
 - installable Grok skills plugin; root-source plugin `sdd` (`.grok-plugin/plugin.json`, optional `.grok-plugin/marketplace.json` source `./`)
 - skills-only: every surface = `skills/<name>/SKILL.md`; no commands/ tree, no hooks
 - `scripts/check-mechanical.py` single-file, stdlib-only python3
-- no orchestrator, no swarm: main Grok agent executes; sub-agents read-only
+- no orchestrator, no swarm: main Grok agent executes; sub-agents read-only; exclusion: github post-spec-commit `/sdd:build --all` child write-capable (github-workflow invariant)
 - no state beyond SPEC.md + git + REPO-LOCAL `.spec/` cache
 
 ## §I INTERFACES
@@ -17,8 +17,8 @@ LLM writes code faster than humans read → standards + logic drift unchecked; c
 external surface — what operator + consuming repo see.
 
 - shape: `/sdd:shape <topic>` → Grok Plan mode propose-critique → approved plan → GitHub issue + class label + stop; later fold via `/sdd:spec github issue N` (optional same-session fold-shape; not bundled `/design`; no default `designs/` write)
-- spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit; fold-shape + micro-AMEND paths; `github issue N` folds issue → §V/§T then github BRANCH + `gh pr create --draft` (no close trailer); Next `/sdd:build`
-- build: `/sdd:build [§T.n|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path chain default-on → check; issue-linked pass → github PUSH + review-apply + `gh pr ready`; issue-linked close ! acceptance-gate per github-workflow invariant
+- spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit; fold-shape + micro-AMEND paths; `github issue N` folds issue → §V/§T then github BRANCH + `gh pr create --draft` (no close trailer); then run `/sdd:build --all` sub-agent then bundled `review` sub-agent (no operator wait)
+- build: `/sdd:build [§T.n|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path chain default-on → check; issue-linked pass → github PUSH + review-apply + `gh pr ready`; post-spec-commit child: write-capable, PUSH only (parent runs review); issue-linked close ! acceptance-gate per github-workflow invariant
 - check: `/sdd:check [--full|--no-chain]` → thin recipe + script; read-only REPORT + Next; clean chain → build --next
 - explain: `/sdd:explain [§-cite|--next]` → prose expansion w/ cited siblings, zero writes
 - condense: `/sdd:condense` → six-prong token sweep, single atomic commit
@@ -43,7 +43,7 @@ V14: pinned-cite-ban — PUBLISHED bodies ! placeholder (`§V.<n>`) or named-inv
 V15: renumber-chain-walk — → `.spec/check-extras.md §V15`
 V16: archive-semantics — → `.spec/check-extras.md §V16`
 V20: write-ownership — → `.spec/check-extras.md §V20`
-V21: write-serialize — SPEC.md + code writes serialize main-thread; reads delegable to read-only sub-agents.
+V21: write-serialize — SPEC.md + code writes serialize main-thread; reads delegable to read-only sub-agents; exclusion: github post-spec-commit chain runs write-capable `/sdd:build --all` child (github-workflow invariant).
 V22: recipe-step-no-dispatch — → `.spec/check-extras.md §V22`
 V23: decision-gate — → `.spec/check-extras.md §V23`
 V24: response-shape — → `.spec/check-extras.md §V24`
@@ -145,6 +145,10 @@ T74|x|spec skill: patch FOLD-IN github issue — after OK, github BRANCH then SP
 T75|x|github skill: PR create `--draft` no review no Closes; add PUSH (`git push` issue-linked branch w/ open PR); READY = review-apply + push + `gh pr ready`; MERGE = acceptance-gate then add Closes then squash|V69,V22
 T76|x|build skill: issue-linked pass → github PUSH then load-and-run review-apply + push + `gh pr ready`; Next merge when approved|V69,V22,I.build
 T77|x|README Issue-linked PR: branch then spec commit then draft PR; build then review-apply then `gh pr ready`; Closes only @ merge after acceptance-gate|V69,V2
+T78|.|github skill: after spec APPLY commit + draft PR, run `/sdd:build --all` write-capable sub-agent then bundled `review` sub-agent; no operator wait|V69,V21,V22
+T79|.|spec skill: FOLD-IN github issue POST-APPLY auto-chain run build then review (drop never-auto-build on that path)|V69,V22,I.spec
+T80|.|build skill: post-spec-commit child write-capable; drop READY on that child (parent runs review next)|V21,V69
+T81|.|README Issue-linked PR: spec commit + draft PR then auto-build sub-agent then auto-review sub-agent|V69,V2
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)
