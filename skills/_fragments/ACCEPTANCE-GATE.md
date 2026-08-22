@@ -5,7 +5,6 @@ Fires when issue-linked work is about to close issue `N` via any of:
 
 - commit or PR body will carry `Closes #N` / `Fixes #N` / `Resolves #N`
 - explicit `gh issue close N` after issue-linked work
-- linear solo push that would close via a close trailer (no PR)
 
 Ordered; stop on bail:
 

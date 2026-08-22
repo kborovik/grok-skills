@@ -146,7 +146,7 @@ Ordered:
 3. **Acceptance** — if body has `## Acceptance` checklist, fold open bullets into §T goals or task notes so `/sdd:build` can prove them; if no `## Acceptance` → surface **ADVISORY** in the preview (not silent-verified; github-workflow invariant) and continue fold without inventing bullets.
 4. **Link** — record issue number in commit body (`github-issue-<N>`); do not auto-close the issue from this fold.
 
-Linear solo track after fold: `/sdd:build` → push with close trailer only after ACCEPTANCE-GATE (see `skills/_fragments/ACCEPTANCE-GATE.md` + github skill LINEAR).
+After fold: `/sdd:build` → issue-linked branch → load-and-run bundled review skill → apply findings → `gh pr create` (ACCEPTANCE-GATE on close trailer; see `skills/_fragments/ACCEPTANCE-GATE.md`).
 
 ## APPLY (all modes, post-delta)
 

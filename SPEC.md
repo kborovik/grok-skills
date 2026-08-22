@@ -140,7 +140,7 @@ T69|x|script: emit-row-ids --from-audit pre-fills HOLD-SINCE-CLEAN (clean §V/§
 T70|x|script emit-condense-propose mode (fold-seeds|superseded|archive-window|residue|v-weights tables; columns unchanged); condense PROPOSE consumes combined emit; self-test|V40,V66,V48
 T71|x|shape post-approve: GitHub issue + class label + stop (skill + README)|V31,V69,I.shape,V2
 T72|x|github skill: require PR per issue; after code complete follow bundled review skill, apply findings, then gh pr create|V69
-T73|.|sweep remaining LINEAR-no-PR wording to PR-per-issue + review-apply; scope grep `LINEAR|solo linear|no PR required`|V69
+T73|x|sweep remaining LINEAR-no-PR wording to PR-per-issue + review-apply; scope grep `LINEAR|solo linear|no PR required`|V69
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)

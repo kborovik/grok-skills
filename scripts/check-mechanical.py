@@ -40,6 +40,12 @@ Modes:
                 `gh pr create`; leftover LINEAR / no-PR optional-track
                 wording in that body is VIOLATE. Realized once here so the
                 drift-detector retires a hand-run github-skill grep.
+                Emits `linear-no-pr|VIOLATE|…` — leftover LINEAR-no-PR
+                wording (`LINEAR|solo linear|no PR required`) on skill
+                bodies, fragments, README, AGENTS.md (not SPEC.md — the
+                sweep §T row names the pattern). Backtick-wrapped tokens
+                exempt. Realized once here so the sweep cannot silently
+                re-accumulate.
                 Emits `grant|VIOLATE|…` — the tooling-preference invariant's
                 grant-use rule: no frontmatter `allowed-tools` grant is
                 zero-body-use (a granted tool the skill body never invokes).
@@ -1566,6 +1572,50 @@ def audit_github_pr_per_issue(repo_root):
     return classify_github_pr_per_issue(github_text)
 
 
+# --- leftover LINEAR-no-PR wording audit -------------------------------------
+
+# Sweep-scope grep from §T.73 (github-workflow invariant): remaining
+# LINEAR / solo-linear / no-PR-required wording on human + skill surfaces.
+LINEAR_NO_PR_RE = re.compile(r"LINEAR|solo linear|no PR required")
+
+
+def classify_linear_no_pr(texts):
+    """Leftover LINEAR-no-PR wording — pure, unit-testable without the
+    filesystem (github-workflow invariant). `texts` is {path: text} over
+    skill bodies, fragments, README, AGENTS.md. SPEC.md excluded (the sweep
+    §T row names the pattern). Backtick-wrapped tokens exempt per the
+    verbatim-preservation invariant. One VIOLATE row per matching line."""
+    out = []
+    for path in sorted(texts):
+        for i, line in enumerate(texts[path].splitlines(), start=1):
+            if LINEAR_NO_PR_RE.search(strip_backticks(line)):
+                out.append(("linear-no-pr", "VIOLATE",
+                            f"linear-no-pr VIOLATE: {path}:{i} leftover "
+                            f"LINEAR-no-PR wording"))
+    return out
+
+
+def audit_linear_no_pr(repo_root):
+    """File-reading wrapper around classify_linear_no_pr (github-workflow
+    invariant). Scope = PUBLISHED skill bodies + `_fragments` + README +
+    AGENTS.md — realized once here so the sweep-scope grep cannot silently
+    re-accumulate. SPEC.md is out of scope (the live §T row documents the
+    pattern)."""
+    texts = {}
+    paths = list(discover_skill_md(repo_root))
+    paths += discover_sembr_fragments(repo_root)
+    for name in ("README.md", "AGENTS.md"):
+        p = os.path.join(repo_root, name)
+        if os.path.isfile(p):
+            paths.append(p)
+    for path in paths:
+        try:
+            texts[path] = read_text(path)
+        except OSError:
+            continue
+    return classify_linear_no_pr(texts)
+
+
 # --- dispatch-target audit ---------------------------------------------------
 
 
@@ -2307,6 +2357,7 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
     findings += audit_mechanize_block(skill_md)
     findings += audit_shape_post_approve(repo_root)
     findings += audit_github_pr_per_issue(repo_root)
+    findings += audit_linear_no_pr(repo_root)
     findings += audit_dispatch_targets(skill_md, plugin_names(repo_root))
     findings += audit_grants(discover_grant_skills(repo_root))
     findings += audit_human_symbols(discover_human_facing(repo_root))
@@ -3326,6 +3377,33 @@ def selftest():
     check(validate_vocab([("github-workflow", "VIOLATE", "")]) == [],
           "github-workflow: pseudo-id unrestricted vocab")
 
+    # leftover LINEAR-no-PR wording (github-workflow invariant): sweep-scope
+    # grep LINEAR|solo linear|no PR required on skill/fragment/README surfaces;
+    # backtick-wrapped tokens exempt; SPEC.md out of scope.
+    ln_hit = classify_linear_no_pr(
+        {"a.md": "keep the LINEAR heading\n"})
+    check(len(ln_hit) == 1 and ln_hit[0][0] == "linear-no-pr"
+          and ln_hit[0][1] == "VIOLATE" and "a.md:1" in ln_hit[0][2],
+          "linear-no-pr: LINEAR heading → VIOLATE")
+    check(any("solo linear" in e or "leftover" in e
+              for _, _, e in classify_linear_no_pr(
+                  {"b.md": "the solo linear path is gone\n"})),
+          "linear-no-pr: solo linear → VIOLATE")
+    check(any("no PR required" in e or "leftover" in e
+              for _, _, e in classify_linear_no_pr(
+                  {"c.md": "solo, no PR required\n"})),
+          "linear-no-pr: no PR required → VIOLATE")
+    check(classify_linear_no_pr(
+              {"d.md": "every issue gets one issue-linked PR\n"}) == [],
+          "linear-no-pr: PR-per-issue wording → clean")
+    check(classify_linear_no_pr(
+              {"e.md": "the `LINEAR` token is a historical name\n"}) == [],
+          "linear-no-pr: backtick-wrapped LINEAR exempt")
+    check(compute_clean([("linear-no-pr", "VIOLATE", "")])[0] is False,
+          "linear-no-pr: VIOLATE is dirty")
+    check(validate_vocab([("linear-no-pr", "VIOLATE", "")]) == [],
+          "linear-no-pr: pseudo-id unrestricted vocab")
+
     # dispatch-target audit (response-shape + sub-skill-flags invariants, closes
     # §B.14): no skill body slash-dispatches an auto-fire sub-skill; the slash
     # form is never user-invocable. Plugin name from the manifest, sub-skill set
@@ -3760,7 +3838,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 277
+    return 284
 
 
 # --- entry -------------------------------------------------------------------
