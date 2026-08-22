@@ -146,7 +146,15 @@ Ordered:
 3. **Acceptance** — if body has `## Acceptance` checklist, fold open bullets into §T goals or task notes so `/sdd:build` can prove them; if no `## Acceptance` → surface **ADVISORY** in the preview (not silent-verified; github-workflow invariant) and continue fold without inventing bullets.
 4. **Link** — record issue number in commit body (`github-issue-<N>`); do not auto-close the issue from this fold.
 
-After fold: `/sdd:build` → issue-linked branch → load-and-run bundled review skill → apply findings → `gh pr create` (ACCEPTANCE-GATE on close trailer; see `skills/_fragments/ACCEPTANCE-GATE.md`).
+→ APPLY show-user (step 3).
+
+**After OK** (github-workflow invariant; spec-owned prefix):
+
+1. github BRANCH — `gh issue develop <N> --checkout` (in-place, one branch per session).
+2. SPEC.md commit on that branch (APPLY step 4; spec commit first on PR).
+3. github PR — `gh pr create --draft` (generic structure; steno body per github-facing-register invariant; no close trailer @ create; no review-at-create).
+
+After-fold Next `/sdd:build` (never auto-build).
 
 ## APPLY (all modes, post-delta)
 
@@ -178,6 +186,7 @@ Table uses named-invariant + placeholder cite form only (`per <named> invariant`
 **Step 3 — show-user**: render diff preview; await user OK.
 
 **Step 4 — write + commit**: on OK → write delta to its resolved body file(s) (telegraph) + auto-commit path-scoped `git commit -m <subject> [-m <body>] -- <body-file(s)>` (write-ownership invariant — scopes to the owned file set, pre-staged files never leak).
+github-issue fold: after OK, github BRANCH (`gh issue develop <N> --checkout`) then this SPEC.md commit on that branch then `gh pr create --draft` (spec commit first on PR; no close trailer @ create; no review-at-create).
 Body file(s) = SPEC.md every mode + target, except a stub-redirected §V AMEND → `.spec/check-extras.md` per AMEND § resolution + extras-hook invariant (the SPEC.md stub row stays untouched, so check-extras.md is the sole path-scope; mixed delta touching both an inline §V/other § and a stub-redirected §V → path list = the union). `-m` flags ! precede `--` — message tokens after `--` parse as pathspecs, commit fails; no commit prompt (uniform every mode).
 Msg per mode:
 
@@ -191,7 +200,7 @@ FOLD-IN  → fold-in §V.<n>(+) and §T.<n>(+): <slug|fold-shape>  (omit absent 
 
 **Re-entry**: any stage rewriting delta after step 0 — concretely fold-first's fold-into reroute (new §V row → existing-row amend) — re-enters APPLY @ step 0; rewritten delta newly satisfies §V-row prune and prior audits saw a delta that no longer exists.
 
-APPLY ends @ commit. `## POST-APPLY` fires after, unchanged.
+APPLY ends @ commit (github-issue fold continues: `gh pr create --draft` then POST-APPLY). `## POST-APPLY` fires after.
 
 ## SWEEP-§T SCOPE AUDIT
 
@@ -275,6 +284,7 @@ Default: surface `/sdd:check` as Next item #1 (cascade over just-applied delta).
 Exceptions:
 - **BACKPROP** → item #1 = concrete `/sdd:build §T.<n>` (resume card); item #2 = `/sdd:check`.
 - **DISTILL** → item #1 = `/sdd:check`; item #2 = `/sdd:spec` confirm `?`-flagged rows.
+- **FOLD-IN github issue** → item #1 = `/sdd:build`.
 - Green-path: not default-chained from spec (operator or explicit Next).
 
 Not silent commit-then-done.
@@ -293,7 +303,7 @@ Emit Next item per fragment.
 
 Per `skills/_fragments/NEXT.md`.
 Show-user → apply + revise lead.
-Post-commit → POST-APPLY leads (BACKPROP concrete build; DISTILL check + confirm-?; else check then build).
+Post-commit → POST-APPLY leads (BACKPROP concrete build; DISTILL check + confirm-?; FOLD-IN github issue `/sdd:build`; else check then build).
 
 ## NON-GOALS
 

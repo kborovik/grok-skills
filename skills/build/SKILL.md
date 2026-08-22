@@ -62,14 +62,17 @@ Per task in order:
    Stage explicit paths for step-3 probe; commit path-scoped (see `skills/_fragments/PATH-SCOPED-COMMIT.md`).
 2. Run verification cmd.
 3. Staged diff touches PUBLISHED → probe `.spec/check-extras.md` judgment recipes when present.
-4. **Acceptance-gate** — when this task or its commit will close a GitHub issue (`Closes #N` / `Fixes #N` / `Resolves #N` trailer, or issue-linked work from `/sdd:spec github issue N`):
+4. **Acceptance-gate** — when this task or its commit will close a GitHub issue (`Closes #N` / `Fixes #N` / `Resolves #N` trailer):
    load `skills/_fragments/ACCEPTANCE-GATE.md` and run the gate (github-workflow invariant).
    - **BLOCK** → verify FAIL; no close trailer; status stays `.`; go FAIL → BACKPROP only if class (b)/(c), else fix evidence and re-run gate.
    - **ADVISORY** (no `## Acceptance`) → surface advisory (not silent-verified); continue only after the advisory is stated.
    - **ALLOW** → may emit close trailer; post Acceptance-evidence comment per fragment.
+   Issue-linked pass ! not emit `Closes`/`Fixes`/`Resolves` on the build commit — close trailer lands @ github MERGE after ACCEPTANCE-GATE.
    No issue linkage → skip.
 5. **Pass** → flip §T.n `.`→`x`; path-scoped commit `T<n>: <goal line>` + §V cites on listed paths + SPEC.md.
    Clear `.spec/backprop-handoff.json` if present.
+   Issue-linked (open PR from `/sdd:spec github issue N`): github PUSH then load-and-run review-apply + push + `gh pr ready` (github READY; not slash-dispatch `/review` per recipe-step-no-dispatch invariant).
+   Next merge when approved.
 6. **Fail** → FAIL → BACKPROP.
    No blind retry.
    Status stays `.`.
@@ -107,6 +110,7 @@ Emit Next item per fragment.
 
 Per `skills/_fragments/NEXT.md`.
 Pass (chain off) → check leads, then build --next.
+Issue-linked pass → merge when approved (github MERGE).
 Backlog clear → `/sdd:spec` seed.
 
 ## NON-GOALS

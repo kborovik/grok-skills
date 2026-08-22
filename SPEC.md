@@ -17,8 +17,8 @@ LLM writes code faster than humans read → standards + logic drift unchecked; c
 external surface — what operator + consuming repo see.
 
 - shape: `/sdd:shape <topic>` → Grok Plan mode propose-critique → approved plan → GitHub issue + class label + stop; later fold via `/sdd:spec github issue N` (optional same-session fold-shape; not bundled `/design`; no default `designs/` write)
-- spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit; fold-shape + micro-AMEND paths; `github issue N` folds issue → §V/§T
-- build: `/sdd:build [§T.n|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path chain default-on → check; issue-linked close ! acceptance-gate per github-workflow invariant
+- spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit; fold-shape + micro-AMEND paths; `github issue N` folds issue → §V/§T then github BRANCH + `gh pr create --draft` (no close trailer); Next `/sdd:build`
+- build: `/sdd:build [§T.n|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path chain default-on → check; issue-linked pass → github PUSH + review-apply + `gh pr ready`; issue-linked close ! acceptance-gate per github-workflow invariant
 - check: `/sdd:check [--full|--no-chain]` → thin recipe + script; read-only REPORT + Next; clean chain → build --next
 - explain: `/sdd:explain [§-cite|--next]` → prose expansion w/ cited siblings, zero writes
 - condense: `/sdd:condense` → six-prong token sweep, single atomic commit
@@ -141,6 +141,10 @@ T70|x|script emit-condense-propose mode (fold-seeds|superseded|archive-window|re
 T71|x|shape post-approve: GitHub issue + class label + stop (skill + README)|V31,V69,I.shape,V2
 T72|x|github skill: require PR per issue; after code complete follow bundled review skill, apply findings, then gh pr create|V69
 T73|x|sweep remaining LINEAR-no-PR wording to PR-per-issue + review-apply; scope grep `LINEAR|solo linear|no PR required`|V69
+T74|x|spec skill: patch FOLD-IN github issue — after OK, github BRANCH then SPEC.md commit on that branch then `gh pr create --draft` (spec commit first on PR; no close trailer @ create; no review-at-create); After-fold Next `/sdd:build`|V69,V22,I.spec
+T75|x|github skill: PR create `--draft` no review no Closes; add PUSH (`git push` issue-linked branch w/ open PR); READY = review-apply + push + `gh pr ready`; MERGE = acceptance-gate then add Closes then squash|V69,V22
+T76|x|build skill: issue-linked pass → github PUSH then load-and-run review-apply + push + `gh pr ready`; Next merge when approved|V69,V22,I.build
+T77|x|README Issue-linked PR: branch then spec commit then draft PR; build then review-apply then `gh pr ready`; Closes only @ merge after acceptance-gate|V69,V2
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)

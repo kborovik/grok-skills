@@ -189,10 +189,9 @@ Every worked GitHub issue gets one issue-linked pull request.
 `/sdd:shape` post-approve is one source of that issue: the skill opens it, labels it, and stops.
 
 ```text
-/sdd:spec github issue N   # fold issue body into SPEC §V / §T
-/sdd:build                 # implement; verify
-# review skill on the issue-linked branch; apply bugs and suggestions
-gh pr create               # after review-apply; close trailer only after Acceptance gate
+/sdd:spec github issue N   # fold; issue-linked branch; SPEC.md commit; gh pr create --draft
+/sdd:build                 # implement; verify; git push; review-apply; gh pr ready
+# Closes trailer only at merge, after Acceptance gate
 ```
 
 **Acceptance gate (issue close).**
@@ -204,7 +203,11 @@ If the issue has **no** `## Acceptance` section, that is an **advisory** (not a 
 The gate surfaces the gap; it does not pretend the work was acceptance-checked.
 
 Start work with `gh issue develop <n> --checkout`.
-After code is complete, follow the bundled Grok review skill, apply open bugs and suggestions, then open the PR.
+The spec fold commits `SPEC.md` on that branch, then opens a draft PR (`gh pr create --draft`) from that commit.
+No close trailer at create.
+No review at create.
+`/sdd:build` implements on the same branch, pushes, runs the bundled Grok review skill, applies open bugs and suggestions, then runs `gh pr ready`.
+Close trailers are added only at merge, after the Acceptance gate.
 Merge is squash with branch delete.
 
 ### `/sdd:build` — plan, then execute

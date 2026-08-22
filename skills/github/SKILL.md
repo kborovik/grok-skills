@@ -3,11 +3,13 @@ name: github
 description: |
   Auto-fire gh-CLI workflow governor. Fires when an sdd skill or the operator
   runs a GitHub issue or pull-request operation — open an issue, start work on
-  one, open a PR, merge a PR, or close one unmerged. Shapes the gh workflow:
+  one, open a PR, push an issue-linked branch with an open PR, mark a PR ready,
+  merge a PR, or close one unmerged. Shapes the gh workflow:
   generic issue/PR structures, per-PR issue-linked branch,
-  squash-merge with branch cleanup, `Closes #<issue>` linkage. Not for
-  plain git ops (commit, push) nor `gh release` — the release skill owns version
-  tag + release notes.
+  draft PR then review-apply then `gh pr ready`,
+  squash-merge with branch cleanup, `Closes #<issue>` at merge.
+  Not for plain git ops (commit, or push with no issue/PR) nor `gh release`
+  — the release skill owns version tag + release notes.
 allowed-tools: run_terminal_command(gh *), run_terminal_command(git *)
 user-invocable: false
 ---
@@ -25,22 +27,26 @@ Repo-agnostic per the parametric-recipe invariant: every gh + git command runs a
 
 ## ENGAGE LOG
 
-When this skill fires, emit one telegraph line before the op recipe: `engaged sdd:github — <ISSUE|BRANCH|PR|MERGE|CLOSE>`.
+When this skill fires, emit one telegraph line before the op recipe: `engaged sdd:github — <ISSUE|BRANCH|PR|PUSH|READY|MERGE|CLOSE>`.
 Operator must see the governor (auto-fire visibility).
 
 ## WHEN — fires on a gh issue/PR op:
 
 - new issue requested → ISSUE
 - start work on an issue (issue-linked branch) → BRANCH
-- open a PR → PR (review-apply first)
+- open a PR → PR (`--draft`; no review; no Closes)
+- issue-linked `git push` w/ open PR → PUSH
+- issue-linked code complete → READY
 - merge a PR → MERGE
 - close a PR unmerged → CLOSE
 
-Not: plain git ops (commit, push) with no issue/PR, `gh release` (release skill owns version tag + notes).
+Not: plain git ops (commit, push with no issue/PR), `gh release` (release skill owns version tag + notes).
 No gh issue/PR op → no fire.
 
-Every worked GitHub issue ! one issue-linked PR: BRANCH then PR.
-BRANCH / PR / MERGE not optional.
+Every worked GitHub issue ! one issue-linked PR: BRANCH then PR (`--draft`).
+Later issue-linked commits → PUSH.
+After issue-linked code complete → READY.
+Close → MERGE (ACCEPTANCE-GATE then add Closes then squash).
 
 ## ISSUE — `gh issue create`
 
@@ -58,7 +64,23 @@ No fixed template scaffold beyond that heading.
 One branch per session.
 Required when starting work on an issue.
 
-## PR — review-apply then `gh pr create`
+## PR — `gh pr create --draft`
+
+Fires when opening a PR (spec fold after SPEC.md commit on issue-linked branch).
+Never review-at-create.
+Never `Closes`/`Fixes`/`Resolves` trailer @ create.
+
+`gh pr create --draft --title "<summary>" --body <steno>` from the linked branch.
+Body = steno per the github-facing-register invariant.
+Generic structure: change summary; no close trailer; no fixed template.
+
+## PUSH — `git push` issue-linked branch w/ open PR
+
+Fires on later issue-linked commits while a PR is open.
+`git push` the issue-linked branch.
+Plain git push w/ no issue/PR still out of scope — no fire.
+
+## READY — review-apply then `gh pr ready`
 
 Required after issue-linked code complete.
 Never skip.
@@ -66,16 +88,16 @@ Never skip.
 1. load-and-run bundled Grok `review` skill on the issue-linked branch vs default base (not slash-dispatch `/review`; recipe-step-no-dispatch invariant).
 2. Parse findings.
 3. Apply open bug + suggestion (nits listed; apply unless operator declines).
-4. Then `gh pr create --title "<summary>" --body <steno>` from the linked branch.
-   Body = steno per the github-facing-register invariant + carries `Closes #<issue>` only after ACCEPTANCE-GATE ALLOW (or ADVISORY after advisory surfaced).
-   Generic structure: change summary + verification line, no fixed template assumed.
+4. `git push` (PUSH).
+5. `gh pr ready`.
+Recipe pauses (Next: merge when approved).
 
-## MERGE — squash + branch delete
+## MERGE — ACCEPTANCE-GATE then add Closes then squash
 
-Run ACCEPTANCE-GATE first when the PR body would auto-close an issue (`Closes #N` / `Fixes #N` / `Resolves #N`).
-BLOCK → do not merge.
-ALLOW → `gh pr merge <n> --squash --delete-branch` (commits squashed, remote branch deleted); post evidence comment per fragment if not already posted.
-ADVISORY → surface advisory, then merge only after the advisory is stated.
+Run ACCEPTANCE-GATE first.
+BLOCK → do not add close trailer; do not merge.
+ALLOW → add `Closes #<issue>` to PR body then `gh pr merge <n> --squash --delete-branch` (commits squashed, remote branch deleted); post evidence comment per fragment if not already posted.
+ADVISORY → surface advisory, then add Closes + merge only after the advisory is stated.
 
 `Closes #<issue>` in the PR body auto-closes the linked issue on merge → no separate `gh issue close`.
 

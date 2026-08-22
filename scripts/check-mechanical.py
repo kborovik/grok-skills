@@ -36,10 +36,20 @@ Modes:
                 Emits `github-workflow|VIOLATE|…` / `github-workflow|MISSING|…`
                 — the github-workflow invariant's PR-per-issue contract:
                 `skills/github/SKILL.md` requires `gh issue develop`,
-                load-and-run review, apply bug + suggestion, then
-                `gh pr create`; leftover LINEAR / no-PR optional-track
-                wording in that body is VIOLATE. Realized once here so the
-                drift-detector retires a hand-run github-skill grep.
+                `gh pr create --draft` (no review no Closes at create),
+                `git push` (PUSH), load-and-run review, apply bug +
+                suggestion, then `gh pr ready` (READY); leftover LINEAR /
+                no-PR optional-track wording in that body is VIOLATE.
+                `skills/spec/SKILL.md` FOLD-IN github issue requires
+                `gh issue develop`, `gh pr create --draft`, no close
+                trailer @ create, no review-at-create, After-fold Next
+                `/sdd:build`. `skills/build/SKILL.md` issue-linked pass
+                requires github PUSH then load-and-run review-apply +
+                `gh pr ready`; Next merge when approved. README
+                Issue-linked PR requires `gh pr create --draft`,
+                `gh pr ready`, Closes only at merge. Realized once
+                here so the drift-detector retires a hand-run github-skill
+                grep.
                 Emits `linear-no-pr|VIOLATE|…` — leftover LINEAR-no-PR
                 wording (`LINEAR|solo linear|no PR required`) on skill
                 bodies, fragments, README, AGENTS.md (not SPEC.md — the
@@ -1516,13 +1526,16 @@ def audit_shape_post_approve(repo_root):
 # --- github-workflow PR-per-issue audit --------------------------------------
 
 # Needles the github skill body must carry (github-workflow invariant):
-# every worked issue ! issue-linked PR; after code complete, load-and-run
-# bundled review, apply bug + suggestion, then gh pr create.
+# every worked issue ! issue-linked PR; PR create is `--draft` (no review
+# no Closes); PUSH = `git push` issue-linked branch w/ open PR; READY =
+# load-and-run review, apply bug + suggestion, then `gh pr ready`.
 GITHUB_PR_PER_ISSUE_NEEDLES = (
     ("gh issue develop", "gh issue develop"),
-    ("gh pr create", "gh pr create"),
+    ("gh pr create --draft", "gh pr create --draft"),
+    ("git push", "git push / PUSH"),
     ("load-and-run", "load-and-run review"),
     ("bug + suggestion", "apply bug + suggestion"),
+    ("gh pr ready", "gh pr ready"),
 )
 # Leftover LINEAR / no-PR optional-track wording in the github skill body
 # (github-workflow invariant). Substring match; any hit → VIOLATE.
@@ -1570,6 +1583,142 @@ def audit_github_pr_per_issue(repo_root):
     except OSError:
         github_text = ""
     return classify_github_pr_per_issue(github_text)
+
+
+# --- github-workflow spec FOLD-IN github issue audit -------------------------
+
+# Needles the spec skill FOLD-IN github-issue path must carry (github-workflow
+# invariant): after OK, BRANCH then SPEC.md commit then `gh pr create --draft`
+# (no close trailer @ create; no review-at-create); After-fold Next `/sdd:build`.
+SPEC_FOLD_GITHUB_NEEDLES = (
+    ("gh issue develop", "gh issue develop"),
+    ("gh pr create --draft", "gh pr create --draft"),
+    ("no close trailer", "no close trailer @ create"),
+    ("no review-at-create", "no review-at-create"),
+    ("/sdd:build", "After-fold Next /sdd:build"),
+)
+
+
+def classify_spec_fold_github(spec_text):
+    """github-workflow spec FOLD-IN github-issue contract — pure,
+    unit-testable without the filesystem. `spec_text` is
+    `skills/spec/SKILL.md`; empty/unreadable → MISSING. Each required
+    needle absent → VIOLATE (one row per miss)."""
+    if not spec_text:
+        return [("github-workflow", "MISSING",
+                 "github-workflow MISSING: skills/spec/SKILL.md unreadable")]
+    out = []
+    for needle, what in SPEC_FOLD_GITHUB_NEEDLES:
+        if needle not in spec_text:
+            out.append(("github-workflow", "VIOLATE",
+                        "github-workflow VIOLATE: skills/spec/SKILL.md "
+                        f"missing {what}"))
+    return out
+
+
+def audit_spec_fold_github(repo_root):
+    """File-reading wrapper around classify_spec_fold_github
+    (github-workflow invariant). Resolves PUBLISHED `skills/spec/SKILL.md`
+    via discover_skill_md — realized once here so the drift-detector retires
+    a hand-run spec-fold recipe grep."""
+    by_name = {}
+    for path in discover_skill_md(repo_root):
+        by_name[os.path.basename(os.path.dirname(path))] = path
+    spec_p = by_name.get("spec")
+    try:
+        spec_text = read_text(spec_p) if spec_p else ""
+    except OSError:
+        spec_text = ""
+    return classify_spec_fold_github(spec_text)
+
+
+# --- github-workflow build issue-linked pass audit ---------------------------
+
+# Needles the build skill issue-linked pass must carry (github-workflow
+# invariant): github PUSH then load-and-run review-apply + `gh pr ready`;
+# Next merge when approved. Close trailer stays off the build commit.
+BUILD_ISSUE_LINKED_NEEDLES = (
+    ("github PUSH", "github PUSH"),
+    ("load-and-run", "load-and-run review-apply"),
+    ("gh pr ready", "gh pr ready"),
+    ("merge when approved", "Next merge when approved"),
+)
+
+
+def classify_build_issue_linked(build_text):
+    """github-workflow build issue-linked pass contract — pure,
+    unit-testable without the filesystem. `build_text` is
+    `skills/build/SKILL.md`; empty/unreadable → MISSING. Each required
+    needle absent → VIOLATE (one row per miss)."""
+    if not build_text:
+        return [("github-workflow", "MISSING",
+                 "github-workflow MISSING: skills/build/SKILL.md unreadable")]
+    out = []
+    for needle, what in BUILD_ISSUE_LINKED_NEEDLES:
+        if needle not in build_text:
+            out.append(("github-workflow", "VIOLATE",
+                        "github-workflow VIOLATE: skills/build/SKILL.md "
+                        f"missing {what}"))
+    return out
+
+
+def audit_build_issue_linked(repo_root):
+    """File-reading wrapper around classify_build_issue_linked
+    (github-workflow invariant). Resolves PUBLISHED `skills/build/SKILL.md`
+    via discover_skill_md — realized once here so the drift-detector retires
+    a hand-run build issue-linked recipe grep."""
+    by_name = {}
+    for path in discover_skill_md(repo_root):
+        by_name[os.path.basename(os.path.dirname(path))] = path
+    build_p = by_name.get("build")
+    try:
+        build_text = read_text(build_p) if build_p else ""
+    except OSError:
+        build_text = ""
+    return classify_build_issue_linked(build_text)
+
+
+# --- github-workflow README Issue-linked PR audit ----------------------------
+
+# Needles the README Issue-linked PR section must carry (github-workflow +
+# github-facing-register invariants): branch then spec commit then draft PR;
+# build then review-apply then `gh pr ready`; Closes only at merge after
+# acceptance-gate.
+README_ISSUE_LINKED_NEEDLES = (
+    ("gh pr create --draft", "branch then spec commit then draft PR"),
+    ("gh pr ready", "review-apply then gh pr ready"),
+    ("only at merge", "Closes only at merge after acceptance-gate"),
+)
+
+
+def classify_readme_issue_linked(readme_text):
+    """github-workflow README Issue-linked PR contract — pure,
+    unit-testable without the filesystem. `readme_text` is README.md;
+    empty/unreadable → MISSING. Each required needle absent → VIOLATE
+    (one row per miss)."""
+    if not readme_text:
+        return [("github-workflow", "MISSING",
+                 "github-workflow MISSING: README.md unreadable")]
+    out = []
+    for needle, what in README_ISSUE_LINKED_NEEDLES:
+        if needle not in readme_text:
+            out.append(("github-workflow", "VIOLATE",
+                        "github-workflow VIOLATE: README.md "
+                        f"missing {what}"))
+    return out
+
+
+def audit_readme_issue_linked(repo_root):
+    """File-reading wrapper around classify_readme_issue_linked
+    (github-workflow invariant). Resolves REPO-LOCAL README.md —
+    realized once here so the drift-detector retires a hand-run
+    README Issue-linked PR grep."""
+    path = os.path.join(repo_root, "README.md")
+    try:
+        text = read_text(path) if os.path.isfile(path) else ""
+    except OSError:
+        text = ""
+    return classify_readme_issue_linked(text)
 
 
 # --- leftover LINEAR-no-PR wording audit -------------------------------------
@@ -2357,6 +2506,9 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
     findings += audit_mechanize_block(skill_md)
     findings += audit_shape_post_approve(repo_root)
     findings += audit_github_pr_per_issue(repo_root)
+    findings += audit_spec_fold_github(repo_root)
+    findings += audit_build_issue_linked(repo_root)
+    findings += audit_readme_issue_linked(repo_root)
     findings += audit_linear_no_pr(repo_root)
     findings += audit_dispatch_targets(skill_md, plugin_names(repo_root))
     findings += audit_grants(discover_grant_skills(repo_root))
@@ -3333,13 +3485,16 @@ def selftest():
     check(validate_vocab([("shape-lifecycle", "VIOLATE", "")]) == [],
           "shape-lifecycle: pseudo-id unrestricted vocab")
 
-    # github-workflow PR-per-issue: gh issue develop + load-and-run review +
-    # apply bug + suggestion + gh pr create; leftover LINEAR / no-PR markers
-    # are VIOLATE (github-workflow invariant).
+    # github-workflow PR-per-issue: gh issue develop + gh pr create --draft +
+    # git push (PUSH) + load-and-run review + apply bug + suggestion +
+    # gh pr ready (READY); leftover LINEAR / no-PR markers are VIOLATE
+    # (github-workflow invariant).
     gw_good = (
         "BRANCH: gh issue develop n --checkout\n"
-        "PR: load-and-run bundled review\n"
-        "Apply open bug + suggestion; then gh pr create\n"
+        "PR: gh pr create --draft; no review no Closes\n"
+        "PUSH: git push issue-linked branch w/ open PR\n"
+        "READY: load-and-run bundled review\n"
+        "Apply open bug + suggestion; then gh pr ready\n"
     )
     check(classify_github_pr_per_issue(gw_good) == [],
           "github-workflow: complete PR-per-issue recipe → clean")
@@ -3349,9 +3504,21 @@ def selftest():
               for _, v, e in miss_dev),
           "github-workflow: missing gh issue develop → VIOLATE")
     miss_pr = classify_github_pr_per_issue(
-        "gh issue develop\nload-and-run review\nbug + suggestion\n")
-    check(any(v == "VIOLATE" and "gh pr create" in e for _, v, e in miss_pr),
-          "github-workflow: missing gh pr create → VIOLATE")
+        "gh issue develop\nload-and-run review\nbug + suggestion\n"
+        "git push\ngh pr ready\n")
+    check(any(v == "VIOLATE" and "gh pr create --draft" in e
+              for _, v, e in miss_pr),
+          "github-workflow: missing gh pr create --draft → VIOLATE")
+    miss_push = classify_github_pr_per_issue(
+        "gh issue develop\ngh pr create --draft\nload-and-run review\n"
+        "bug + suggestion\ngh pr ready\n")
+    check(any(v == "VIOLATE" and "git push" in e for _, v, e in miss_push),
+          "github-workflow: missing git push / PUSH → VIOLATE")
+    miss_ready = classify_github_pr_per_issue(
+        "gh issue develop\ngh pr create --draft\nload-and-run review\n"
+        "bug + suggestion\ngit push\n")
+    check(any(v == "VIOLATE" and "gh pr ready" in e for _, v, e in miss_ready),
+          "github-workflow: missing gh pr ready → VIOLATE")
     miss_load = classify_github_pr_per_issue(
         "gh issue develop\ngh pr create\nbug + suggestion\n")
     check(any(v == "VIOLATE" and "load-and-run" in e
@@ -3376,6 +3543,103 @@ def selftest():
           "github-workflow: VIOLATE is dirty")
     check(validate_vocab([("github-workflow", "VIOLATE", "")]) == [],
           "github-workflow: pseudo-id unrestricted vocab")
+
+    # github-workflow spec FOLD-IN github issue: BRANCH then SPEC.md commit
+    # then gh pr create --draft; no close trailer @ create; no review-at-create;
+    # After-fold Next /sdd:build (github-workflow invariant).
+    sf_good = (
+        "After OK: gh issue develop N --checkout\n"
+        "SPEC.md commit on that branch\n"
+        "gh pr create --draft; no close trailer @ create; no review-at-create\n"
+        "After-fold Next /sdd:build\n"
+    )
+    check(classify_spec_fold_github(sf_good) == [],
+          "spec-fold-github: complete After-OK recipe → clean")
+    miss_sf_dev = classify_spec_fold_github(
+        "gh pr create --draft\nno close trailer\nno review-at-create\n/sdd:build\n")
+    check(any(v == "VIOLATE" and "gh issue develop" in e
+              for _, v, e in miss_sf_dev),
+          "spec-fold-github: missing gh issue develop → VIOLATE")
+    miss_sf_draft = classify_spec_fold_github(
+        "gh issue develop\nno close trailer\nno review-at-create\n/sdd:build\n")
+    check(any(v == "VIOLATE" and "gh pr create --draft" in e
+              for _, v, e in miss_sf_draft),
+          "spec-fold-github: missing gh pr create --draft → VIOLATE")
+    miss_sf_trailer = classify_spec_fold_github(
+        "gh issue develop\ngh pr create --draft\nno review-at-create\n/sdd:build\n")
+    check(any(v == "VIOLATE" and "no close trailer" in e
+              for _, v, e in miss_sf_trailer),
+          "spec-fold-github: missing no close trailer → VIOLATE")
+    miss_sf_review = classify_spec_fold_github(
+        "gh issue develop\ngh pr create --draft\nno close trailer\n/sdd:build\n")
+    check(any(v == "VIOLATE" and "no review-at-create" in e
+              for _, v, e in miss_sf_review),
+          "spec-fold-github: missing no review-at-create → VIOLATE")
+    miss_sf_next = classify_spec_fold_github(
+        "gh issue develop\ngh pr create --draft\nno close trailer\nno review-at-create\n")
+    check(any(v == "VIOLATE" and "/sdd:build" in e
+              for _, v, e in miss_sf_next),
+          "spec-fold-github: missing After-fold Next /sdd:build → VIOLATE")
+    check(classify_spec_fold_github("")[0][1] == "MISSING",
+          "spec-fold-github: empty spec body → MISSING")
+
+    # github-workflow build issue-linked pass: github PUSH then load-and-run
+    # review-apply + gh pr ready; Next merge when approved.
+    bi_good = (
+        "Issue-linked pass: github PUSH then load-and-run review-apply "
+        "+ push + gh pr ready. Next merge when approved.\n"
+    )
+    check(classify_build_issue_linked(bi_good) == [],
+          "build-issue-linked: complete pass recipe → clean")
+    miss_bi_push = classify_build_issue_linked(
+        "load-and-run review-apply\ngh pr ready\nmerge when approved\n")
+    check(any(v == "VIOLATE" and "github PUSH" in e
+              for _, v, e in miss_bi_push),
+          "build-issue-linked: missing github PUSH → VIOLATE")
+    miss_bi_load = classify_build_issue_linked(
+        "github PUSH\ngh pr ready\nmerge when approved\n")
+    check(any(v == "VIOLATE" and "load-and-run" in e
+              for _, v, e in miss_bi_load),
+          "build-issue-linked: missing load-and-run review-apply → VIOLATE")
+    miss_bi_ready = classify_build_issue_linked(
+        "github PUSH\nload-and-run\nmerge when approved\n")
+    check(any(v == "VIOLATE" and "gh pr ready" in e
+              for _, v, e in miss_bi_ready),
+          "build-issue-linked: missing gh pr ready → VIOLATE")
+    miss_bi_next = classify_build_issue_linked(
+        "github PUSH\nload-and-run\ngh pr ready\n")
+    check(any(v == "VIOLATE" and "merge when approved" in e
+              for _, v, e in miss_bi_next),
+          "build-issue-linked: missing Next merge when approved → VIOLATE")
+    check(classify_build_issue_linked("")[0][1] == "MISSING",
+          "build-issue-linked: empty build body → MISSING")
+
+    # github-workflow README Issue-linked PR: draft PR after spec commit;
+    # gh pr ready after review-apply; Closes only at merge.
+    rm_good = (
+        "gh issue develop then SPEC.md commit then gh pr create --draft\n"
+        "build then review-apply then gh pr ready\n"
+        "Closes only at merge after acceptance-gate\n"
+    )
+    check(classify_readme_issue_linked(rm_good) == [],
+          "readme-issue-linked: complete Issue-linked PR → clean")
+    miss_rm_draft = classify_readme_issue_linked(
+        "gh pr ready\nonly at merge\n")
+    check(any(v == "VIOLATE" and "draft PR" in e
+              for _, v, e in miss_rm_draft),
+          "readme-issue-linked: missing gh pr create --draft → VIOLATE")
+    miss_rm_ready = classify_readme_issue_linked(
+        "gh pr create --draft\nonly at merge\n")
+    check(any(v == "VIOLATE" and "gh pr ready" in e
+              for _, v, e in miss_rm_ready),
+          "readme-issue-linked: missing gh pr ready → VIOLATE")
+    miss_rm_merge = classify_readme_issue_linked(
+        "gh pr create --draft\ngh pr ready\n")
+    check(any(v == "VIOLATE" and "only at merge" in e
+              for _, v, e in miss_rm_merge),
+          "readme-issue-linked: missing Closes only at merge → VIOLATE")
+    check(classify_readme_issue_linked("")[0][1] == "MISSING",
+          "readme-issue-linked: empty README → MISSING")
 
     # leftover LINEAR-no-PR wording (github-workflow invariant): sweep-scope
     # grep LINEAR|solo linear|no PR required on skill/fragment/README surfaces;
@@ -3838,7 +4102,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 284
+    return 305
 
 
 # --- entry -------------------------------------------------------------------
