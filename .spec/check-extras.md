@@ -56,7 +56,7 @@ V29: fold-first — new §V row vs amend of closest existing row ! operator gate
 
 ## §V31 shape-lifecycle
 
-V31: shape-lifecycle — /sdd:shape uses Grok Plan mode (enter_plan_mode → plan.md → exit_plan_mode); primary artifact = session plan, not `designs/`; fold-in via `/sdd:spec fold-shape` mutates SPEC.md only; legacy `designs/*.md` still folds; optional `--export designs/<slug>.md` only on operator ask; not bundled `/design`.
+V31: shape-lifecycle — /sdd:shape uses Grok Plan mode (enter_plan_mode → plan.md → exit_plan_mode); primary artifact = session plan, not `designs/`; post-approve ! open GitHub issue (steno plan body; `## Acceptance` from Success criterion; label enhancement or bug or documentation from plan class, default enhancement) then stop; Next leads issue URL + `/sdd:spec github issue N`; fold-shape optional escape; legacy `designs/*.md` still folds; optional `--export designs/<slug>.md` on operator ask; not bundled `/design`.
 
 ## §V40 mechanical-realization
 
