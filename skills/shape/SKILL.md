@@ -2,27 +2,28 @@
 name: shape
 description: |
   SDD structural shape: propose-then-critique via Grok Plan mode → approved
-  plan folds into SPEC.md via `/sdd:spec fold-shape`. Exhausts structural Open
-  Questions (distinct from socratic "enough"). Not the bundled Grok `/design`
-  skill (write-review-revise design doc + PR plan).
+  plan opens a GitHub issue (class label) then stops. Later fold via
+  `/sdd:spec github issue N`. Exhausts structural Open Questions (distinct
+  from socratic "enough"). Not the bundled Grok `/design` skill
+  (write-review-revise design doc + PR plan).
 when-to-use: |
   Use when asked to shape SDD structure, run /sdd:shape, or natural language
   "shape the X for SDD".
 argument-hint: "<topic>"
 metadata:
-  short-description: "Plan-mode structural shape before /sdd:spec fold"
-allowed-tools: ask_user_question, read_file, grep, enter_plan_mode, exit_plan_mode
+  short-description: "Plan-mode structural shape; post-approve GitHub issue then stop"
+allowed-tools: ask_user_question, read_file, grep, enter_plan_mode, exit_plan_mode, run_terminal_command(gh *)
 ---
 
 # shape — propose-then-critique via Grok Plan mode
 
 Skill body SPEC-ADJACENT → telegraph.
-Plan body user-reviewed pre-fold → steno: spell out arrows and inequalities as words, keep only `|` `§` raw (per steno SYMBOLS).
+Plan body user-reviewed pre-issue → steno: spell out arrows and inequalities as words, keep only `|` `§` raw (per steno SYMBOLS).
 
 ## POSITION IN FUNNEL
 
 `/sdd:shape` is the structural front door.
-Caller wants to commit a shape before `/sdd:spec` fold-in.
+Caller wants a durable GitHub issue before `/sdd:spec` fold-in.
 Layer unclear → ≤ 2 questions, then propose.
 Bundled Grok `/design` is a different skill — never treat bare "design …" as this skill; "shape …" / `/sdd:shape` is the SDD surface.
 
@@ -34,7 +35,7 @@ Primary working artifact = Grok session **plan file** (`plan.md` under the sessi
 2. Write / patch the shape proposal **only** into the plan file (plan mode allows that path; other writes fail).
 3. Iterate Open Questions until empty.
 4. Call `exit_plan_mode` to present the plan for approval.
-5. On approve → Next leads with `/sdd:spec fold-shape` (same-session fold of approved plan content).
+5. On approve → open GitHub issue (steno plan body; `## Acceptance` from Success criterion; class label) then stop — see POST-APPROVE.
 6. No default write to `designs/<slug>.md`.
    Optional durable export only if operator asks (`--export designs/<slug>.md` after approval, outside plan mode).
 
@@ -51,6 +52,7 @@ Legacy `designs/*.md` still folds via `/sdd:spec designs/<slug>.md` for old draf
 7. Patch plan in place; resolved Qs → `## Design decisions` w/ rationale.
 8. Repeat 6–7 until `## Open Questions` empty.
 9. `exit_plan_mode` → user approves plan.
+10. On approve → POST-APPROVE; never mutate SPEC.md.
 
 Never self-resolve Open Qs.
 Never exit_plan_mode with open Qs unless escape parks them under `## Unresolved`.
@@ -92,6 +94,10 @@ steno body; § citations OK when `SPEC.md` present.
 
 [observable invariants]
 
+## Class
+
+[enhancement | bug | documentation; default enhancement]
+
 ## Out of scope
 
 [deferred]
@@ -122,20 +128,34 @@ Single Open Q ≥ 3 turns unresolved → ask_user_question (decision-gate):
 
 Park → `## Unresolved` in plan.
 
-## FOLD-IN HAND-OFF
+## POST-APPROVE
+
+On plan approve (after `exit_plan_mode`): github ISSUE auto-fires.
+This skill adds the class label then stops.
+
+1. Title = plan `# <title>`.
+2. Body = steno plan (Problem + Proposal + Design decisions).
+   `## Acceptance` checklist (`- [ ]`) from Success criterion (each sentence or bullet → one open item).
+   Empty Success criterion → one `- [ ]` bullet from the plan title.
+3. Label = `## Class` when in {enhancement, bug, documentation}; missing or other → enhancement.
+4. Missing label in cwd repo → `gh label create <class>` then retry.
+5. `gh issue create --title "<title>" --body <steno> --label <class>` against cwd (no `--repo` slug).
+6. Parse issue N from printed URL (`.../issues/N`).
+7. Stop — never fold SPEC.md this run.
+
+Next leads issue URL + `/sdd:spec github issue N`.
+`/sdd:spec fold-shape` = optional same-session exclusion (skip issue fold).
+Legacy `designs/*.md` still folds via `/sdd:spec designs/<slug>.md`.
 
 Post-approve Next:
 
 ```
 ## Next
 
-1. /sdd:spec fold-shape — fold the approved plan into SPEC.md
+1. /sdd:spec github issue N — fold <issue-url> into SPEC.md
 2. /sdd:shape <topic> — re-run for a revised plan
-3. /sdd:spec <intent> — amend SPEC directly without shape pass
+3. /sdd:spec fold-shape — optional same-session fold of approved plan (skip issue fold)
 ```
-
-`/sdd:spec fold-shape` (or free-form "fold the shape plan") → FOLD-IN mode: agent uses the just-approved plan content from this session (re-read session plan.md when path known; else in-context plan body).
-Mutates SPEC.md only.
 
 ## ESCAPE HATCH
 
@@ -156,4 +176,4 @@ Emit Next item per fragment.
 
 Per `skills/_fragments/NEXT.md`.
 Mid-loop → Open-Q resolution items.
-Post-approve → fold-shape leads.
+Post-approve → issue URL + `/sdd:spec github issue N` lead; fold-shape optional exclusion.

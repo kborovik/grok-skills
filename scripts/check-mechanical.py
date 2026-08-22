@@ -25,6 +25,14 @@ Modes:
                 derived frontmatter-only, plugin name from the manifest,
                 backtick-wrapped forms exempt — realized once here so the
                 drift-detector retires its hand-run skill-body slash grep.
+                Emits `shape-lifecycle|VIOLATE|…` / `shape-lifecycle|MISSING|…`
+                — the shape-lifecycle invariant's post-approve contract:
+                `skills/shape/SKILL.md` prescribes `gh issue create` + class
+                `--label` + `/sdd:spec github issue N` Next, and keeps
+                `fold-shape` as optional exclusion; `skills/github/SKILL.md`
+                ISSUE accepts `--label`. Realized once here so the
+                drift-detector retires a hand-run skill-body grep of the
+                post-approve recipe.
                 Emits `grant|VIOLATE|…` — the tooling-preference invariant's
                 grant-use rule: no frontmatter `allowed-tools` grant is
                 zero-body-use (a granted tool the skill body never invokes).
@@ -1428,6 +1436,70 @@ def audit_mechanize_block(skill_md):
     return classify_mechanize_blocks(texts)
 
 
+# --- shape-lifecycle post-approve audit --------------------------------------
+
+# Needles the shape skill body must carry (shape-lifecycle invariant):
+# post-approve ! `gh issue create` + class `--label` then stop; Next leads
+# `/sdd:spec github issue N`; `fold-shape` stays as optional exclusion.
+SHAPE_POST_APPROVE_NEEDLES = (
+    ("gh issue create", "gh issue create"),
+    ("--label", "class --label"),
+    ("github issue", "/sdd:spec github issue N Next"),
+    ("fold-shape", "fold-shape optional exclusion"),
+)
+
+
+def classify_shape_post_approve(shape_text, github_text=None):
+    """shape-lifecycle post-approve contract — pure, unit-testable without the
+    filesystem. `shape_text` is `skills/shape/SKILL.md`; empty/unreadable →
+    MISSING. Each required needle absent → VIOLATE (one row per miss).
+    `github_text` is `skills/github/SKILL.md` ISSUE governor; when passed,
+    empty → MISSING and missing `--label` → VIOLATE so the governor cannot
+    strip the class label. `github_text is None` skips the governor check
+    (shape-only fixtures)."""
+    out = []
+    if not shape_text:
+        out.append(("shape-lifecycle", "MISSING",
+                    "shape-lifecycle MISSING: skills/shape/SKILL.md unreadable"))
+    else:
+        for needle, what in SHAPE_POST_APPROVE_NEEDLES:
+            if needle not in shape_text:
+                out.append(("shape-lifecycle", "VIOLATE",
+                            "shape-lifecycle VIOLATE: skills/shape/SKILL.md "
+                            f"missing {what}"))
+    if github_text is not None:
+        if not github_text:
+            out.append(("shape-lifecycle", "MISSING",
+                        "shape-lifecycle MISSING: skills/github/SKILL.md "
+                        "unreadable"))
+        elif "--label" not in github_text:
+            out.append(("shape-lifecycle", "VIOLATE",
+                        "shape-lifecycle VIOLATE: skills/github/SKILL.md "
+                        "ISSUE missing --label"))
+    return out
+
+
+def audit_shape_post_approve(repo_root):
+    """File-reading wrapper around classify_shape_post_approve (shape-lifecycle
+    invariant). Resolves PUBLISHED `skills/shape/SKILL.md` and
+    `skills/github/SKILL.md` via discover_skill_md — realized once here so the
+    drift-detector retires a hand-run post-approve recipe grep."""
+    by_name = {}
+    for path in discover_skill_md(repo_root):
+        by_name[os.path.basename(os.path.dirname(path))] = path
+    shape_p = by_name.get("shape")
+    github_p = by_name.get("github")
+    try:
+        shape_text = read_text(shape_p) if shape_p else ""
+    except OSError:
+        shape_text = ""
+    try:
+        github_text = read_text(github_p) if github_p else ""
+    except OSError:
+        github_text = ""
+    return classify_shape_post_approve(shape_text, github_text)
+
+
 # --- dispatch-target audit ---------------------------------------------------
 
 
@@ -2167,6 +2239,7 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
     findings += audit_pinned_header(published_md)
     skill_md = discover_skill_md(repo_root)
     findings += audit_mechanize_block(skill_md)
+    findings += audit_shape_post_approve(repo_root)
     findings += audit_dispatch_targets(skill_md, plugin_names(repo_root))
     findings += audit_grants(discover_grant_skills(repo_root))
     findings += audit_human_symbols(discover_human_facing(repo_root))
@@ -3097,6 +3170,51 @@ def selftest():
     check(validate_vocab([("mechanize", "DRIFT", "")]) == [],
           "mechanize: pseudo-id unrestricted vocab")
 
+    # shape-lifecycle post-approve: gh issue create + class --label + Next
+    # github issue N; fold-shape stays; github ISSUE accepts --label.
+    sl_good = (
+        "post-approve: gh issue create --title t --body b --label enhancement\n"
+        "Next: /sdd:spec github issue N\n"
+        "fold-shape optional same-session exclusion\n"
+    )
+    sl_gh = "ISSUE: gh issue create --title t --body b --label enhancement\n"
+    check(classify_shape_post_approve(sl_good) == [],
+          "shape-lifecycle: complete recipe → clean")
+    check(classify_shape_post_approve(sl_good, sl_gh) == [],
+          "shape-lifecycle: github ISSUE --label present → clean")
+    miss_cmd = classify_shape_post_approve(
+        "Next: /sdd:spec github issue N\nfold-shape\n--label x\n")
+    check(any(v == "VIOLATE" and "gh issue create" in e
+              for _, v, e in miss_cmd),
+          "shape-lifecycle: missing gh issue create → VIOLATE")
+    miss_label = classify_shape_post_approve(
+        "gh issue create\nNext: /sdd:spec github issue N\nfold-shape\n")
+    check(any(v == "VIOLATE" and "--label" in e for _, v, e in miss_label),
+          "shape-lifecycle: missing class --label → VIOLATE")
+    miss_next = classify_shape_post_approve(
+        "gh issue create --label x\nfold-shape\n")
+    check(any(v == "VIOLATE" and "github issue" in e
+              for _, v, e in miss_next),
+          "shape-lifecycle: missing github issue Next → VIOLATE")
+    miss_fold = classify_shape_post_approve(
+        "gh issue create --label x\nNext: /sdd:spec github issue N\n")
+    check(any(v == "VIOLATE" and "fold-shape" in e for _, v, e in miss_fold),
+          "shape-lifecycle: missing fold-shape exclusion → VIOLATE")
+    check(classify_shape_post_approve("")[0][1] == "MISSING",
+          "shape-lifecycle: empty shape body → MISSING")
+    gh_miss = classify_shape_post_approve(sl_good, "ISSUE: gh issue create\n")
+    check(any(v == "VIOLATE" and "github" in e.lower() and "--label" in e
+              for _, v, e in gh_miss),
+          "shape-lifecycle: github ISSUE missing --label → VIOLATE")
+    check(classify_shape_post_approve(sl_good, "")[0][1] == "MISSING"
+          or any(v == "MISSING" and "github" in e.lower()
+                 for _, v, e in classify_shape_post_approve(sl_good, "")),
+          "shape-lifecycle: empty github body → MISSING")
+    check(compute_clean([("shape-lifecycle", "VIOLATE", "")])[0] is False,
+          "shape-lifecycle: VIOLATE is dirty")
+    check(validate_vocab([("shape-lifecycle", "VIOLATE", "")]) == [],
+          "shape-lifecycle: pseudo-id unrestricted vocab")
+
     # dispatch-target audit (response-shape + sub-skill-flags invariants, closes
     # §B.14): no skill body slash-dispatches an auto-fire sub-skill; the slash
     # form is never user-invocable. Plugin name from the manifest, sub-skill set
@@ -3531,7 +3649,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 256
+    return 266
 
 
 # --- entry -------------------------------------------------------------------

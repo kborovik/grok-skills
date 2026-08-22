@@ -41,9 +41,12 @@ No gh issue/PR op → no fire.
 
 ## ISSUE — `gh issue create`
 
-`gh issue create --title "<summary>" --body <steno>` against the cwd repo (no `--repo` slug per the parametric-recipe invariant).
+`gh issue create --title "<summary>" --body <steno> [--label <class>]` against the cwd repo (no `--repo` slug per the parametric-recipe invariant).
 Title = one-line summary; body = steno per the github-facing-register invariant.
 Body shape: problem statement + `## Acceptance` checklist (`- [ ]` bullets).
+`--label` optional.
+Caller-named class in {enhancement, bug, documentation} → pass `--label <class>`.
+Missing label in cwd repo → `gh label create <class>` then retry.
 No fixed template scaffold beyond that heading.
 
 ## BRANCH — issue-linked branch

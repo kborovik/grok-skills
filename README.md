@@ -149,13 +149,16 @@ Use when there's a structural choice to weigh — tradeoffs, named alternatives,
 Run `/sdd:shape <topic>` (or natural language that clearly asks to shape an SDD structure).
 The skill enters **Grok Plan mode**, writes the proposal only to the session plan file, and iterates until `## Open Questions` is empty.
 You approve the plan in the Plan mode UI.
-Then fold with `/sdd:spec fold-shape` (mutates `SPEC.md` only).
+After you approve, the skill opens a GitHub issue with the plan body, applies a class label (`enhancement`, `bug`, or `documentation`; default `enhancement`), and stops.
+Fold later with `/sdd:spec github issue N`.
+Same-session `/sdd:spec fold-shape` stays optional (mutates `SPEC.md` only).
 No default `designs/` file — optional export only if you ask.
 Name is `shape` on purpose so it does not collide with the bundled Grok `/design` skill.
 
 ```bash
 /sdd:shape how should the release pipeline split monorepo plugins?
-/sdd:spec fold-shape
+# after approve: GitHub issue opened, labeled enhancement (or bug / documentation)
+/sdd:spec github issue N
 ```
 
 Distinct from `/sdd:spec`'s socratic gate: socratic converges on **enough** (sharpen vague intent); shape converges on **exhausted** (every structural question has a decision).
@@ -182,7 +185,8 @@ Examples (all free-form — the gate classifies):
 
 ### Linear issue track (solo, no PR required)
 
-When work starts from a GitHub issue and you are solo on a linear SPEC, you do not need a branch/PR ceremony:
+When work starts from a GitHub issue and you are solo on a linear SPEC, you do not need a branch/PR ceremony.
+`/sdd:shape` post-approve is one source of that issue: the skill opens it, labels it, and stops.
 
 ```text
 /sdd:spec github issue N   # fold issue body → SPEC §V / §T
@@ -273,7 +277,7 @@ SKILL.md frontmatter is honored on dispatch: `description`, `when-to-use`, `argu
 
 **User-invocable**
 
-- `shape` — `/sdd:shape <topic>` Plan-mode structural funnel; fold via `/sdd:spec fold-shape` (not bundled `/design`)
+- `shape` — `/sdd:shape <topic>` Plan-mode structural funnel; post-approve GitHub issue plus class label, then stop; fold via `/sdd:spec github issue N` (not bundled `/design`)
 - `spec` — sole SPEC.md mutator
 - `build` — plan, then execute loop
 - `check` — drift report
@@ -299,7 +303,8 @@ Grok loads them from the command flow.
 
 ```bash
 /sdd:shape how should we shape the parser / renderer split?   # optional — only if structural Qs
-/sdd:spec build a static-site generator that converts a Markdown directory into a single-page HTML bundle
+# after approve: GitHub issue opened with class label
+/sdd:spec github issue N   # fold the issue; or /sdd:spec <intent> if you skipped shape
 # review §G/§C/§I/§V in SPEC.md, amend if needed
 /sdd:build --next   # plan, implement, verify T<n> (scaffold)
 /sdd:build --next   # T<n> (renderer)
@@ -404,7 +409,7 @@ Optional in syntax, expensive in practice.
 ```
 .grok-plugin/plugin.json         Grok-native plugin manifest (name: sdd)
 AGENTS.md                        human-facing output rules (Grok project rules)
-skills/shape/                    /sdd:shape — Plan-mode structural funnel
+skills/shape/                    /sdd:shape — Plan-mode structural funnel; post-approve GitHub issue
 skills/spec/                     /sdd:spec — sole SPEC.md mutator
 skills/build/                    /sdd:build — plan-execute loop (+ green-path chain)
 skills/check/                    /sdd:check — thin drift report recipe
