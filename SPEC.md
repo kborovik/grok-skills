@@ -148,7 +148,7 @@ T77|x|README Issue-linked PR: branch then spec commit then draft PR; build then 
 T78|x|github skill: after spec APPLY commit + draft PR, run `/sdd:build --all` write-capable sub-agent then bundled `review` sub-agent; no operator wait|V69,V21,V22
 T79|x|spec skill: FOLD-IN github issue POST-APPLY auto-chain run build then review (drop never-auto-build on that path)|V69,V22,I.spec
 T80|x|build skill: post-spec-commit child write-capable; drop READY on that child (parent runs review next)|V21,V69
-T81|.|README Issue-linked PR: spec commit + draft PR then auto-build sub-agent then auto-review sub-agent|V69,V2
+T81|x|README Issue-linked PR: spec commit + draft PR then auto-build sub-agent then auto-review sub-agent|V69,V2
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)

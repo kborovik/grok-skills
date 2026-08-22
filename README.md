@@ -190,7 +190,8 @@ Every worked GitHub issue gets one issue-linked pull request.
 
 ```text
 /sdd:spec github issue N   # fold; issue-linked branch; SPEC.md commit; gh pr create --draft
-/sdd:build                 # implement; verify; git push; review-apply; gh pr ready
+                           # then auto /sdd:build --all sub-agent then bundled review sub-agent
+                           # then apply findings; git push; gh pr ready
 # Closes trailer only at merge, after Acceptance gate
 ```
 
@@ -206,7 +207,12 @@ Start work with `gh issue develop <n> --checkout`.
 The spec fold commits `SPEC.md` on that branch, then opens a draft PR (`gh pr create --draft`) from that commit.
 No close trailer at create.
 No review at create.
-`/sdd:build` implements on the same branch, pushes, runs the bundled Grok review skill, applies open bugs and suggestions, then runs `gh pr ready`.
+After that spec commit and draft PR, the fold runs a write-capable `/sdd:build --all` sub-agent.
+Then it runs the bundled Grok `review` skill as a sub-agent.
+It does not wait for the operator.
+The child drops `gh pr ready`.
+The parent applies review findings, pushes, then runs `gh pr ready`.
+Operator-run `/sdd:build` (not that post-spec child) still implements on the same branch, pushes, applies review findings, then runs `gh pr ready`.
 Close trailers are added only at merge, after the Acceptance gate.
 Merge is squash with branch delete.
 
