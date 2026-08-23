@@ -217,6 +217,7 @@ The parent applies review findings, pushes, then runs `gh pr ready`.
 Operator-run `/sdd:build` (not that post-spec child) still implements on the same branch, pushes, applies review findings, then runs `gh pr ready`.
 Close trailers are added only at merge, after the Acceptance gate.
 Merge is squash with branch delete.
+The squash commit subject holds `#<issue>` (the linked issue, not the PR number).
 
 ### `/sdd:build` — plan, then execute
 

@@ -60,9 +60,10 @@ Modes:
                 requires github PUSH then load-and-run review-apply +
                 `gh pr ready`; Next merge when approved. README
                 Issue-linked PR requires `gh pr create --draft`,
-                `gh pr ready`, Closes only at merge, and no-issue
+                `gh pr ready`, Closes only at merge, no-issue
                 converse (`No corresponding GitHub issue`,
-                `no git branch, no GitHub PR`). Realized once
+                `no git branch, no GitHub PR`), and squash commit
+                message `#<issue>` (closes §B.36). Realized once
                 here so the drift-detector retires a hand-run github-skill
                 grep. Emits `write-serialize|VIOLATE|…` /
                 `write-serialize|MISSING|…` — the write-serialize
@@ -1857,7 +1858,7 @@ def audit_post_spec_child(repo_root):
 # Needles the README Issue-linked PR section must carry (github-workflow +
 # github-facing-register invariants): branch then spec commit then draft PR;
 # build then review-apply then `gh pr ready`; Closes only at merge after
-# acceptance-gate.
+# acceptance-gate; squash commit message holds `#<issue>` (closes §B.36).
 README_ISSUE_LINKED_NEEDLES = (
     ("gh pr create --draft", "branch then spec commit then draft PR"),
     ("gh pr ready", "review-apply then gh pr ready"),
@@ -1865,6 +1866,7 @@ README_ISSUE_LINKED_NEEDLES = (
     ("No corresponding GitHub issue",
      "no corresponding GitHub issue → no branch/PR"),
     ("no git branch, no GitHub PR", "no git branch, no GitHub PR"),
+    ("#<issue>", "squash commit message holds #<issue>"),
 )
 
 
@@ -4034,6 +4036,7 @@ def selftest():
         "build then review-apply then gh pr ready\n"
         "Closes only at merge after acceptance-gate\n"
         "No corresponding GitHub issue: no git branch, no GitHub PR\n"
+        "squash commit subject holds #<issue>\n"
     )
     check(classify_readme_issue_linked(rm_good) == [],
           "readme-issue-linked: complete Issue-linked PR → clean")
@@ -4064,6 +4067,12 @@ def selftest():
               for _, v, e in miss_rm_no_issue),
           "readme-issue-linked: missing no git branch, no GitHub PR "
           "→ VIOLATE")
+    miss_rm_issue_subj = classify_readme_issue_linked(
+        "gh pr create --draft\ngh pr ready\nonly at merge\n"
+        "No corresponding GitHub issue: no git branch, no GitHub PR\n")
+    check(any(v == "VIOLATE" and "#<issue>" in e
+              for _, v, e in miss_rm_issue_subj),
+          "readme-issue-linked: missing squash #<issue> → VIOLATE")
 
     # leftover LINEAR-no-PR wording (github-workflow invariant): sweep-scope
     # grep LINEAR|solo linear|no PR required on skill/fragment/README surfaces;
@@ -4560,7 +4569,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 330
+    return 331
 
 
 # --- entry -------------------------------------------------------------------
