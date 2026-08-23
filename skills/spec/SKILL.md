@@ -188,6 +188,7 @@ Table uses named-invariant + placeholder cite form only (`per <named> invariant`
 
 **Step 4 — write + commit**: on OK → write delta to its resolved body file(s) (telegraph) + auto-commit path-scoped `git commit -m <subject> [-m <body>] -- <body-file(s)>` (write-ownership invariant — scopes to the owned file set, pre-staged files never leak).
 github-issue fold: after OK, github BRANCH (`gh issue develop <N> --checkout`) then this SPEC.md commit on that branch then `gh pr create --draft` (spec commit first on PR; no close trailer @ create; no review-at-create). Stops at draft PR.
+Non-github-issue APPLY: no github BRANCH, no github PR (work stays on current branch).
 Body file(s) = SPEC.md every mode + target, except a stub-redirected §V AMEND → `.spec/check-extras.md` per AMEND § resolution + extras-hook invariant (the SPEC.md stub row stays untouched, so check-extras.md is the sole path-scope; mixed delta touching both an inline §V/other § and a stub-redirected §V → path list = the union). `-m` flags ! precede `--` — message tokens after `--` parse as pathspecs, commit fails; no commit prompt (uniform every mode).
 NEW / DISTILL / BACKPROP: first `.spec/` write (NEW/DISTILL init or first BACKPROP, whichever first) → grep `^backprop-handoff.json$` in `.spec/.gitignore`; missing → init or append that line (backprop-resume-card invariant); path-scope `.spec/.gitignore` when created or patched. Resume-card JSON stays untracked (post-commit BACKPROP write).
 Msg per mode:
