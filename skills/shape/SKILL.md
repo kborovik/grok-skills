@@ -134,7 +134,7 @@ On plan approve (after `exit_plan_mode`): hand off to github ISSUE (auto-fire); 
 This skill stops after the hand-off.
 
 1. Title = plan `# <title>`.
-2. Body = steno plan (Problem + Proposal + Design decisions).
+2. Body = steno plan (Problem + Proposal + Design decisions + Effect on in-flight SPEC items + Out of scope + Unresolved when present).
    `## Acceptance` checklist (`- [ ]`) from Success criterion (each sentence or bullet → one open item).
    Empty Success criterion → one `- [ ]` bullet from the plan title.
 3. Label = `## Class` when in {enhancement, bug, documentation}; missing or other → enhancement.

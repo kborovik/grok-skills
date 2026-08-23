@@ -1526,6 +1526,9 @@ SHAPE_POST_APPROVE_NEEDLES = (
     ("--label", "class --label hand-off"),
     ("github issue", "/sdd:spec github issue N Next"),
     ("fold-shape", "fold-shape optional exclusion"),
+    ("Effect on in-flight", "ISSUE body Effect"),
+    ("Out of scope", "ISSUE body Out of scope"),
+    ("Unresolved when present", "ISSUE body Unresolved when present"),
 )
 
 
@@ -4032,6 +4035,8 @@ def selftest():
         "post-approve: hand title/body to github ISSUE; class --label\n"
         "Next: /sdd:spec github issue N\n"
         "fold-shape optional same-session exclusion\n"
+        "ISSUE body: Effect on in-flight SPEC items + Out of scope "
+        "+ Unresolved when present + Acceptance\n"
     )
     sl_gh = "ISSUE: gh issue create --title t --body b --label enhancement\n"
     check(classify_shape_post_approve(sl_good) == [],
@@ -4058,6 +4063,24 @@ def selftest():
           "shape-lifecycle: missing fold-shape exclusion → VIOLATE")
     check(classify_shape_post_approve("")[0][1] == "MISSING",
           "shape-lifecycle: empty shape body → MISSING")
+    miss_effect = classify_shape_post_approve(
+        "github ISSUE --label x\nNext: /sdd:spec github issue N\n"
+        "fold-shape\nOut of scope\nUnresolved when present\n")
+    check(any(v == "VIOLATE" and "Effect" in e
+              for _, v, e in miss_effect),
+          "shape-lifecycle: missing ISSUE body Effect → VIOLATE")
+    miss_oos = classify_shape_post_approve(
+        "github ISSUE --label x\nNext: /sdd:spec github issue N\n"
+        "fold-shape\nEffect on in-flight\nUnresolved when present\n")
+    check(any(v == "VIOLATE" and "Out of scope" in e
+              for _, v, e in miss_oos),
+          "shape-lifecycle: missing ISSUE body Out of scope → VIOLATE")
+    miss_unres = classify_shape_post_approve(
+        "github ISSUE --label x\nNext: /sdd:spec github issue N\n"
+        "fold-shape\nEffect on in-flight\nOut of scope\n")
+    check(any(v == "VIOLATE" and "Unresolved when present" in e
+              for _, v, e in miss_unres),
+          "shape-lifecycle: missing ISSUE body Unresolved → VIOLATE")
     gh_miss = classify_shape_post_approve(sl_good, "ISSUE: gh issue create\n")
     check(any(v == "VIOLATE" and "github" in e.lower() and "--label" in e
               for _, v, e in gh_miss),
@@ -5106,7 +5129,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 353
+    return 356
 
 
 # --- entry -------------------------------------------------------------------
