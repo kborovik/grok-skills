@@ -140,7 +140,7 @@ T85|x|add `backprop-handoff.json` to `.spec/.gitignore` during initial setup|V73
 T86|.|github skill MERGE: squash commit subject ! hold `#<issue>` via `gh pr merge --squash --subject "<title> (#<issue>)" --body "Closes #<issue>"`; GitHub default `(#PR)` insufficient|V69,B36
 T87|.|script: github MERGE needles `--subject` + `#<issue>` (issue not merely PR); self-test|V69,V40,B36
 T88|.|README Issue-linked PR: squash commit message holds `#<issue>`|V69,V2,B36
-T89|.|github skill: BRANCH+PR require corresponding GitHub issue; missing → no git branch, no `gh pr create`|V69
+T89|x|github skill: BRANCH+PR require corresponding GitHub issue; missing → no git branch, no `gh pr create`|V69
 T90|.|spec skill: non-github-issue APPLY: no github BRANCH, no github PR|V69,I.spec
 T91|.|README Issue-linked PR: no corresponding issue → no git branch, no GitHub PR|V69,V2
 T92|.|script: github no-issue-no-PR needles (corresponding GitHub issue + no BRANCH/no PR); self-test|V69,V40

@@ -9,6 +9,8 @@ description: |
   draft PR then (spec-fold) `/sdd:build --all` write-capable sub-agent then bundled `review` sub-agent then READY remainder (no operator wait),
   operator-run code complete then review-apply then `gh pr ready`,
   squash-merge with branch cleanup, `Closes #<issue>` at merge.
+  No corresponding GitHub issue → no git branch, no GitHub PR
+  (work stays on current branch).
   Not for plain git ops (commit, or push with no issue/PR) nor `gh release`
   — the release skill owns version tag + release notes.
 allowed-tools: run_terminal_command(gh *), run_terminal_command(git *)
@@ -35,7 +37,8 @@ Operator must see the governor (auto-fire visibility).
 
 - new issue requested → ISSUE
 - start work on an issue (issue-linked branch) → BRANCH
-- open a PR → PR (`--draft`; no review; no Closes); spec-fold PR continues post-spec-commit chain
+- open a PR w/ corresponding GitHub issue → PR (`--draft`; no review; no Closes); spec-fold PR continues post-spec-commit chain
+- open a PR or start a branch w/ no corresponding GitHub issue → no BRANCH, no PR (work stays current branch)
 - issue-linked `git push` w/ open PR → PUSH
 - operator-run issue-linked code complete → READY
 - post-spec-commit remainder (review already ran as sub-agent) → READY remainder
@@ -46,6 +49,9 @@ Not: plain git ops (commit, push with no issue/PR), `gh release` (release skill 
 No gh issue/PR op → no fire.
 
 Every worked GitHub issue ! one issue-linked PR: BRANCH then PR (`--draft`).
+No corresponding GitHub issue → no BRANCH, no PR (`gh pr create`).
+Missing issue → bail: no `gh issue develop`, no `git checkout -b`, no `gh pr create`.
+Work stays on current branch; plain git commit still in scope.
 Spec-fold PR → post-spec-commit chain runs once — owner = this PR three-step list (github-workflow invariant): `/sdd:build --all` write-capable sub-agent then bundled `review` sub-agent then READY remainder; no operator wait.
 Spec After OK stops at draft PR.
 Later issue-linked commits → PUSH.
@@ -64,13 +70,20 @@ No fixed template scaffold beyond that heading.
 
 ## BRANCH — issue-linked branch
 
+Corresponding GitHub issue n required (`gh issue view n` succeeds).
+Missing → bail; no `gh issue develop`, no `git checkout -b`, no `git switch -c`.
+Work stays on current branch.
+
 `gh issue develop <n> --checkout` — creates + checks out the issue-linked branch in place (native gh linkage; branch named by gh, never hand-named).
 One branch per session.
 Required when starting work on an issue.
+No corresponding GitHub issue → no BRANCH.
 
 ## PR — `gh pr create --draft`
 
 Fires when opening a PR (spec fold after SPEC.md commit on issue-linked branch).
+Corresponding GitHub issue required (branch from `gh issue develop n`, or explicit n).
+Missing → bail; no `gh pr create`.
 Never review-at-create.
 Never `Closes`/`Fixes`/`Resolves` trailer @ create.
 
@@ -143,3 +156,4 @@ ADVISORY (no `## Acceptance`) → not silent-verified; surface advisory before c
 - no hardcoded repo slug, no `--repo` flag — every op runs against the cwd repo (parametric-recipe invariant).
 - never edits SPEC.md or any skill body.
 - no close of a worked issue without an issue-linked PR.
+- no git branch, no GitHub PR without corresponding GitHub issue.
