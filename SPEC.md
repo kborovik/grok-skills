@@ -179,7 +179,7 @@ T124|x|CHAIN+build+NEXT: issue-linked READY skips check hop; Next merge phrasing
 T125|x|README Issue-linked PR: drop post-spec `--all`; fold-produced §T ids only|V69,V2,B64
 T126|x|shape ISSUE body: Effect + Out of scope + Unresolved when present + Acceptance|V31,V69,I.shape,B65
 T127|x|github READY remainder: post-spec apply bug+suggestion, list nits no wait; operator-run may wait nits|V69,B66
-T128|.|spec+github: fold-produced ids = new §T + existing `.` rows receiving Acceptance notes this fold|V69,B67
+T128|x|spec+github: fold-produced ids = new §T + existing `.` rows receiving Acceptance notes this fold|V69,B67
 T129|.|github READY: re-run verify after review-apply before `gh pr ready`; fail → not ready|V69,B68
 T130|.|github MERGE: probe `gh pr checks` + `reviewDecision,mergeable`; empty checks skip; required reviews missing or CHANGES_REQUESTED or unmergeable → BLOCK|V69,B69
 T131|.|github CLOSE: `gh pr close --delete-branch` then switch default-base then local -D|V69,B70

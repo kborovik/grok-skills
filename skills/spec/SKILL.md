@@ -160,7 +160,7 @@ Ordered:
 4. github PR — `gh pr create --draft` (generic structure; steno body per github-facing-register invariant; no close trailer @ create; no review-at-create).
 
 Stops at draft PR.
-Record fold-produced §T ids from this APPLY (new/pending rows the fold added).
+Record fold-produced §T ids from this APPLY (new rows this fold + existing `.` rows that received Acceptance notes this fold).
 github PR recipe owns post-spec-commit chain once (github-workflow invariant): write-capable `/sdd:build §T.<a>,§T.<b>,…` on those fold ids (not whole backlog; `POST-SPEC-CHILD=1` implies `--no-chain`) then bundled `review` sub-agent then READY remainder; no operator wait.
 
 ## APPLY (all modes, post-delta)
@@ -318,7 +318,7 @@ Post-commit → POST-APPLY leads (BACKPROP concrete build; DISTILL check + confi
 
 ## NON-GOALS
 
-- Writes serialize on main thread; reads delegable to sub-agents; exclusion: github post-spec-commit `/sdd:build --all` child write-capable; bundled `review` sub-agent scratch writes only, no repo edits; spawn omits capability_mode read-only (github-workflow invariant).
+- Writes serialize on main thread; reads delegable to sub-agents; exclusion: github post-spec-commit `/sdd:build` child on fold-produced §T ids write-capable; bundled `review` sub-agent scratch writes only, no repo edits; spawn omits capability_mode read-only (github-workflow invariant).
 - No dashboards.
   Cache files (`.spec/backprop-handoff.json`, check memo) are not design truth.
 - No auto-build after non-BACKPROP spec except github PR recipe post-spec-commit chain on fold-produced §T ids (github-workflow invariant).
