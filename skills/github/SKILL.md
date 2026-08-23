@@ -91,6 +91,9 @@ Never `Closes`/`Fixes`/`Resolves` trailer @ create.
 
 `gh pr create --draft --title "<summary>" --body <steno>` from the linked branch.
 Body = steno per the github-facing-register invariant.
+Body includes `Related: #<issue>` line.
+No Acceptance copy.
+No secondary Closes @ create.
 Generic structure: change summary; no close trailer; no fixed template.
 
 **After spec APPLY commit + this draft PR** (github-workflow invariant; chain runs once; owner = this PR three-step list; no operator wait):
