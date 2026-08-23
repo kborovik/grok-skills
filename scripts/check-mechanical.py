@@ -51,7 +51,11 @@ Modes:
                 once; owner = github PR). Non-github-issue APPLY
                 requires `no github BRANCH, no github PR`.
                 `skills/github/SKILL.md`
-                requires `chain runs once`. `skills/build/SKILL.md`
+                requires `chain runs once`. `skills/github/SKILL.md`
+                MERGE requires `--subject` and squash subject
+                `#<issue>` (the linked issue, not merely PR);
+                GitHub default `(#PR)` insufficient (closes §B.36).
+                `skills/build/SKILL.md`
                 issue-linked pass
                 requires github PUSH then load-and-run review-apply +
                 `gh pr ready`; Next merge when approved. README
@@ -1894,6 +1898,60 @@ def audit_readme_issue_linked(repo_root):
     return classify_readme_issue_linked(text)
 
 
+# --- github-workflow MERGE squash subject (closes §B.36) ---------------------
+
+# Needles the github MERGE recipe must carry (github-workflow invariant):
+# `gh pr merge --squash --subject` and the subject holds `#<issue>` (the
+# linked issue, not merely PR). GitHub default subject PR title `(#PR)`
+# is insufficient — `Closes #<issue>` on the PR body does not put the
+# issue number in the squash commit subject (closes §B.36).
+GITHUB_MERGE_SUBJECT_NEEDLE = "--subject"
+GITHUB_MERGE_ISSUE_NEEDLE = "#<issue>"
+
+
+def classify_github_merge_subject(github_text):
+    """github-workflow MERGE squash subject contract — pure, unit-testable
+    without the filesystem (closes §B.36). `github_text` is
+    `skills/github/SKILL.md`; empty/unreadable → MISSING. MERGE block
+    (else whole body) must carry `--subject`. The `--subject` line must
+    also carry `#<issue>` so a `(#PR)`-only subject is VIOLATE even when
+    `Closes #<issue>` sits on another line."""
+    if not github_text:
+        return [("github-workflow", "MISSING",
+                 "github-workflow MISSING: skills/github/SKILL.md unreadable")]
+    merge_m = re.search(r'(?m)^## MERGE\b', github_text)
+    hay = (_md_block_until_h2(github_text, merge_m.start())
+           if merge_m else github_text)
+    out = []
+    if GITHUB_MERGE_SUBJECT_NEEDLE not in hay:
+        out.append(("github-workflow", "VIOLATE",
+                    "github-workflow VIOLATE: skills/github/SKILL.md "
+                    "MERGE missing --subject"))
+    elif not any(GITHUB_MERGE_SUBJECT_NEEDLE in line
+                 and GITHUB_MERGE_ISSUE_NEEDLE in line
+                 for line in hay.splitlines()):
+        out.append(("github-workflow", "VIOLATE",
+                    "github-workflow VIOLATE: skills/github/SKILL.md "
+                    "MERGE squash subject holds #<issue> (not merely PR)"))
+    return out
+
+
+def audit_github_merge_subject(repo_root):
+    """File-reading wrapper around classify_github_merge_subject
+    (github-workflow invariant). Resolves PUBLISHED
+    `skills/github/SKILL.md` via discover_skill_md — realized once here
+    so the drift-detector retires a hand-run MERGE-subject grep."""
+    by_name = {}
+    for path in discover_skill_md(repo_root):
+        by_name[os.path.basename(os.path.dirname(path))] = path
+    github_p = by_name.get("github")
+    try:
+        github_text = read_text(github_p) if github_p else ""
+    except OSError:
+        github_text = ""
+    return classify_github_merge_subject(github_text)
+
+
 # --- leftover LINEAR-no-PR wording audit -------------------------------------
 
 # Sweep-scope grep from §T.73 (github-workflow invariant): remaining
@@ -2679,6 +2737,7 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
     findings += audit_mechanize_block(skill_md)
     findings += audit_shape_post_approve(repo_root)
     findings += audit_github_pr_per_issue(repo_root)
+    findings += audit_github_merge_subject(repo_root)
     findings += audit_spec_fold_github(repo_root)
     findings += audit_build_issue_linked(repo_root)
     findings += audit_review_scratch_write(repo_root)
@@ -3751,6 +3810,36 @@ def selftest():
           "github-workflow: missing no gh pr create without issue "
           "→ VIOLATE")
 
+    # github-workflow MERGE squash subject holds #<issue> (not merely PR).
+    # GitHub default (#PR) on --subject is VIOLATE even when Closes #<issue>
+    # sits on another line (closes §B.36).
+    # test_name_hint: github MERGE squash subject holds #<issue> (not merely PR)
+    gm_good = (
+        "## MERGE — squash\n"
+        'ALLOW → gh pr merge --squash --subject "<title> (#<issue>)" '
+        '--body "Closes #<issue>"\n'
+    )
+    check(classify_github_merge_subject(gm_good) == [],
+          "github MERGE squash subject holds #<issue> (not merely PR): "
+          "complete MERGE → clean")
+    miss_gm_subject = classify_github_merge_subject(
+        "## MERGE — squash\n"
+        "gh pr merge --squash --delete-branch\n"
+        "Closes #<issue>\n")
+    check(any(v == "VIOLATE" and "--subject" in e
+              for _, v, e in miss_gm_subject),
+          "github MERGE: missing --subject → VIOLATE")
+    miss_gm_pr_only = classify_github_merge_subject(
+        "## MERGE — squash\n"
+        'ALLOW → gh pr merge --squash --subject "<title> (#PR)"\n'
+        "Closes #<issue> on PR body\n")
+    check(any(v == "VIOLATE" and "not merely PR" in e
+              for _, v, e in miss_gm_pr_only),
+          "github MERGE squash subject holds #<issue> (not merely PR): "
+          "--subject (#PR) without #<issue> on that line → VIOLATE")
+    check(classify_github_merge_subject("")[0][1] == "MISSING",
+          "github MERGE: empty github body → MISSING")
+
     # github-workflow spec FOLD-IN github issue: BRANCH then SPEC.md commit
     # then gh pr create --draft; no close trailer @ create; no review-at-create;
     # After OK stops at draft PR; spec cites three-step chain (READY remainder);
@@ -4471,7 +4560,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 326
+    return 330
 
 
 # --- entry -------------------------------------------------------------------
