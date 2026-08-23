@@ -119,7 +119,8 @@ Modes:
                 and merge it (stdin = behavioral rows only, hand-merge banned).
                 Validate the verdict vocab per row type, compute clean-set
                 membership itself, and write the run memo (schema v3, per-row §V
-                hashes, oversized-cell ack) plus the `.gitignore` guard — only
+                hashes, oversized-cell ack) plus the `.gitignore` guard
+                (`check-state.json` + `backprop-handoff.json`) — only
                 when the run is clean. The model never decides "clean". Exit
                 0 = clean, 1 = dirty (memo untouched, CI-gateable), 2 = invalid
                 vocab.
@@ -2967,19 +2968,31 @@ def memo_exit_code(rows):
     return 0, None
 
 
+# Cache filenames the `.spec/.gitignore` guard must list (memo + resume card).
+SPEC_GITIGNORE_CACHE = ("check-state.json", "backprop-handoff.json")
+
+
 def ensure_gitignore_guard(repo_root):
+    """Append missing SPEC_GITIGNORE_CACHE lines to `.spec/.gitignore`.
+
+    First `.spec/` write (write-memo, or spec NEW/DISTILL/BACKPROP recipe)
+    lists `backprop-handoff.json` so the resume card stays untracked
+    (backprop-resume-card invariant).
+    """
     path = os.path.join(repo_root, ".spec", ".gitignore")
-    line = "check-state.json"
     existing = ""
     if os.path.exists(path):
         existing = read_text(path)
-        if any(l.strip() == line for l in existing.splitlines()):
-            return
+    present = {l.strip() for l in existing.splitlines()}
+    missing = [name for name in SPEC_GITIGNORE_CACHE if name not in present]
+    if not missing:
+        return
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "a", encoding="utf-8") as f:
         if existing and not existing.endswith("\n"):
             f.write("\n")
-        f.write(line + "\n")
+        for name in missing:
+            f.write(name + "\n")
 
 
 def cmd_write_memo(args):
@@ -4361,6 +4374,40 @@ def selftest():
     check(acceptance_gate_verdict(ag_bullets, [0, 2]) == "ALLOW",
           "acceptance-gate: index-based proven set → ALLOW")
 
+    # gitignore guard: first `.spec/` write lists both cache files
+    # (backprop-resume-card invariant; T85)
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        ensure_gitignore_guard(td)
+        gi = os.path.join(td, ".spec", ".gitignore")
+        text = read_text(gi)
+        check(text.splitlines() == list(SPEC_GITIGNORE_CACHE),
+              "gitignore-guard: missing file → both cache lines in order")
+        ensure_gitignore_guard(td)
+        check(read_text(gi) == text,
+              "gitignore-guard: second call idempotent")
+        partial = os.path.join(td, "partial")
+        os.makedirs(os.path.join(partial, ".spec"))
+        partial_gi = os.path.join(partial, ".spec", ".gitignore")
+        with open(partial_gi, "w", encoding="utf-8") as f:
+            f.write("check-state.json")  # no trailing newline
+        ensure_gitignore_guard(partial)
+        check(read_text(partial_gi).splitlines()
+              == ["check-state.json", "backprop-handoff.json"],
+              "gitignore-guard: appends handoff; repairs missing newline")
+        extra = os.path.join(td, "extra")
+        os.makedirs(os.path.join(extra, ".spec"))
+        extra_gi = os.path.join(extra, ".spec", ".gitignore")
+        with open(extra_gi, "w", encoding="utf-8") as f:
+            f.write("# keep\nbackprop-handoff.json\n")
+        ensure_gitignore_guard(extra)
+        extra_lines = read_text(extra_gi).splitlines()
+        check(extra_lines[0] == "# keep"
+              and "backprop-handoff.json" in extra_lines
+              and extra_lines[-1] == "check-state.json"
+              and extra_lines.count("backprop-handoff.json") == 1,
+              "gitignore-guard: preserves extra lines; appends missing memo")
+
     if fails:
         sys.stderr.write("SELF-TEST FAIL:\n  " + "\n  ".join(fails) + "\n")
         return 1
@@ -4370,7 +4417,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 322
+    return 326
 
 
 # --- entry -------------------------------------------------------------------
