@@ -186,6 +186,7 @@ T131|x|github CLOSE: `gh pr close --delete-branch` then switch default-base then
 T132|x|github+build child-fail: `gh pr comment` steno (§T, class, Next) on draft PR|V21,V69,B71
 T133|x|github PR body: `Related: #<issue>` line; no Acceptance copy; no secondary Closes @ create|V69
 T134|x|script: github MERGE check-probe + CLOSE `--delete-branch` + PR `Related: #<issue>` needles; self-test|V69,V40
+T135|.|script: github READY remainder no-wait + fold-produced Acceptance-notes + re-run verify + `gh pr comment` needles; self-test|V69,V40,B66,B67,B68,B71
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)
