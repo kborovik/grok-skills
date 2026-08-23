@@ -22,7 +22,7 @@ Single atomic commit, rollback via `git revert`.
 
 ## PREAMBLE
 
-State-mutator scoped to SPEC.md + `.spec/spec-clusters.json` + `.spec/spec-renumber-map.json` + cite-DAG sweep targets (PUBLISHED + REPO-LOCAL + SPEC.md internal + `SPEC.archive.md` when exists).
+State-mutator scoped to SPEC.md + `.spec/check-extras.md` (when present) + `.spec/spec-clusters.json` + `.spec/spec-renumber-map.json` + cite-DAG sweep targets (PUBLISHED + REPO-LOCAL + SPEC.md internal + `SPEC.archive.md` when exists).
 Operator invokes only per recipe-step-no-dispatch rule.
 Owns §V renumber permission carved out of monotonic-id invariant.
 
@@ -118,12 +118,13 @@ Single atomic commit:
    Append-only — never rewrite prior runs.
 3. Rewrite §V in cluster order: body verbatim per verbatim-preservation invariant, only `V<n>:` prefix renumbered.
    Archived ids skipped.
+   If `.spec/check-extras.md` exists, rewrite each `## §V<old>` heading and `V<old>:` row prefix to `## §V<new>` and `V<new>:` per renumber map.
 4. Overwrite `.spec/spec-clusters.json` w/ post-run state; keyed by fingerprint, `current_id` = `V<new>`.
    Archived rows not persisted (terminus in archive sibling).
 5. Cite-DAG sweep w/ renumber map: target set per PREAMBLE scope; backtick pre-filter as ARCHIVE-RETIRED step 2.
    Every surviving `§V.<old>` free-text or bare `V<old>` typed-column cite (§T.cites, §B.fix) → `§V.<new>` / `V<new>` per context. `new:'archive'` entries not substituted — citer-protection gate already excluded live citers.
 6. Probe `.spec/.gitignore`: both json files not gitignored (git-tracked per scope-set invariant); not guard add.
-7. Stage owned paths `git add SPEC.md SPEC.archive.md .spec/spec-clusters.json .spec/spec-renumber-map.json` + touched sweep sites (add tracks new-file artifacts), then path-scoped commit `git commit -m <subject> -- <those same paths>` (write-ownership invariant — commit scopes to the owned set, pre-staged files never leak; `-m` flags ! precede `--`); auto-commit msg `reorganize SPEC.md §V: <m> clusters, <k> renumbers, <a> archive-retired`; not user prompt for commit step.
+7. Stage owned paths `git add SPEC.md SPEC.archive.md .spec/check-extras.md .spec/spec-clusters.json .spec/spec-renumber-map.json` + touched sweep sites (add tracks new-file artifacts), then path-scoped commit `git commit -m <subject> -- <those same paths>` (write-ownership invariant — commit scopes to the owned set, pre-staged files never leak; `-m` flags ! precede `--`); auto-commit msg `reorganize SPEC.md §V: <m> clusters, <k> renumbers, <a> archive-retired`; not user prompt for commit step.
 
 EXECUTE ends @ commit.
 Rollback `git revert <reorganize-sha>` per single-commit shape.

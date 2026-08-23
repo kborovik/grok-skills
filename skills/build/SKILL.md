@@ -84,6 +84,9 @@ Per task in order:
 
 ## FAIL → BACKPROP
 
+Post-spec-commit child (`POST-SPEC-CHILD=1`): child cannot prompt interactively or mutate SPEC.md; halt execution on fail, keep status `.`, emit failure report to parent session (parent surfaces failure to operator per write-serialize invariant).
+Otherwise (operator-run build):
+
 1. Read failure output.
 2. Classify: (a) code bug, (b) spec wrong, (c) unspec edge.
    Low confidence → ask_user_question: Code bug / Spec wrong / Unspec edge.

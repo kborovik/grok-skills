@@ -60,7 +60,7 @@ No deviation → no fire.
 
 ## DISPATCHED — `mechanization-candidate` entry path
 
-Second entry path, not auto-fire (mechanize-scan invariant).
+Second entry path, engaged via `/sdd:spec mechanization-candidate` (mechanize-scan invariant).
 Engaged from a user-invocable recipe's MECHANIZE `## Next` item — consumer plugin-target only.
 Carries the observed pattern + proposed script mode, not a deviation → no CAPTURE, no WHEN trigger.
 Skips the dev-repo backprop hand-off: mechanize-scan routes a dev-repo candidate to /sdd:spec → §T row and a consumer repo-local one to the consumer's /sdd:spec → extras row; only the consumer-plugin-target case reaches here, so no ROUTE step.

@@ -16,13 +16,13 @@ LLM writes code faster than humans read → standards + logic drift unchecked; c
 
 external surface — what operator + consuming repo see.
 
-- shape: `/sdd:shape <topic>` → Grok Plan mode propose-critique → approved plan → GitHub issue + class label + stop; later fold via `/sdd:spec github issue N` (optional same-session fold-shape; not bundled `/design`; no default `designs/` write)
+- shape: `/sdd:shape <topic>` → Grok Plan mode propose-critique → approved plan → GitHub issue + class label + stop; later fold via `/sdd:spec github issue N` or same-session `/sdd:spec fold-shape` (preserves issue N linkage; not bundled `/design`; no default `designs/` write)
 - spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit; fold-shape + micro-AMEND paths; `github issue N` folds issue → §V/§T then github BRANCH + `gh pr create --draft` (no close trailer); then github post-spec-commit chain (build `--all` child, bundled `review` sub-agent, READY remainder; no operator wait); non-issue path: no BRANCH, no PR (work stays current branch)
-- build: `/sdd:build [§T.n|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path chain default-on → check; issue-linked pass → github PUSH + review-apply + `gh pr ready`; post-spec-commit child: write-capable, PUSH only when `POST-SPEC-CHILD=1` (parent runs review); issue-linked pass ! acceptance-gate verify (detector = issue linkage not close trailer); close trailer @ MERGE only per github-workflow invariant
+- build: `/sdd:build [§T.n|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path chain default-on → check; issue-linked pass → github PUSH + review-apply + `gh pr ready`; post-spec-commit child: write-capable, PUSH only when `POST-SPEC-CHILD=1` (fails halt to parent; parent runs review on pass); task build verifies task-scoped acceptance; full acceptance gate verifies @ PR ready and MERGE per github-workflow invariant
 - check: `/sdd:check [--full|--no-chain]` → thin recipe + script; read-only REPORT + Next; clean chain → build --next
 - explain: `/sdd:explain [§-cite|--next]` → prose expansion w/ cited siblings, zero writes
 - condense: `/sdd:condense` → six-prong token sweep, single atomic commit
-- reorganize: `/sdd:reorganize [--taxonomy-only]` → §V cluster + renumber + cite sweep, single atomic commit
+- reorganize: `/sdd:reorganize [--taxonomy-only]` → §V cluster + renumber + cite sweep (updates SPEC.md stubs and `.spec/check-extras.md` row prefixes), single atomic commit
 - script: `python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py <mode>` → pipe-table `id|verdict|evidence`; modes: audit, write-memo, fix-sembr, emit-v-slices, emit-superseded, emit-fold-seeds, emit-v-weights, emit-row-ids, emit-overview, emit-token-estimate, emit-residue, emit-archive-window, emit-condense-propose, emit-check-agent-prompt, --self-test
 - fragments: `skills/_fragments/*` shared recipe text (MECHANIZE, NEXT, CHAIN, CHECK-RECIPE, …) — not slash surfaces
 - format: `SPEC-FORMAT.md` → row shape + section catalog contract; loaded by spec, check, condense, reorganize
@@ -150,6 +150,11 @@ T95|x|condense prong 6: consume stub-skip from table (no re-extract)|V48,B38
 T96|x|script classify_grants reverse (missing grant VIOLATE) + github allowed-tools add spawn_subagent, read_file, search_replace, write|V62,B39
 T97|x|github skill: READY remainder wording — no cross-section step index|V69
 T98|x|spec skill: split multi-sentence lines 93, 190, 193|V70
+T99|x|patch acceptance-gate + build: task-scoped evidence check vs merge-time full gate|V69
+T100|x|patch monitor + MECHANIZE: route consumer candidate via spec skill|V65,V66,V24
+T101|x|patch build + github: post-spec child failure reports to parent without mid-loop prompt|V21,V69
+T102|x|patch shape + spec: fold-shape retains created issue number for branch + PR linkage|V31,V69
+T103|x|patch reorganize: renumber sweep updates .spec/check-extras.md headings and prefixes|V49,V12
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)

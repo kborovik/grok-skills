@@ -25,7 +25,8 @@ allowed-tools: ask_user_question, read_file, search_replace, write, grep, run_te
 **Step 0 (precondition):** `git status --porcelain SPEC.md` empty → continue; else bail w/ "SPEC.md has uncommitted changes; commit or stash first" (auto-commit assumes clean baseline; porcelain catches staged + untracked, which `git diff --quiet` misses).
 
 **Step 1 (fold-in shortcut):** any of:
-- `$ARGUMENTS` is `fold-shape` / `fold the shape plan` / free-form fold of current shape plan → FOLD-IN from approved session plan (shape skill).
+- `$ARGUMENTS` matches `mechanization-candidate <pattern>` / free-form candidate report → engage `sdd:monitor` dispatched mechanization-candidate path; stop.
+- `$ARGUMENTS` is `fold-shape [N]` / `fold the shape plan` / free-form fold of current shape plan → FOLD-IN from approved session plan (shape skill; retains issue N linkage when issue present).
 - `$ARGUMENTS` matches `designs/*.md`, file exists → FOLD-IN from legacy design draft.
 - `$ARGUMENTS` matches `github issue <N>` / free-form "fold issue N" → FOLD-IN from GitHub issue (see FOLD-IN — github issue).
 SPEC.md must exist @ repo root else bail w/ "fold-in needs SPEC.md; init via NEW or DISTILL first".
@@ -137,6 +138,7 @@ Multi-target: one shape or issue may propose new §V / §T / §I / §B rows in o
 Rule: fold-in mutates SPEC.md only.
 Plan file stays in session; legacy design file stays in working tree (no auto `rm`).
 Provenance: slug, "fold-shape", or `github-issue-<N>` in commit msg.
+When `fold-shape` runs with an issue N created during shape (or `$ARGUMENTS` supplies issue N), treat as issue-linked fold: record `github-issue-<N>` in commit body and run After OK branch + PR steps.
 
 ### FOLD-IN — github issue
 

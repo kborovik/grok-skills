@@ -22,5 +22,5 @@ Never self-implement the mechanization mid-run (recipe-step-no-dispatch + write-
 Route by cwd:
 
 - dev repo (this plugin) → /sdd:spec → new §T row
-- consumer repo, plugin-target → monitor dispatched `mechanization-candidate` path (monitor-protocol invariant)
+- consumer repo, plugin-target → /sdd:spec mechanization-candidate (monitor-protocol invariant)
 - consumer repo-local → consumer /sdd:spec → `.spec/check-extras` row

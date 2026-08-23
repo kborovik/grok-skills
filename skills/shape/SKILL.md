@@ -144,7 +144,7 @@ This skill adds the class label then stops.
 7. Stop — never fold SPEC.md this run.
 
 Next leads issue URL + `/sdd:spec github issue N`.
-`/sdd:spec fold-shape` = optional same-session exclusion (skip issue fold).
+`/sdd:spec fold-shape` = optional same-session exclusion (retains issue N linkage).
 Legacy `designs/*.md` still folds via `/sdd:spec designs/<slug>.md`.
 
 Post-approve Next:
@@ -154,7 +154,7 @@ Post-approve Next:
 
 1. /sdd:spec github issue N — fold <issue-url> into SPEC.md
 2. /sdd:shape <topic> — re-run for a revised plan
-3. /sdd:spec fold-shape — optional same-session fold of approved plan (skip issue fold)
+3. /sdd:spec fold-shape — optional same-session fold of approved plan (retains issue N linkage)
 ```
 
 ## ESCAPE HATCH
