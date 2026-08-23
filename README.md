@@ -192,7 +192,7 @@ Work commits on the current branch.
 
 ```text
 /sdd:spec github issue N   # fold; issue-linked branch; SPEC.md commit; gh pr create --draft
-                           # then auto /sdd:build --all sub-agent then bundled review sub-agent
+                           # then auto /sdd:build on fold-produced §T ids then bundled review
                            # then apply findings; git push; gh pr ready
 # Closes trailer only at merge, after Acceptance gate
 ```
@@ -209,7 +209,7 @@ Start work with `gh issue develop <n> --checkout`.
 The spec fold commits `SPEC.md` on that branch, then opens a draft PR (`gh pr create --draft`) from that commit.
 No close trailer at create.
 No review at create.
-After that spec commit and draft PR, the fold runs a write-capable `/sdd:build --all` sub-agent.
+After that spec commit and draft PR, the fold runs a write-capable `/sdd:build` sub-agent on fold-produced §T ids only.
 Then it runs the bundled Grok `review` skill as a sub-agent.
 It does not wait for the operator.
 The child drops `gh pr ready`.

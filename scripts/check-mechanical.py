@@ -67,8 +67,10 @@ Modes:
                 Issue-linked PR requires `gh pr create --draft`,
                 `gh pr ready`, Closes only at merge, no-issue
                 converse (`No corresponding GitHub issue`,
-                `no git branch, no GitHub PR`), and squash commit
-                message `#<issue>` (closes §B.36). Acceptance-gate
+                `no git branch, no GitHub PR`), squash commit
+                message `#<issue>` (closes §B.36), and
+                fold-produced §T ids (not post-spec
+                `/sdd:build --all`; closes §B.64). Acceptance-gate
                 detector = issue linkage not planned close trailer;
                 ALLOW @ build = evidence sufficient; close trailer
                 MERGE-only (closes §B.37). Realized once
@@ -2119,7 +2121,9 @@ README_ISSUE_LINKED_NEEDLES = (
      "no corresponding GitHub issue → no branch/PR"),
     ("no git branch, no GitHub PR", "no git branch, no GitHub PR"),
     ("#<issue>", "squash commit message holds #<issue>"),
+    ("fold-produced", "post-spec fold-produced §T ids"),
 )
+README_POST_SPEC_ALL_BAN = "/sdd:build --all"
 
 
 def classify_readme_issue_linked(readme_text):
@@ -2136,6 +2140,11 @@ def classify_readme_issue_linked(readme_text):
             out.append(("github-workflow", "VIOLATE",
                         "github-workflow VIOLATE: README.md "
                         f"missing {what}"))
+    if README_POST_SPEC_ALL_BAN in readme_text:
+        out.append(("github-workflow", "VIOLATE",
+                    "github-workflow VIOLATE: README.md "
+                    "post-spec `/sdd:build --all` "
+                    "(fold-produced §T ids only)"))
     return out
 
 
@@ -4477,6 +4486,7 @@ def selftest():
         "Closes only at merge after acceptance-gate\n"
         "No corresponding GitHub issue: no git branch, no GitHub PR\n"
         "squash commit subject holds #<issue>\n"
+        "post-spec /sdd:build on fold-produced §T ids\n"
     )
     check(classify_readme_issue_linked(rm_good) == [],
           "readme-issue-linked: complete Issue-linked PR → clean")
@@ -4513,6 +4523,17 @@ def selftest():
     check(any(v == "VIOLATE" and "#<issue>" in e
               for _, v, e in miss_rm_issue_subj),
           "readme-issue-linked: missing squash #<issue> → VIOLATE")
+    miss_rm_fold = classify_readme_issue_linked(
+        "gh pr create --draft\ngh pr ready\nonly at merge\n"
+        "No corresponding GitHub issue: no git branch, no GitHub PR\n"
+        "#<issue>\n")
+    check(any(v == "VIOLATE" and "fold-produced" in e
+              for _, v, e in miss_rm_fold),
+          "readme-issue-linked: missing fold-produced §T ids → VIOLATE")
+    rm_all = rm_good + "then auto /sdd:build --all sub-agent\n"
+    check(any(v == "VIOLATE" and "/sdd:build --all" in e
+              for _, v, e in classify_readme_issue_linked(rm_all)),
+          "readme-issue-linked: post-spec /sdd:build --all → VIOLATE")
 
     # leftover LINEAR-no-PR wording (github-workflow invariant): sweep-scope
     # grep LINEAR|solo linear|no PR required on skill/fragment/README surfaces;
@@ -5085,7 +5106,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 351
+    return 353
 
 
 # --- entry -------------------------------------------------------------------
