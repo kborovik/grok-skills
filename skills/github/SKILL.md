@@ -98,7 +98,7 @@ Generic structure: change summary; no close trailer; no fixed template.
 1. run write-capable `/sdd:build §T.<a>,§T.<b>,…` sub-agent (ids = new §T this fold + existing `.` rows that received Acceptance notes this fold, in §T order; not `--all` whole backlog; spawn prompt ! `POST-SPEC-CHILD=1`; child implies `--no-chain`; child drops READY; write-serialize exclusion; child failure halts to parent — parent reports failure and Next leads `/sdd:build` and, when fail class is b/c, `/sdd:spec <cause>` BACKPROP; without running review).
 2. load-and-run bundled Grok `review` skill as sub-agent on the issue-linked branch vs default base (not slash-dispatch `/review`; recipe-step-no-dispatch invariant).
    Scratch writes only, no repo edits; spawn omits capability_mode read-only (write-serialize exclusion).
-3. READY remainder — parse findings; apply open bug + suggestion; list nits; no wait; `git push` (PUSH); `gh pr ready`.
+3. READY remainder — parse findings; apply open bug + suggestion; list nits; no wait; re-run task verify; fail → no `gh pr ready`; pass → `git push` (PUSH); `gh pr ready`.
 
 ## PUSH — `git push` issue-linked branch w/ open PR
 
@@ -118,7 +118,9 @@ Skip when post-spec-commit already ran `review` as sub-agent.
 **Remainder** — parse findings.
 Post-spec: apply open bug + suggestion; list nits; no wait.
 Operator-run: apply open bug + suggestion; list nits; ? wait nits (apply unless operator declines).
-Then `git push` (PUSH); `gh pr ready`.
+Re-run task verify.
+Fail → no `gh pr ready`.
+Pass → `git push` (PUSH); `gh pr ready`.
 Post Acceptance-evidence comment once per issue-linked run when ALLOW evidence collected (ACCEPTANCE-GATE fragment).
 Recipe pauses (Next: merge when approved — say "merge the PR" / "merge PR `<pr>`"; auto-fires github MERGE).
 
