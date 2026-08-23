@@ -54,7 +54,11 @@ Modes:
                 requires `chain runs once`. `skills/github/SKILL.md`
                 MERGE requires `--subject` and squash subject
                 `#<issue>` (the linked issue, not merely PR);
-                GitHub default `(#PR)` insufficient (closes §B.36).
+                GitHub default `(#PR)` insufficient (closes §B.36);
+                MERGE probes `gh pr checks` +
+                `reviewDecision,mergeable` (closes §B.69);
+                CLOSE `gh pr close --delete-branch` (closes §B.70);
+                PR body `Related: #<issue>` (no Acceptance copy).
                 `skills/build/SKILL.md`
                 issue-linked pass
                 requires github PUSH then load-and-run review-apply +
@@ -1604,6 +1608,7 @@ GITHUB_PR_PER_ISSUE_NEEDLES = (
     ("git switch", "CLOSE git switch before branch -D"),
     ("fold-produced", "post-spec builds fold-produced §T ids"),
     ("implies `--no-chain`", "POST-SPEC-CHILD implies --no-chain"),
+    ("Related: #<issue>", "PR body Related: #<issue>"),
 )
 # Leftover LINEAR / no-PR optional-track wording in the github skill body
 # (github-workflow invariant). Substring match; any hit → VIOLATE.
@@ -1651,6 +1656,11 @@ def classify_github_pr_per_issue(github_text):
             out.append(("github-workflow", "VIOLATE",
                         "github-workflow VIOLATE: skills/github/SKILL.md "
                         "CLOSE git switch must precede git branch -D"))
+        if not any("gh pr close" in line and "--delete-branch" in line
+                   for line in close_hay.splitlines()):
+            out.append(("github-workflow", "VIOLATE",
+                        "github-workflow VIOLATE: skills/github/SKILL.md "
+                        "CLOSE missing gh pr close --delete-branch"))
     return out
 
 
@@ -2200,6 +2210,51 @@ def classify_github_merge_subject(github_text):
                     "github-workflow VIOLATE: skills/github/SKILL.md "
                     "MERGE squash subject holds #<issue> (not merely PR)"))
     return out
+
+
+# MERGE check-probe needles (github-workflow invariant; closes §B.69):
+# `gh pr checks` + `reviewDecision,mergeable` in the MERGE block.
+GITHUB_MERGE_PROBE_NEEDLES = (
+    ("gh pr checks", "MERGE gh pr checks probe"),
+    ("reviewDecision,mergeable", "MERGE reviewDecision,mergeable probe"),
+)
+
+
+def classify_github_merge_probe(github_text):
+    """github-workflow MERGE check-probe contract — pure, unit-testable
+    without the filesystem (closes §B.69). `github_text` is
+    `skills/github/SKILL.md`; empty/unreadable → MISSING. MERGE block
+    (else whole body) must carry `gh pr checks` and
+    `reviewDecision,mergeable`."""
+    if not github_text:
+        return [("github-workflow", "MISSING",
+                 "github-workflow MISSING: skills/github/SKILL.md unreadable")]
+    merge_m = re.search(r'(?m)^## MERGE\b', github_text)
+    hay = (_md_block_until_h2(github_text, merge_m.start())
+           if merge_m else github_text)
+    out = []
+    for needle, what in GITHUB_MERGE_PROBE_NEEDLES:
+        if needle not in hay:
+            out.append(("github-workflow", "VIOLATE",
+                        "github-workflow VIOLATE: skills/github/SKILL.md "
+                        f"missing {what}"))
+    return out
+
+
+def audit_github_merge_probe(repo_root):
+    """File-reading wrapper around classify_github_merge_probe
+    (github-workflow invariant). Resolves PUBLISHED
+    `skills/github/SKILL.md` via discover_skill_md — realized once here
+    so the drift-detector retires a hand-run MERGE-probe grep."""
+    by_name = {}
+    for path in discover_skill_md(repo_root):
+        by_name[os.path.basename(os.path.dirname(path))] = path
+    github_p = by_name.get("github")
+    try:
+        github_text = read_text(github_p) if github_p else ""
+    except OSError:
+        github_text = ""
+    return classify_github_merge_probe(github_text)
 
 
 def audit_github_merge_subject(repo_root):
@@ -3055,6 +3110,7 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
     findings += audit_shape_post_approve(repo_root)
     findings += audit_github_pr_per_issue(repo_root)
     findings += audit_github_merge_subject(repo_root)
+    findings += audit_github_merge_probe(repo_root)
     findings += audit_spec_fold_github(repo_root)
     findings += audit_build_issue_linked(repo_root)
     findings += audit_issue_linked_ready_chain(repo_root)
@@ -4110,8 +4166,9 @@ def selftest():
         "Missing issue → bail: no `gh issue develop`, "
         "no `git checkout -b`, no `gh pr create`.\n"
         "build fold-produced §T ids; spawn implies `--no-chain`\n"
+        "Related: #<issue>\n"
         "## CLOSE — unmerged\n"
-        "1. gh pr close\n"
+        "1. gh pr close --delete-branch\n"
         "2. git switch <default-base>\n"
         "3. git branch -D <branch>\n"
     )
@@ -4211,6 +4268,30 @@ def selftest():
           "--subject (#PR) without #<issue> on that line → VIOLATE")
     check(classify_github_merge_subject("")[0][1] == "MISSING",
           "github MERGE: empty github body → MISSING")
+
+    # github-workflow MERGE check-probe (closes §B.69).
+    # test_name_hint: github MERGE check-probe
+    gp_good = (
+        "## MERGE — ACCEPTANCE-GATE then squash\n"
+        "Probe gh pr checks <pr> + "
+        "gh pr view <pr> --json reviewDecision,mergeable\n"
+        "Empty checks skip.\n"
+    )
+    check(classify_github_merge_probe(gp_good) == [],
+          "github MERGE check-probe: complete MERGE → clean")
+    miss_gp_checks = classify_github_merge_probe(
+        "## MERGE\nreviewDecision,mergeable\n")
+    check(any(v == "VIOLATE" and "gh pr checks" in e
+              for _, v, e in miss_gp_checks),
+          "github MERGE check-probe: missing gh pr checks → VIOLATE")
+    miss_gp_json = classify_github_merge_probe(
+        "## MERGE\ngh pr checks <pr>\n")
+    check(any(v == "VIOLATE" and "reviewDecision,mergeable" in e
+              for _, v, e in miss_gp_json),
+          "github MERGE check-probe: missing reviewDecision,mergeable "
+          "→ VIOLATE")
+    check(classify_github_merge_probe("")[0][1] == "MISSING",
+          "github MERGE check-probe: empty github body → MISSING")
 
     # github-workflow spec FOLD-IN github issue: BRANCH then SPEC.md commit
     # then gh pr create --draft; no close trailer @ create; no review-at-create;
@@ -4942,6 +5023,15 @@ def selftest():
     check(any(v == "VIOLATE" and "git switch must precede" in e
               for _, v, e in classify_github_pr_per_issue(gw_bad_close)),
           "github-workflow: CLOSE branch -D before git switch → VIOLATE")
+    gw_no_del = gw_good.replace("gh pr close --delete-branch", "gh pr close")
+    check(any(v == "VIOLATE" and "CLOSE missing gh pr close --delete-branch" in e
+              for _, v, e in classify_github_pr_per_issue(gw_no_del)),
+          "github-workflow: CLOSE missing --delete-branch → VIOLATE")
+    miss_related = classify_github_pr_per_issue(
+        gw_good.replace("Related: #<issue>\n", ""))
+    check(any(v == "VIOLATE" and "Related: #<issue>" in e
+              for _, v, e in miss_related),
+          "github-workflow: missing PR Related: #<issue> → VIOLATE")
 
     # emit-archive-window: skip under threshold; archive older / keep newest over
     # (token-budget + archive-semantics + mechanical-realization)
@@ -5129,7 +5219,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 356
+    return 362
 
 
 # --- entry -------------------------------------------------------------------
