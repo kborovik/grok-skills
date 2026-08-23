@@ -18,7 +18,7 @@ external surface — what operator + consuming repo see.
 
 - shape: `/sdd:shape <topic>` → Grok Plan mode propose-critique → approved plan → GitHub issue + class label + stop; later fold via `/sdd:spec github issue N` or same-session `/sdd:spec fold-shape` (preserves issue N linkage; not bundled `/design`; no default `designs/` write)
 - spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit; fold-shape + micro-AMEND paths; `github issue N` folds issue → §V/§T then github BRANCH + `gh pr create --draft` (no close trailer); then github post-spec-commit chain (build `--all` child, bundled `review` sub-agent, READY remainder; no operator wait); non-issue path: no BRANCH, no PR (work stays current branch)
-- build: `/sdd:build [§T.n|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path chain default-on → check; issue-linked pass → github PUSH + review-apply + `gh pr ready`; post-spec-commit child: write-capable, PUSH only when `POST-SPEC-CHILD=1` (fails halt to parent; parent runs review on pass); task build verifies task-scoped acceptance; full acceptance gate verifies @ PR ready and MERGE per github-workflow invariant
+- build: `/sdd:build [§T.n|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path chain default-on → check; issue-linked pass → github PUSH + review-apply + `gh pr ready` once per run not per task (§T.105); post-spec-commit child: write-capable, PUSH only when `POST-SPEC-CHILD=1` (fails halt to parent; parent runs review on pass; child builds fold-produced §T ids only §T.106); task build verifies task-scoped acceptance; full acceptance gate verifies @ MERGE only (not @ PR ready; §B.58/§T.119 sync V69 + ACCEPTANCE-GATE)
 - check: `/sdd:check [--full|--no-chain]` → thin recipe + script; read-only REPORT + Next; clean chain → build --next
 - explain: `/sdd:explain [§-cite|--next]` → prose expansion w/ cited siblings, zero writes
 - condense: `/sdd:condense` → six-prong token sweep, single atomic commit
@@ -155,6 +155,26 @@ T100|x|patch monitor + MECHANIZE: route consumer candidate via spec skill|V65,V6
 T101|x|patch build + github: post-spec child failure reports to parent without mid-loop prompt|V21,V69
 T102|x|patch shape + spec: fold-shape retains created issue number for branch + PR linkage|V31,V69
 T103|x|patch reorganize: renumber sweep updates .spec/check-extras.md headings and prefixes|V49,V12
+T104|.|github CLOSE: `git switch <default-base>` before `git branch -D`; script needle asserts order|V69,V40,B40
+T105|.|build: issue-linked READY fires once post-loop (single task or last `--all` row), not per task; per-task PUSH only|V69,V22,B42
+T106|.|build+github: `POST-SPEC-CHILD=1` implies `--no-chain`; child builds fold-produced §T ids only (not whole backlog)|V69,V21,V22,B48,B49
+T107|.|amend V47: check arg set admits `--no-chain` (+ `--full --no-chain`); script constant single-sources arg set|V47,V40,B43
+T108|.|CHAIN+README: one hop per operator turn; hopped recipe never hops again|V22,V24,B44
+T109|.|Next contract: merge dispatch route for issue-linked pause (trigger phrasing or thin surface)|V24,V69,B41
+T110|.|spec: precondition covers resolved body file; branch before delta write on github fold|V20,V69,B50,B51
+T111|.|condense: prong 6 consumes post-fold weights; atomicity non-goal reworded (confirmed set, one commit)|V48,V40,B45,B46
+T112|.|shape: hand issue creation to github; drop gh grant; resolve plan-file write grant|V72,V62,V31,B53,B54
+T113|.|script: widen missing-grant `write` pattern + shape fixture self-test|V62,V40,B54
+T114|.|ACCEPTANCE-GATE: one evidence comment per issue-linked run (post @ READY not per task)|V69,B52
+T115|.|github: `<issue>` vs `<pr>` placeholders throughout (never dual `<n>`)|V69,B55
+T116|.|monitor: drop stale five-member roster line (cite sub-skill-flags invariant)|V61,B47
+T117|.|build+explain: emit modes replace whole-file SPEC.md read, or explain exemption in V64|V64,B56
+T118|.|reorganize CONFIRM: subset restarts the gate pass (no mid-pass re-prompt)|V23,B57
+T119|.|amend V69+§I.build+ACCEPTANCE-GATE: full accept MERGE-only; drop PR-ready full-gate claim (align T99)|V69,B58
+T120|.|amend V25: drop FOLD-IN from socratic mode set; name dispatch shortcut|V25,B59
+T121|.|check description: never invokes remedies except green-path chain|V22,V76,B60
+T122|.|spec POST-APPLY: fold-shape+issue N same chain ownership + Next as FOLD-IN github issue|V31,V69,V22,B61
+T123|.|github+build child-fail: parent Next may `/sdd:spec` BACKPROP when class b/c (not build-only)|V21,V27,V69,B62
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)
@@ -199,3 +219,26 @@ B36|2026-08-23|squash-merge default subject PR title `(#PR)`; `Closes #<issue>` 
 B37|2026-08-23|acceptance-gate trigger keyed on close trailer after close trailer banned on build commits|V69
 B38|2026-08-23|emit-v-weights ranks already-stubbed §V rows as heavy|V48
 B39|2026-08-23|grant-use audit extras-only; recipes omit required grants|V62
+B40|2026-08-23|github CLOSE `git branch -D` while still on issue-linked branch; git refuses delete current branch|V69
+B41|2026-08-23|Next "merge when approved" has no user-invocable dispatch; github auto-fire only|V24,V69
+B42|2026-08-23|build issue-linked READY inside per-task loop; `--all` re-runs review+pr-ready each row|V69,V22
+B43|2026-08-23|V47 check-dispatch bare/`--full` only; §I+skill+README accept `--no-chain`|V47
+B44|2026-08-23|CHAIN "at most one hop" vs two default edges; hop depth per turn vs per recipe unclear|V22,V24
+B45|2026-08-23|condense NON-GOALS all-or-none firing set; CONFIRM offers force-skip + subset|-
+B46|2026-08-23|condense prong 6 consumes pre-fold v-weights while prong 1 claims fold-first reshape|V48
+B47|2026-08-23|monitor "5th member" roster omits github; V61 lists six auto-fire skills|V61
+B48|2026-08-23|post-spec child `/sdd:build --all` closes whole backlog into one issue PR|V69
+B49|2026-08-23|POST-SPEC-CHILD inherits green-path chain; child may hop check then build --next|V21,V22,V69
+B50|2026-08-23|spec Step 0 porcelain checks SPEC.md only; stub AMEND body file uncommitted work leaks|V20,V49
+B51|2026-08-23|spec github fold: branch vs delta-write order underspecified; dirty checkout risk|V69,V20
+B52|2026-08-23|ACCEPTANCE-GATE COMMENT posts every ALLOW; build per-task gate → N comments per `--all`|V69
+B53|2026-08-23|shape POST-APPROVE duplicates github ISSUE create steps; dual ownership drift class|V31,V72,V69
+B54|2026-08-23|shape prescribes plan-file write/patch; allowed-tools omits write; grant audit pattern misses|V62
+B55|2026-08-23|github body `<n>` means issue id and PR id in different sections|V69
+B56|2026-08-23|build+explain whole-file SPEC.md Read; single-load prefers script emit where covered|V64
+B57|2026-08-23|reorganize CONFIRM subset re-emits CONFIRM inside no-mid-flow-reprompt gate|V23
+B58|2026-08-23|V69+§I+ACCEPTANCE-GATE claim full accept @ PR ready; T99+recipes = MERGE-only full gate|V69
+B59|2026-08-23|V25 lists FOLD-IN as socratic mode; FOLD-IN is dispatch shortcut bypassing gate|V25
+B60|2026-08-23|check description "never invokes" remedies; body+V22 green-path chain invokes build|V22,V76
+B61|2026-08-23|spec POST-APPLY names FOLD-IN github issue only; fold-shape+issue N same issue-linked path under-specified|V31,V69
+B62|2026-08-23|post-spec child fail → parent Next build-only; no BACKPROP offer for class b/c|V21,V27,V69
