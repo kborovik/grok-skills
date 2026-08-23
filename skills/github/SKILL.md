@@ -142,11 +142,11 @@ Squash commit subject and body carry `#<issue>` → git log recovers closed issu
 
 PR abandoned, not merged → cleanup only, no squash:
 
-1. `gh pr close <pr>` — closes the PR, no merge commit.
+1. `gh pr close <pr> --delete-branch` — closes the PR and deletes the remote branch; no merge commit.
 2. `git switch <default-base>` — leave the issue-linked branch before deleting it (git refuses to delete the checked-out branch).
 3. `git branch -D <branch>` — local branch cleanup.
 
-No squash, no `--delete-branch` merge path.
+No squash. Remote delete via `gh pr close --delete-branch`, not merge.
 The linked issue stays open — nothing merged to close it.
 Unmerged PR close does not run ACCEPTANCE-GATE (issue not closed).
 
