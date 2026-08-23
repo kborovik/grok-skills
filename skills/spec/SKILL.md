@@ -191,11 +191,11 @@ Table uses named-invariant + placeholder cite form only (`per <named> invariant`
 
 **Step 3 — show-user**: render diff preview; await user OK.
 
-**Step 4 — write + commit**: on OK → write delta to its resolved body file(s) (telegraph) + auto-commit path-scoped `git commit -m <subject> [-m <body>] -- <body-file(s)>` (write-ownership invariant — scopes to the owned file set, pre-staged files never leak).
+**Step 4 — write + commit**: on OK → write delta to its resolved body file(s) (telegraph) + auto-commit path-scoped per `skills/_fragments/PATH-SCOPED-COMMIT.md`: `git commit -m <subject> [-m <body>] -- <body-file(s)>`.
 github-issue fold (and fold-shape with issue N): after OK follow **After OK** order only (BRANCH → write delta → path-scoped commit → draft PR); do not write delta before BRANCH.
 Stops at draft PR.
 Non-github-issue APPLY: no github BRANCH, no github PR (work stays on current branch).
-Body file(s) = SPEC.md every mode + target, except a stub-redirected §V AMEND → `.spec/check-extras.md` per AMEND § resolution + extras-hook invariant (the SPEC.md stub row stays untouched, so check-extras.md is the sole path-scope; mixed delta touching both an inline §V/other § and a stub-redirected §V → path list = the union). `-m` flags ! precede `--` — message tokens after `--` parse as pathspecs, commit fails; no commit prompt (uniform every mode).
+Body file(s) = SPEC.md every mode + target, except a stub-redirected §V AMEND → `.spec/check-extras.md` per AMEND § resolution + extras-hook invariant (the SPEC.md stub row stays untouched, so check-extras.md is the sole path-scope; mixed delta touching both an inline §V/other § and a stub-redirected §V → path list = the union). No commit prompt (uniform every mode).
 NEW / DISTILL / BACKPROP: first `.spec/` write (NEW/DISTILL init or first BACKPROP, whichever first) → grep `^backprop-handoff.json$` in `.spec/.gitignore`; missing → init or append that line (backprop-resume-card invariant); path-scope `.spec/.gitignore` when created or patched.
 Resume-card JSON stays untracked (post-commit BACKPROP write).
 Msg per mode:
@@ -306,8 +306,6 @@ Defer to `${GROK_PLUGIN_ROOT}/SPEC-FORMAT.md` — row shape, section catalog, ci
 ## MECHANIZE
 
 Load `${GROK_PLUGIN_ROOT}/skills/_fragments/MECHANIZE.md`.
-Run probe.
-Emit Next item per fragment.
 
 ## OUTPUT — "Next" block
 

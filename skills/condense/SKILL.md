@@ -23,7 +23,7 @@ Writes serialize main-thread; per-prong scan reads delegable to sub-agents.
 ## PROGRESS
 
 Phases: LOAD, PROPOSE (six-prong scan), CONFIRM, EXECUTE.
-Per `skills/_fragments/PROGRESS.md` — todo_write one task per phase; status `in_progress` then `completed`.
+Per `skills/_fragments/PROGRESS.md` (`todo_write`).
 CONFIRM cancel / subset-skip → unreached phases `deleted`, not `completed`.
 
 ## LOAD
@@ -126,7 +126,7 @@ Single atomic commit:
 2. Prong 3 fired → `git add SPEC.archive.md`.
 3. Prong 6 fired → `git add .spec/check-extras.md`.
 4. Prong 1 fired → cite-DAG sweep same commit; touch REPO-LOCAL citers renumbered by fold.
-5. Stage remaining artifacts + `SPEC.md` (`git add`), then path-scoped commit `git commit -m <subject> -- <staged artifacts> SPEC.md` (write-ownership invariant — commit scopes to staged owned set, pre-staged files never leak; `-m` flags ! precede `--`); auto-commit msg `condense SPEC.md: prongs {<firing-set>} (~<n>k → ~<m>k tokens)`; no user prompt.
+5. Stage remaining artifacts + `SPEC.md` (`git add`), then path-scoped commit per `skills/_fragments/PATH-SCOPED-COMMIT.md`: `git commit -m <subject> -- <staged artifacts> SPEC.md`; auto-commit msg `condense SPEC.md: prongs {<firing-set>} (~<n>k → ~<m>k tokens)`; no user prompt.
 
 EXECUTE ends @ commit.
 Rollback `git revert <condense-sha>`.
@@ -135,8 +135,6 @@ Drift cascade → Next-block item #1; operator dispatches next turn.
 ## MECHANIZE
 
 Load `${GROK_PLUGIN_ROOT}/skills/_fragments/MECHANIZE.md`.
-Run probe.
-Emit Next item per fragment.
 
 ## OUTPUT — "Next" block
 

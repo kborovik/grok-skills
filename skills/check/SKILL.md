@@ -27,7 +27,7 @@ Read-only → sub-agent delegation safe.
 ## PROGRESS
 
 Multi-phase: LOAD, audit, §V classify, §I + cite-DAG, §T, REPORT + WRITE-MEMO.
-Per `skills/_fragments/PROGRESS.md` — todo_write one task per phase; status `in_progress` then `completed`.
+Per `skills/_fragments/PROGRESS.md` (`todo_write`).
 
 ## LOAD
 
@@ -87,8 +87,6 @@ Never invoke fixes from this skill.
 ## MECHANIZE
 
 Load `${GROK_PLUGIN_ROOT}/skills/_fragments/MECHANIZE.md`.
-Run probe.
-Emit Next item per fragment.
 
 ## OUTPUT — "Next" block
 

@@ -168,8 +168,6 @@ Not root-cause debugging — backprop via `/sdd:spec <bug intent>`.
 ## MECHANIZE
 
 Load `${GROK_PLUGIN_ROOT}/skills/_fragments/MECHANIZE.md`.
-Run probe.
-Emit Next item per fragment.
 
 ## OUTPUT — "Next" block
 

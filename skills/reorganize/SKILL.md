@@ -33,7 +33,7 @@ Single commit per atomic-operation discipline, not partial application; cite-DAG
 ## PROGRESS
 
 Phases: LOAD, ARCHIVE-RETIRED, CLUSTER, PROPOSE, CONFIRM, EXECUTE.
-Per `skills/_fragments/PROGRESS.md` — todo_write one task per phase; status `in_progress` then `completed`.
+Per `skills/_fragments/PROGRESS.md` (`todo_write`).
 `--taxonomy-only` exit / CONFIRM cancel / subset re-loop → unreached phases `deleted`, not `completed`.
 
 ## LOAD
@@ -124,7 +124,7 @@ Single atomic commit:
 5. Cite-DAG sweep w/ renumber map: target set per PREAMBLE scope; backtick pre-filter as ARCHIVE-RETIRED step 2.
    Every surviving `§V.<old>` free-text or bare `V<old>` typed-column cite (§T.cites, §B.fix) → `§V.<new>` / `V<new>` per context. `new:'archive'` entries not substituted — citer-protection gate already excluded live citers.
 6. Probe `.spec/.gitignore`: both json files not gitignored (git-tracked per scope-set invariant); not guard add.
-7. Stage owned paths `git add SPEC.md SPEC.archive.md .spec/check-extras.md .spec/spec-clusters.json .spec/spec-renumber-map.json` + touched sweep sites (add tracks new-file artifacts), then path-scoped commit `git commit -m <subject> -- <those same paths>` (write-ownership invariant — commit scopes to the owned set, pre-staged files never leak; `-m` flags ! precede `--`); auto-commit msg `reorganize SPEC.md §V: <m> clusters, <k> renumbers, <a> archive-retired`; not user prompt for commit step.
+7. Stage owned paths `git add SPEC.md SPEC.archive.md .spec/check-extras.md .spec/spec-clusters.json .spec/spec-renumber-map.json` + touched sweep sites (add tracks new-file artifacts), then path-scoped commit per `skills/_fragments/PATH-SCOPED-COMMIT.md`: `git commit -m <subject> -- <those same paths>`; auto-commit msg `reorganize SPEC.md §V: <m> clusters, <k> renumbers, <a> archive-retired`; not user prompt for commit step.
 
 EXECUTE ends @ commit.
 Rollback `git revert <reorganize-sha>` per single-commit shape.
@@ -139,8 +139,6 @@ Consumers: reorganize re-runs + explain skill LOAD (historical-id resolution); b
 ## MECHANIZE
 
 Load `${GROK_PLUGIN_ROOT}/skills/_fragments/MECHANIZE.md`.
-Run probe.
-Emit Next item per fragment.
 
 ## OUTPUT — "Next" block
 

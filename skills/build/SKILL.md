@@ -50,8 +50,7 @@ Emit plan inline → EXECUTE.
 
 ## PROGRESS
 
-`--all` or multi-id list = multi-phase per `skills/_fragments/PROGRESS.md`.
-todo_write one task per chosen `.` §T row.
+`--all` or multi-id list = multi-phase per `skills/_fragments/PROGRESS.md` (`todo_write`).
 FAIL → BACKPROP (status stays `.`) → task stays `in_progress`.
 
 ## UPSTREAM-FR (plugin-meta only)
@@ -124,8 +123,6 @@ Every other SPEC.md edit → spec skill.
 ## MECHANIZE
 
 Load `${GROK_PLUGIN_ROOT}/skills/_fragments/MECHANIZE.md`.
-Run probe.
-Emit Next item per fragment.
 
 ## OUTPUT — "Next" block
 

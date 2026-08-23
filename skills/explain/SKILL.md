@@ -82,8 +82,6 @@ Bottom line: implement a middleware that enforces §V.<n> without altering §I.a
 ## MECHANIZE
 
 Load `${GROK_PLUGIN_ROOT}/skills/_fragments/MECHANIZE.md`.
-Run probe.
-Emit Next item per fragment.
 
 ## OUTPUT — "Next" block
 
