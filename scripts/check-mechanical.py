@@ -40,19 +40,25 @@ Modes:
                 `git push` (PUSH), load-and-run review, apply bug +
                 suggestion, then `gh pr ready` (READY); leftover LINEAR /
                 no-PR optional-track wording in that body is VIOLATE.
+                No corresponding GitHub issue → no BRANCH, no PR
+                (`gh pr create`) — converse of PR-per-issue.
                 `skills/spec/SKILL.md` FOLD-IN github issue requires
                 `gh issue develop`, `gh pr create --draft`, no close
                 trailer @ create, no review-at-create, After OK stops
                 at draft PR, and a three-step chain cite (`/sdd:build`
                 + READY remainder). After OK numbered steps ! run
                 `/sdd:build`; POST-APPLY ! `auto-chain run` (chain
-                once; owner = github PR). `skills/github/SKILL.md`
+                once; owner = github PR). Non-github-issue APPLY
+                requires `no github BRANCH, no github PR`.
+                `skills/github/SKILL.md`
                 requires `chain runs once`. `skills/build/SKILL.md`
                 issue-linked pass
                 requires github PUSH then load-and-run review-apply +
                 `gh pr ready`; Next merge when approved. README
                 Issue-linked PR requires `gh pr create --draft`,
-                `gh pr ready`, Closes only at merge. Realized once
+                `gh pr ready`, Closes only at merge, and no-issue
+                converse (`No corresponding GitHub issue`,
+                `no git branch, no GitHub PR`). Realized once
                 here so the drift-detector retires a hand-run github-skill
                 grep. Emits `write-serialize|VIOLATE|…` /
                 `write-serialize|MISSING|…` — the write-serialize
@@ -1542,6 +1548,7 @@ def audit_shape_post_approve(repo_root):
 # every worked issue ! issue-linked PR; PR create is `--draft` (no review
 # no Closes); PUSH = `git push` issue-linked branch w/ open PR; READY =
 # load-and-run review, apply bug + suggestion, then `gh pr ready`.
+# No corresponding GitHub issue → no BRANCH, no PR (`gh pr create`).
 GITHUB_PR_PER_ISSUE_NEEDLES = (
     ("gh issue develop", "gh issue develop"),
     ("gh pr create --draft", "gh pr create --draft"),
@@ -1550,6 +1557,9 @@ GITHUB_PR_PER_ISSUE_NEEDLES = (
     ("bug + suggestion", "apply bug + suggestion"),
     ("gh pr ready", "gh pr ready"),
     ("chain runs once", "chain runs once"),
+    ("No corresponding GitHub issue", "no corresponding GitHub issue"),
+    ("no BRANCH, no PR", "no BRANCH, no PR without issue"),
+    ("no `gh pr create`", "no gh pr create without issue"),
 )
 # Leftover LINEAR / no-PR optional-track wording in the github skill body
 # (github-workflow invariant). Substring match; any hit → VIOLATE.
@@ -1615,6 +1625,8 @@ SPEC_FOLD_GITHUB_NEEDLES = (
     ("/sdd:build", "post-spec-commit `/sdd:build` cite"),
     ("READY remainder", "three-step READY remainder cite"),
     ("at draft PR", "After OK stops at draft PR"),
+    ("no github BRANCH, no github PR",
+     "non-issue APPLY no BRANCH no PR"),
 )
 SPEC_AFTER_OK_NUMBERED = re.compile(r'^\d+\.\s')
 SPEC_POST_APPLY_AUTOCHAIN = "auto-chain run"
@@ -1846,6 +1858,9 @@ README_ISSUE_LINKED_NEEDLES = (
     ("gh pr create --draft", "branch then spec commit then draft PR"),
     ("gh pr ready", "review-apply then gh pr ready"),
     ("only at merge", "Closes only at merge after acceptance-gate"),
+    ("No corresponding GitHub issue",
+     "no corresponding GitHub issue → no branch/PR"),
+    ("no git branch, no GitHub PR", "no git branch, no GitHub PR"),
 )
 
 
@@ -3668,6 +3683,10 @@ def selftest():
         "READY: load-and-run bundled review\n"
         "Apply open bug + suggestion; then gh pr ready\n"
         "chain runs once — owner = this PR three-step list\n"
+        "No corresponding GitHub issue → no BRANCH, no PR "
+        "(`gh pr create`).\n"
+        "Missing issue → bail: no `gh issue develop`, "
+        "no `git checkout -b`, no `gh pr create`.\n"
     )
     check(classify_github_pr_per_issue(gw_good) == [],
           "github-workflow: complete PR-per-issue recipe → clean")
@@ -3716,6 +3735,21 @@ def selftest():
           "github-workflow: VIOLATE is dirty")
     check(validate_vocab([("github-workflow", "VIOLATE", "")]) == [],
           "github-workflow: pseudo-id unrestricted vocab")
+    miss_no_issue = classify_github_pr_per_issue(
+        "gh issue develop\ngh pr create --draft\ngit push\n"
+        "load-and-run\nbug + suggestion\ngh pr ready\n"
+        "chain runs once\n")
+    check(any(v == "VIOLATE" and "no corresponding GitHub issue" in e
+              for _, v, e in miss_no_issue),
+          "github-workflow: missing no corresponding GitHub issue "
+          "→ VIOLATE")
+    check(any(v == "VIOLATE" and "no BRANCH, no PR" in e
+              for _, v, e in miss_no_issue),
+          "github-workflow: missing no BRANCH, no PR → VIOLATE")
+    check(any(v == "VIOLATE" and "no gh pr create" in e
+              for _, v, e in miss_no_issue),
+          "github-workflow: missing no gh pr create without issue "
+          "→ VIOLATE")
 
     # github-workflow spec FOLD-IN github issue: BRANCH then SPEC.md commit
     # then gh pr create --draft; no close trailer @ create; no review-at-create;
@@ -3732,6 +3766,7 @@ def selftest():
         "github PR recipe owns post-spec-commit chain once: "
         "`/sdd:build --all` then review then READY remainder\n"
         "APPLY ends (`## POST-APPLY` fires after).\n"
+        "Non-github-issue APPLY: no github BRANCH, no github PR\n"
         "## APPLY\n"
         "## POST-APPLY\n"
         "FOLD-IN github issue → github PR recipe owns chain; "
@@ -3809,6 +3844,14 @@ def selftest():
           "post-spec-commit chain once: github missing chain runs once → VIOLATE")
     check(classify_spec_fold_github("")[0][1] == "MISSING",
           "spec-fold-github: empty spec body → MISSING")
+    miss_sf_no_issue = classify_spec_fold_github(
+        "gh issue develop\ngh pr create --draft\nno close trailer\n"
+        "no review-at-create\n/sdd:build\nREADY remainder\n"
+        "stops at draft PR\n")
+    check(any(v == "VIOLATE" and "no BRANCH no PR" in e
+              for _, v, e in miss_sf_no_issue),
+          "spec-fold-github: missing non-issue no BRANCH no PR "
+          "→ VIOLATE")
 
     # write-serialize post-spec review spawn: scratch writes only; spawn
     # omits capability_mode read-only (closes §B.34).
@@ -3901,6 +3944,7 @@ def selftest():
         "gh issue develop then SPEC.md commit then gh pr create --draft\n"
         "build then review-apply then gh pr ready\n"
         "Closes only at merge after acceptance-gate\n"
+        "No corresponding GitHub issue: no git branch, no GitHub PR\n"
     )
     check(classify_readme_issue_linked(rm_good) == [],
           "readme-issue-linked: complete Issue-linked PR → clean")
@@ -3921,6 +3965,16 @@ def selftest():
           "readme-issue-linked: missing Closes only at merge → VIOLATE")
     check(classify_readme_issue_linked("")[0][1] == "MISSING",
           "readme-issue-linked: empty README → MISSING")
+    miss_rm_no_issue = classify_readme_issue_linked(
+        "gh pr create --draft\ngh pr ready\nonly at merge\n")
+    check(any(v == "VIOLATE" and "no corresponding GitHub issue" in e
+              for _, v, e in miss_rm_no_issue),
+          "readme-issue-linked: missing no corresponding GitHub issue "
+          "→ VIOLATE")
+    check(any(v == "VIOLATE" and "no git branch, no GitHub PR" in e
+              for _, v, e in miss_rm_no_issue),
+          "readme-issue-linked: missing no git branch, no GitHub PR "
+          "→ VIOLATE")
 
     # leftover LINEAR-no-PR wording (github-workflow invariant): sweep-scope
     # grep LINEAR|solo linear|no PR required on skill/fragment/README surfaces;

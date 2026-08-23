@@ -143,7 +143,7 @@ T88|.|README Issue-linked PR: squash commit message holds `#<issue>`|V69,V2,B36
 T89|x|github skill: BRANCH+PR require corresponding GitHub issue; missing → no git branch, no `gh pr create`|V69
 T90|x|spec skill: non-github-issue APPLY: no github BRANCH, no github PR|V69,I.spec
 T91|x|README Issue-linked PR: no corresponding issue → no git branch, no GitHub PR|V69,V2
-T92|.|script: github no-issue-no-PR needles (corresponding GitHub issue + no BRANCH/no PR); self-test|V69,V40
+T92|x|script: github no-issue-no-PR needles (corresponding GitHub issue + no BRANCH/no PR); self-test|V69,V40
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)
