@@ -63,7 +63,10 @@ Modes:
                 `gh pr ready`, Closes only at merge, no-issue
                 converse (`No corresponding GitHub issue`,
                 `no git branch, no GitHub PR`), and squash commit
-                message `#<issue>` (closes §B.36). Realized once
+                message `#<issue>` (closes §B.36). Acceptance-gate
+                detector = issue linkage not planned close trailer;
+                ALLOW @ build = evidence sufficient; close trailer
+                MERGE-only (closes §B.37). Realized once
                 here so the drift-detector retires a hand-run github-skill
                 grep. Emits `write-serialize|VIOLATE|…` /
                 `write-serialize|MISSING|…` — the write-serialize
@@ -1710,11 +1713,15 @@ def audit_spec_fold_github(repo_root):
 # Needles the build skill issue-linked pass must carry (github-workflow
 # invariant): github PUSH then load-and-run review-apply + `gh pr ready`;
 # Next merge when approved. Close trailer stays off the build commit.
+# Acceptance-gate detector = issue linkage not planned close trailer;
+# ALLOW @ build = evidence sufficient (closes B37).
 BUILD_ISSUE_LINKED_NEEDLES = (
     ("github PUSH", "github PUSH"),
     ("load-and-run", "load-and-run review-apply"),
     ("gh pr ready", "gh pr ready"),
     ("merge when approved", "Next merge when approved"),
+    ("issue linkage", "acceptance-gate detector issue linkage"),
+    ("evidence sufficient", "ALLOW @ build = evidence sufficient"),
 )
 
 
@@ -1749,6 +1756,71 @@ def audit_build_issue_linked(repo_root):
     except OSError:
         build_text = ""
     return classify_build_issue_linked(build_text)
+
+
+# Needles the ACCEPTANCE-GATE fragment + github skill must carry with build
+# (github-workflow invariant; closes B37): detector = issue linkage not
+# planned close trailer; ALLOW @ build = evidence sufficient; close trailer
+# MERGE-only.
+ACCEPTANCE_GATE_DETECT_NEEDLES = (
+    ("issue linkage", "detector issue linkage not close trailer"),
+    ("evidence sufficient", "ALLOW @ build = evidence sufficient"),
+    ("MERGE-only", "close trailer MERGE-only"),
+)
+
+
+def classify_acceptance_gate_detect(frag_text, github_text):
+    """github-workflow acceptance-gate detector contract — pure,
+    unit-testable without the filesystem (closes B37). `frag_text` is
+    `skills/_fragments/ACCEPTANCE-GATE.md`; `github_text` is
+    `skills/github/SKILL.md`. Empty/unreadable → MISSING. Each required
+    needle absent → VIOLATE (one row per miss)."""
+    out = []
+    if not frag_text:
+        out.append(("github-workflow", "MISSING",
+                    "github-workflow MISSING: "
+                    "skills/_fragments/ACCEPTANCE-GATE.md unreadable"))
+    else:
+        for needle, what in ACCEPTANCE_GATE_DETECT_NEEDLES:
+            if needle not in frag_text:
+                out.append(("github-workflow", "VIOLATE",
+                            "github-workflow VIOLATE: "
+                            "skills/_fragments/ACCEPTANCE-GATE.md "
+                            f"missing {what}"))
+    if not github_text:
+        out.append(("github-workflow", "MISSING",
+                    "github-workflow MISSING: skills/github/SKILL.md "
+                    "unreadable"))
+    else:
+        for needle, what in ACCEPTANCE_GATE_DETECT_NEEDLES:
+            if needle not in github_text:
+                out.append(("github-workflow", "VIOLATE",
+                            "github-workflow VIOLATE: "
+                            "skills/github/SKILL.md "
+                            f"missing {what}"))
+    return out
+
+
+def audit_acceptance_gate_detect(repo_root):
+    """File-reading wrapper around classify_acceptance_gate_detect
+    (github-workflow invariant). Resolves PUBLISHED fragment + github
+    skill — realized once here so the drift-detector retires a hand-run
+    acceptance-gate detector grep."""
+    frag_p = os.path.join(repo_root, "skills", "_fragments",
+                          "ACCEPTANCE-GATE.md")
+    try:
+        frag_text = read_text(frag_p) if os.path.isfile(frag_p) else ""
+    except OSError:
+        frag_text = ""
+    by_name = {}
+    for path in discover_skill_md(repo_root):
+        by_name[os.path.basename(os.path.dirname(path))] = path
+    github_p = by_name.get("github")
+    try:
+        github_text = read_text(github_p) if github_p else ""
+    except OSError:
+        github_text = ""
+    return classify_acceptance_gate_detect(frag_text, github_text)
 
 
 # --- write-serialize review scratch-write audit (closes §B.34) ---------------
@@ -2742,6 +2814,7 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
     findings += audit_github_merge_subject(repo_root)
     findings += audit_spec_fold_github(repo_root)
     findings += audit_build_issue_linked(repo_root)
+    findings += audit_acceptance_gate_detect(repo_root)
     findings += audit_review_scratch_write(repo_root)
     findings += audit_post_spec_child(repo_root)
     findings += audit_readme_issue_linked(repo_root)
@@ -4003,6 +4076,8 @@ def selftest():
     bi_good = (
         "Issue-linked pass: github PUSH then load-and-run review-apply "
         "+ push + gh pr ready. Next merge when approved.\n"
+        "detector = issue linkage not planned close trailer; "
+        "ALLOW @ build = evidence sufficient.\n"
     )
     check(classify_build_issue_linked(bi_good) == [],
           "build-issue-linked: complete pass recipe → clean")
@@ -4028,6 +4103,43 @@ def selftest():
           "build-issue-linked: missing Next merge when approved → VIOLATE")
     check(classify_build_issue_linked("")[0][1] == "MISSING",
           "build-issue-linked: empty build body → MISSING")
+    miss_bi_link = classify_build_issue_linked(
+        "github PUSH\nload-and-run\ngh pr ready\nmerge when approved\n"
+        "evidence sufficient\n")
+    check(any(v == "VIOLATE" and "issue linkage" in e
+              for _, v, e in miss_bi_link),
+          "build-issue-linked: missing issue linkage detector → VIOLATE")
+    miss_bi_ev = classify_build_issue_linked(
+        "github PUSH\nload-and-run\ngh pr ready\nmerge when approved\n"
+        "issue linkage\n")
+    check(any(v == "VIOLATE" and "evidence sufficient" in e
+              for _, v, e in miss_bi_ev),
+          "build-issue-linked: missing evidence sufficient → VIOLATE")
+
+    # acceptance-gate detector = issue linkage not close trailer;
+    # ALLOW @ build = evidence sufficient; close trailer MERGE-only
+    # (github-workflow invariant).
+    # test_name_hint: acceptance-gate detector = issue linkage not close trailer
+    agd_good = (
+        "Fires on issue linkage, not planned close trailer.\n"
+        "ALLOW @ build = evidence sufficient (no trailer).\n"
+        "Close trailer MERGE-only.\n"
+    )
+    check(classify_acceptance_gate_detect(agd_good, agd_good) == [],
+          "acceptance-gate detector = issue linkage not close trailer: "
+          "complete fragment+github → clean")
+    miss_agd_frag = classify_acceptance_gate_detect(
+        "evidence sufficient\nMERGE-only\n", agd_good)
+    check(any(v == "VIOLATE" and "ACCEPTANCE-GATE.md" in e
+              and "issue linkage" in e for _, v, e in miss_agd_frag),
+          "acceptance-gate detect: fragment missing issue linkage → VIOLATE")
+    miss_agd_gh = classify_acceptance_gate_detect(
+        agd_good, "issue linkage\nevidence sufficient\n")
+    check(any(v == "VIOLATE" and "github/SKILL.md" in e
+              and "MERGE-only" in e for _, v, e in miss_agd_gh),
+          "acceptance-gate detect: github missing MERGE-only → VIOLATE")
+    check(classify_acceptance_gate_detect("", "")[0][1] == "MISSING",
+          "acceptance-gate detect: empty fragment → MISSING")
 
     # github-workflow README Issue-linked PR: draft PR after spec commit;
     # gh pr ready after review-apply; Closes only at merge.

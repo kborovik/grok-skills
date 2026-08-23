@@ -1,14 +1,13 @@
 # ACCEPTANCE-GATE — issue close gate (github-workflow)
 
 Shared by `/sdd:build` verify and `github` close paths (github-workflow invariant).
-Fires when issue-linked work is about to close issue `N` via any of:
-
-- commit or PR body will carry `Closes #N` / `Fixes #N` / `Resolves #N`
-- explicit `gh issue close N` after issue-linked work
+Fires on issue linkage (open PR, `github-issue-N` cite, `gh issue develop` branch), not planned close trailer.
+Also fires on explicit `gh issue close N` after issue-linked work.
 
 Ordered; stop on bail:
 
-1. **DETECT** — collect issue numbers from planned close trailer, PR body, commit message, §T/commit `#N` cite, or explicit close target.
+1. **DETECT** — collect issue numbers from issue linkage (open PR, `github-issue-N` cite, `gh issue develop` branch) or explicit close target.
+   Planned close trailer is not the detector.
    No issue id → gate no-op (skip).
 2. **LOAD** — `gh issue view <N> --json number,title,body` against the cwd repo (no `--repo` slug; parametric-recipe invariant).
 3. **PARSE** — extract bullets under `## Acceptance` (`- [ ]` / `- [x]` / `* [ ]` / `* [x]`).
@@ -17,8 +16,13 @@ Ordered; stop on bail:
    Checked (`[x]`) bullets need no new evidence.
 5. **VERDICT**
    - any open bullet missing evidence → **BLOCK**: do not emit close trailer; do not `gh issue close`; do not merge a PR whose body would auto-close; emit FAIL table `bullet | missing evidence`.
-   - every open bullet proven → **ALLOW**: emit close trailer / allow close or merge; post Acceptance-evidence comment (step 6); optionally flip open checks to `[x]` on the issue body.
+     Build: verify FAIL, status stays `.`.
+   - every open bullet proven → **ALLOW**:
+     - build: evidence sufficient (no close trailer); post Acceptance-evidence comment (step 6)
+     - MERGE: add close trailer then squash; post comment if not already posted
+     Optionally flip open checks to `[x]` on the issue body.
 6. **COMMENT** (ALLOW only) — `gh issue comment <N> --body <steno>` with bullet → evidence map (github-facing-register → steno).
 
 BLOCK is a verify FAIL for build (status stays `.`, no close trailer in the commit).
+Close trailer MERGE-only.
 Never silent-pass when Acceptance bullets exist and any stay unproven.

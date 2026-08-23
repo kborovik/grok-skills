@@ -142,14 +142,15 @@ Unmerged PR close does not run ACCEPTANCE-GATE (issue not closed).
 
 ## ACCEPTANCE-GATE — issue close
 
-Load `skills/_fragments/ACCEPTANCE-GATE.md` before any path that closes an issue:
-
-- PR body or commit with `Closes #N` / `Fixes #N` / `Resolves #N`
-- `gh issue close N` after issue-linked work
+Load `skills/_fragments/ACCEPTANCE-GATE.md` on issue-linked build verify and before any path that closes an issue.
+Detector = issue linkage (open PR, `github-issue-N` cite, `gh issue develop` branch), not planned close trailer.
+Also fires on `gh issue close N` after issue-linked work.
 
 BLOCK → no close trailer, no merge, no `gh issue close`; emit FAIL table.
-ALLOW → close path proceeds; post Acceptance-evidence comment on the issue.
+ALLOW @ build = evidence sufficient (no trailer); post Acceptance-evidence comment.
+ALLOW @ MERGE = add close trailer then squash; post comment if not already posted.
 ADVISORY (no `## Acceptance`) → not silent-verified; surface advisory before close.
+Close trailer MERGE-only.
 
 ## NON-GOALS
 
