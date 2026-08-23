@@ -149,7 +149,7 @@ T94|x|script emit-v-weights: stub rows not heavy; self-test all-stub fixture →
 T95|x|condense prong 6: consume stub-skip from table (no re-extract)|V48,B38
 T96|x|script classify_grants reverse (missing grant VIOLATE) + github allowed-tools add spawn_subagent, read_file, search_replace, write|V62,B39
 T97|x|github skill: READY remainder wording — no cross-section step index|V69
-T98|.|spec skill: split multi-sentence lines 93, 190, 193|V70
+T98|x|spec skill: split multi-sentence lines 93, 190, 193|V70
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)
