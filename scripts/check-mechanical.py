@@ -1597,6 +1597,9 @@ GITHUB_LINEAR_NO_PR_MARKERS = (
     "## LINEAR",
     "solo track (no PR)",
 )
+# READY remainder must not cross-index into another section's numbered steps
+# (github-workflow invariant).
+READY_CROSS_STEP_RE = re.compile(r'remainder \(step \d+\)', re.I)
 
 
 def classify_github_pr_per_issue(github_text):
@@ -1609,6 +1612,10 @@ def classify_github_pr_per_issue(github_text):
         return [("github-workflow", "MISSING",
                  "github-workflow MISSING: skills/github/SKILL.md unreadable")]
     out = []
+    if READY_CROSS_STEP_RE.search(github_text):
+        out.append(("github-workflow", "VIOLATE",
+                    "github-workflow VIOLATE: skills/github/SKILL.md "
+                    "READY remainder cross-section step index"))
     for needle, what in GITHUB_PR_PER_ISSUE_NEEDLES:
         if needle not in github_text:
             out.append(("github-workflow", "VIOLATE",
@@ -3960,6 +3967,10 @@ def selftest():
     )
     check(classify_github_pr_per_issue(gw_good) == [],
           "github-workflow: complete PR-per-issue recipe → clean")
+    gw_step = gw_good + "start at remainder (step 2).\n"
+    check(any(v == "VIOLATE" and "cross-section step index" in e
+              for _, v, e in classify_github_pr_per_issue(gw_step)),
+          "github-workflow: READY remainder (step N) → VIOLATE")
     miss_dev = classify_github_pr_per_issue(
         "load-and-run review\nbug + suggestion\ngh pr create\n")
     check(any(v == "VIOLATE" and "gh issue develop" in e
@@ -4876,7 +4887,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 347
+    return 348
 
 
 # --- entry -------------------------------------------------------------------

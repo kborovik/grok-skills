@@ -108,14 +108,12 @@ Plain git push w/ no issue/PR still out of scope — no fire.
 
 Required after issue-linked code complete.
 Never skip.
-Post-spec-commit path already ran `review` as sub-agent → start at remainder (step 2).
+Post-spec-commit path already ran `review` as sub-agent → skip review; continue at remainder.
 
-1. load-and-run bundled Grok `review` skill on the issue-linked branch vs default base (not slash-dispatch `/review`; recipe-step-no-dispatch invariant).
-   Skip when post-spec-commit already ran `review` as sub-agent.
-2. Parse findings.
-3. Apply open bug + suggestion (nits listed; apply unless operator declines).
-4. `git push` (PUSH).
-5. `gh pr ready`.
+**Review** — load-and-run bundled Grok `review` skill on the issue-linked branch vs default base (not slash-dispatch `/review`; recipe-step-no-dispatch invariant).
+Skip when post-spec-commit already ran `review` as sub-agent.
+
+**Remainder** — parse findings; apply open bug + suggestion (nits listed; apply unless operator declines); `git push` (PUSH); `gh pr ready`.
 Recipe pauses (Next: merge when approved).
 
 ## MERGE — ACCEPTANCE-GATE then add Closes then squash
