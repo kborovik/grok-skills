@@ -137,6 +137,9 @@ T82|x|spec+github: post-spec-commit chain runs once; owner = github PR three-ste
 T83|x|V21+§C: post-spec review sub-agent scratch-write exclusion; spawn omits capability_mode read-only|V21,B34
 T84|x|build skill: `POST-SPEC-CHILD=1` discriminator in LOAD; token set → PUSH only, drop READY|V69,V21,B35
 T85|x|add `backprop-handoff.json` to `.spec/.gitignore` during initial setup|V73
+T86|.|github skill MERGE: squash commit subject ! hold `#<issue>` via `gh pr merge --squash --subject "<title> (#<issue>)" --body "Closes #<issue>"`; GitHub default `(#PR)` insufficient|V69,B36
+T87|.|script: github MERGE needles `--subject` + `#<issue>` (issue not merely PR); self-test|V69,V40,B36
+T88|.|README Issue-linked PR: squash commit message holds `#<issue>`|V69,V2,B36
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)
@@ -177,3 +180,4 @@ B32|2026-08-22|post-spec-commit chain copied into APPLY + POST-APPLY → double 
 B33|2026-08-22|spec-side post-spec chain omitted READY remainder|V69
 B34|2026-08-22|V21 read-only default blocked review sub-agent scratch writes|V21
 B35|2026-08-22|post-spec build child had no discriminator; took operator-run READY path|V69
+B36|2026-08-23|squash-merge default subject PR title `(#PR)`; `Closes #<issue>` on PR body not squash commit → git log cannot recover closed issue|V69
