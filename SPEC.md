@@ -16,9 +16,9 @@ LLM writes code faster than humans read → standards + logic drift unchecked; c
 
 external surface — what operator + consuming repo see.
 
-- shape: `/sdd:shape <topic>` → Grok Plan mode propose-critique → approved plan → hand title/body/Acceptance/class to github ISSUE + stop; later fold via `/sdd:spec github issue N` or same-session `/sdd:spec fold-shape` (preserves issue N linkage; not bundled `/design`; no default `designs/` write)
-- spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit; fold-shape + micro-AMEND paths; `github issue N` / fold-shape+issue N → BRANCH (clean) then write then commit then draft PR; post-spec chain builds fold-produced §T ids then review then READY; non-issue path: no BRANCH, no PR
-- build: `/sdd:build [§T.n|§T.a,§T.b,…|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path one hop per operator turn → check; issue-linked → PUSH per task, READY once post-loop; post-spec child (`POST-SPEC-CHILD=1`): fold-produced §T ids, implies `--no-chain`, PUSH only; task-scoped acceptance @ build; full acceptance @ MERGE only
+- shape: `/sdd:shape <topic>` → Grok Plan mode propose-critique → approved plan → hand title/body (Problem + Proposal + Design decisions + Effect + Out of scope + Unresolved when present)/Acceptance/class to github ISSUE + stop; later fold via `/sdd:spec github issue N` or same-session `/sdd:spec fold-shape` (preserves issue N linkage; not bundled `/design`; no default `designs/` write)
+- spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit; fold-shape + micro-AMEND paths; `github issue N` / fold-shape+issue N → BRANCH (clean) then write then commit then draft PR (`Related: #<issue>`; no Closes); post-spec chain builds fold-produced §T ids (new + Acceptance-touched existing `.`) then review then READY; non-issue path: no BRANCH, no PR
+- build: `/sdd:build [§T.n|§T.a,§T.b,…|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path one hop per operator turn → check; issue-linked → PUSH per task, READY once post-loop (no check hop; Next merge phrasing); post-spec child (`POST-SPEC-CHILD=1`): fold-produced §T ids, implies `--no-chain`, PUSH only; task-scoped acceptance @ build; full acceptance @ MERGE only; MERGE probes checks + reviewDecision + mergeable
 - check: `/sdd:check [--full|--no-chain]` → thin recipe + script; read-only REPORT + Next; clean chain → build --next
 - explain: `/sdd:explain [§-cite|--next]` → prose expansion w/ cited siblings, zero writes
 - condense: `/sdd:condense` → six-prong token sweep, single atomic commit
@@ -174,7 +174,18 @@ T119|x|amend V69+§I.build+ACCEPTANCE-GATE: full accept MERGE-only; drop PR-read
 T120|x|amend V25: drop FOLD-IN from socratic mode set; name dispatch shortcut|V25,B59
 T121|x|check description: never invokes remedies except green-path chain|V22,V76,B60
 T122|x|spec POST-APPLY: fold-shape+issue N same chain ownership + Next as FOLD-IN github issue|V31,V69,V22,B61
-T123|x|github+build child-fail: parent Next may `/sdd:spec` BACKPROP when class b/c (not build-only)|V21,V27,V69,B62
+T123|x|github+build child-fail: parent Next may `/sdd:spec` BACKPROP when class b/c (not build-only)|V21,V27,V69
+T124|.|CHAIN+build+NEXT: issue-linked READY skips check hop; Next merge phrasing leads, `/sdd:check` listed not hopped|V22,V24,V69,B63
+T125|.|README Issue-linked PR: drop post-spec `--all`; fold-produced §T ids only|V69,V2,B64
+T126|.|shape ISSUE body: Effect + Out of scope + Unresolved when present + Acceptance|V31,V69,I.shape,B65
+T127|.|github READY remainder: post-spec apply bug+suggestion, list nits no wait; operator-run may wait nits|V69,B66
+T128|.|spec+github: fold-produced ids = new §T + existing `.` rows receiving Acceptance notes this fold|V69,B67
+T129|.|github READY: re-run verify after review-apply before `gh pr ready`; fail → not ready|V69,B68
+T130|.|github MERGE: probe `gh pr checks` + `reviewDecision,mergeable`; empty checks skip; required reviews missing or CHANGES_REQUESTED or unmergeable → BLOCK|V69,B69
+T131|.|github CLOSE: `gh pr close --delete-branch` then switch default-base then local -D|V69,B70
+T132|.|github+build child-fail: `gh pr comment` steno (§T, class, Next) on draft PR|V21,V69,B71
+T133|.|github PR body: `Related: #<issue>` line; no Acceptance copy; no secondary Closes @ create|V69
+T134|.|script: github MERGE check-probe + CLOSE `--delete-branch` + PR `Related: #<issue>` needles; self-test|V69,V40
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)
@@ -242,3 +253,12 @@ B59|2026-08-23|V25 lists FOLD-IN as socratic mode; FOLD-IN is dispatch shortcut 
 B60|2026-08-23|check description "never invokes" remedies; body+V22 green-path chain invokes build|V22,V76
 B61|2026-08-23|spec POST-APPLY names FOLD-IN github issue only; fold-shape+issue N same issue-linked path under-specified|V31,V69
 B62|2026-08-23|post-spec child fail → parent Next build-only; no BACKPROP offer for class b/c|V21,V27,V69
+B63|2026-08-23|issue-linked READY hops `/sdd:check`; check Next drops merge phrasing|V22,V24,V69
+B64|2026-08-23|README Issue-linked PR still says post-spec `/sdd:build --all`|V69
+B65|2026-08-23|shape ISSUE body drops Effect + Out of scope + Unresolved; fold from issue sees reduced plan|V31
+B66|2026-08-23|READY remainder unless-operator-declines vs post-spec no-wait|V69
+B67|2026-08-23|fold-produced ids omit existing `.` §T rows that received Acceptance notes; MERGE blocks after ready|V69
+B68|2026-08-23|READY review-apply then `gh pr ready` with no re-verify|V69
+B69|2026-08-23|MERGE runs `gh pr merge` with no probe of checks or `reviewDecision` or mergeable|V69
+B70|2026-08-23|CLOSE deletes local branch only; remote branch remains|V69
+B71|2026-08-23|post-spec child fail reports to parent session; draft PR has no GitHub comment|V21,V69
