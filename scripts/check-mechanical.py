@@ -42,8 +42,13 @@ Modes:
                 no-PR optional-track wording in that body is VIOLATE.
                 `skills/spec/SKILL.md` FOLD-IN github issue requires
                 `gh issue develop`, `gh pr create --draft`, no close
-                trailer @ create, no review-at-create, After-fold Next
-                `/sdd:build`. `skills/build/SKILL.md` issue-linked pass
+                trailer @ create, no review-at-create, After OK stops
+                at draft PR, and a three-step chain cite (`/sdd:build`
+                + READY remainder). After OK numbered steps ! run
+                `/sdd:build`; POST-APPLY ! `auto-chain run` (chain
+                once; owner = github PR). `skills/github/SKILL.md`
+                requires `chain runs once`. `skills/build/SKILL.md`
+                issue-linked pass
                 requires github PUSH then load-and-run review-apply +
                 `gh pr ready`; Next merge when approved. README
                 Issue-linked PR requires `gh pr create --draft`,
@@ -1536,6 +1541,7 @@ GITHUB_PR_PER_ISSUE_NEEDLES = (
     ("load-and-run", "load-and-run review"),
     ("bug + suggestion", "apply bug + suggestion"),
     ("gh pr ready", "gh pr ready"),
+    ("chain runs once", "chain runs once"),
 )
 # Leftover LINEAR / no-PR optional-track wording in the github skill body
 # (github-workflow invariant). Substring match; any hit → VIOLATE.
@@ -1589,21 +1595,44 @@ def audit_github_pr_per_issue(repo_root):
 
 # Needles the spec skill FOLD-IN github-issue path must carry (github-workflow
 # invariant): after OK, BRANCH then SPEC.md commit then `gh pr create --draft`
-# (no close trailer @ create; no review-at-create); After-fold Next `/sdd:build`.
+# (no close trailer @ create; no review-at-create); After OK stops at draft
+# PR; spec-side cites the three-step chain (`/sdd:build` + READY remainder)
+# not a two-step subset (closes §B.33). After OK numbered steps must not run
+# `/sdd:build`; POST-APPLY must not `auto-chain run` (closes §B.32).
 SPEC_FOLD_GITHUB_NEEDLES = (
     ("gh issue develop", "gh issue develop"),
     ("gh pr create --draft", "gh pr create --draft"),
     ("no close trailer", "no close trailer @ create"),
     ("no review-at-create", "no review-at-create"),
-    ("/sdd:build", "After-fold Next /sdd:build"),
+    ("/sdd:build", "post-spec-commit `/sdd:build` cite"),
+    ("READY remainder", "three-step READY remainder cite"),
+    ("at draft PR", "After OK stops at draft PR"),
 )
+SPEC_AFTER_OK_NUMBERED = re.compile(r'^\d+\.\s')
+SPEC_POST_APPLY_AUTOCHAIN = "auto-chain run"
+
+
+def _md_block_until_h2(text, start_idx):
+    """Slice from start_idx to the next `## ` heading (exclusive)."""
+    rest = text[start_idx:]
+    lines = rest.splitlines()
+    if not lines:
+        return ""
+    out = [lines[0]]
+    for line in lines[1:]:
+        if line.startswith("## "):
+            break
+        out.append(line)
+    return "\n".join(out)
 
 
 def classify_spec_fold_github(spec_text):
     """github-workflow spec FOLD-IN github-issue contract — pure,
     unit-testable without the filesystem. `spec_text` is
     `skills/spec/SKILL.md`; empty/unreadable → MISSING. Each required
-    needle absent → VIOLATE (one row per miss)."""
+    needle absent → VIOLATE (one row per miss). After OK numbered
+    `/sdd:build` or POST-APPLY `auto-chain run` → VIOLATE so the chain
+    cannot run twice (closes §B.32)."""
     if not spec_text:
         return [("github-workflow", "MISSING",
                  "github-workflow MISSING: skills/spec/SKILL.md unreadable")]
@@ -1613,6 +1642,25 @@ def classify_spec_fold_github(spec_text):
             out.append(("github-workflow", "VIOLATE",
                         "github-workflow VIOLATE: skills/spec/SKILL.md "
                         f"missing {what}"))
+    after_ok_m = re.search(r'(?m)^\*\*After OK\*\*', spec_text)
+    if after_ok_m:
+        after_ok = _md_block_until_h2(spec_text, after_ok_m.start())
+        for line in after_ok.splitlines():
+            if (SPEC_AFTER_OK_NUMBERED.match(line)
+                    and "/sdd:build" in line):
+                out.append(("github-workflow", "VIOLATE",
+                            "github-workflow VIOLATE: skills/spec/SKILL.md "
+                            "After OK numbered step runs /sdd:build "
+                            "(must stop at draft PR)"))
+                break
+    post_m = re.search(r'(?m)^## POST-APPLY\b', spec_text)
+    if post_m:
+        post_apply = _md_block_until_h2(spec_text, post_m.start())
+        if SPEC_POST_APPLY_AUTOCHAIN in post_apply:
+            out.append(("github-workflow", "VIOLATE",
+                        "github-workflow VIOLATE: skills/spec/SKILL.md "
+                        "POST-APPLY auto-chain run "
+                        "(chain must run once)"))
     return out
 
 
@@ -3495,6 +3543,7 @@ def selftest():
         "PUSH: git push issue-linked branch w/ open PR\n"
         "READY: load-and-run bundled review\n"
         "Apply open bug + suggestion; then gh pr ready\n"
+        "chain runs once — owner = this PR three-step list\n"
     )
     check(classify_github_pr_per_issue(gw_good) == [],
           "github-workflow: complete PR-per-issue recipe → clean")
@@ -3546,40 +3595,94 @@ def selftest():
 
     # github-workflow spec FOLD-IN github issue: BRANCH then SPEC.md commit
     # then gh pr create --draft; no close trailer @ create; no review-at-create;
-    # After-fold Next /sdd:build (github-workflow invariant).
+    # After OK stops at draft PR; spec cites three-step chain (READY remainder);
+    # After OK numbered steps must not run /sdd:build; POST-APPLY must not
+    # auto-chain run (github-workflow invariant; closes §B.32, §B.33).
     sf_good = (
-        "After OK: gh issue develop N --checkout\n"
-        "SPEC.md commit on that branch\n"
-        "gh pr create --draft; no close trailer @ create; no review-at-create\n"
-        "After-fold Next /sdd:build\n"
+        "**After OK**\n"
+        "1. gh issue develop N --checkout\n"
+        "2. SPEC.md commit on that branch\n"
+        "3. gh pr create --draft; no close trailer @ create; "
+        "no review-at-create\n"
+        "Stops at draft PR.\n"
+        "github PR recipe owns post-spec-commit chain once: "
+        "`/sdd:build --all` then review then READY remainder\n"
+        "APPLY ends (`## POST-APPLY` fires after).\n"
+        "## APPLY\n"
+        "## POST-APPLY\n"
+        "FOLD-IN github issue → github PR recipe owns chain; "
+        "Next merge when approved\n"
     )
     check(classify_spec_fold_github(sf_good) == [],
           "spec-fold-github: complete After-OK recipe → clean")
     miss_sf_dev = classify_spec_fold_github(
-        "gh pr create --draft\nno close trailer\nno review-at-create\n/sdd:build\n")
+        "gh pr create --draft\nno close trailer\nno review-at-create\n"
+        "/sdd:build\nREADY remainder\nstops at draft PR\n")
     check(any(v == "VIOLATE" and "gh issue develop" in e
               for _, v, e in miss_sf_dev),
           "spec-fold-github: missing gh issue develop → VIOLATE")
     miss_sf_draft = classify_spec_fold_github(
-        "gh issue develop\nno close trailer\nno review-at-create\n/sdd:build\n")
+        "gh issue develop\nno close trailer\nno review-at-create\n"
+        "/sdd:build\nREADY remainder\nstops at draft PR\n")
     check(any(v == "VIOLATE" and "gh pr create --draft" in e
               for _, v, e in miss_sf_draft),
           "spec-fold-github: missing gh pr create --draft → VIOLATE")
     miss_sf_trailer = classify_spec_fold_github(
-        "gh issue develop\ngh pr create --draft\nno review-at-create\n/sdd:build\n")
+        "gh issue develop\ngh pr create --draft\nno review-at-create\n"
+        "/sdd:build\nREADY remainder\nstops at draft PR\n")
     check(any(v == "VIOLATE" and "no close trailer" in e
               for _, v, e in miss_sf_trailer),
           "spec-fold-github: missing no close trailer → VIOLATE")
     miss_sf_review = classify_spec_fold_github(
-        "gh issue develop\ngh pr create --draft\nno close trailer\n/sdd:build\n")
+        "gh issue develop\ngh pr create --draft\nno close trailer\n"
+        "/sdd:build\nREADY remainder\nstops at draft PR\n")
     check(any(v == "VIOLATE" and "no review-at-create" in e
               for _, v, e in miss_sf_review),
           "spec-fold-github: missing no review-at-create → VIOLATE")
     miss_sf_next = classify_spec_fold_github(
-        "gh issue develop\ngh pr create --draft\nno close trailer\nno review-at-create\n")
+        "gh issue develop\ngh pr create --draft\nno close trailer\n"
+        "no review-at-create\nREADY remainder\nstops at draft PR\n")
     check(any(v == "VIOLATE" and "/sdd:build" in e
               for _, v, e in miss_sf_next),
-          "spec-fold-github: missing After-fold Next /sdd:build → VIOLATE")
+          "spec-fold-github: missing post-spec-commit /sdd:build cite → VIOLATE")
+    miss_sf_ready = classify_spec_fold_github(
+        "gh issue develop\ngh pr create --draft\nno close trailer\n"
+        "no review-at-create\n/sdd:build\nstops at draft PR\n")
+    check(any(v == "VIOLATE" and "READY remainder" in e
+              for _, v, e in miss_sf_ready),
+          "spec-fold-github: missing READY remainder cite → VIOLATE")
+    miss_sf_stop = classify_spec_fold_github(
+        "gh issue develop\ngh pr create --draft\nno close trailer\n"
+        "no review-at-create\n/sdd:build\nREADY remainder\n")
+    check(any(v == "VIOLATE" and "stops at draft PR" in e
+              for _, v, e in miss_sf_stop),
+          "spec-fold-github: missing After OK stops at draft PR → VIOLATE")
+    sf_runs = (
+        "**After OK**\n"
+        "1. gh issue develop N --checkout\n"
+        "2. SPEC.md commit\n"
+        "3. gh pr create --draft; no close trailer; no review-at-create\n"
+        "4. run `/sdd:build --all` write-capable sub-agent\n"
+        "Stops at draft PR.\n"
+        "READY remainder\n"
+        "## APPLY\n"
+    )
+    check(any(v == "VIOLATE" and "After OK numbered step" in e
+              for _, v, e in classify_spec_fold_github(sf_runs)),
+          "post-spec-commit chain once: After OK numbered /sdd:build → VIOLATE")
+    sf_dup = (
+        sf_good.rsplit("## POST-APPLY", 1)[0]
+        + "## POST-APPLY\n"
+        "- FOLD-IN github issue → auto-chain run `/sdd:build --all`\n"
+    )
+    check(any(v == "VIOLATE" and "POST-APPLY auto-chain run" in e
+              for _, v, e in classify_spec_fold_github(sf_dup)),
+          "post-spec-commit chain once: POST-APPLY auto-chain run → VIOLATE")
+    check(any(v == "VIOLATE" and "chain runs once" in e
+              for _, v, e in classify_github_pr_per_issue(
+                  "gh issue develop\ngh pr create --draft\ngit push\n"
+                  "load-and-run\nbug + suggestion\ngh pr ready\n")),
+          "post-spec-commit chain once: github missing chain runs once → VIOLATE")
     check(classify_spec_fold_github("")[0][1] == "MISSING",
           "spec-fold-github: empty spec body → MISSING")
 
@@ -4102,7 +4205,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 305
+    return 311
 
 
 # --- entry -------------------------------------------------------------------

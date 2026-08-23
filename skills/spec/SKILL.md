@@ -153,7 +153,9 @@ Ordered:
 1. github BRANCH — `gh issue develop <N> --checkout` (in-place, one branch per session).
 2. SPEC.md commit on that branch (APPLY step 4; spec commit first on PR).
 3. github PR — `gh pr create --draft` (generic structure; steno body per github-facing-register invariant; no close trailer @ create; no review-at-create).
-4. github post-spec-commit chain (github-workflow invariant) — run `/sdd:build --all` write-capable sub-agent then bundled `review` sub-agent; no operator wait; drop never-auto-build on this path.
+
+Stops at draft PR.
+github PR recipe owns post-spec-commit chain once (github-workflow invariant): `/sdd:build --all` write-capable sub-agent then bundled `review` sub-agent then READY remainder; no operator wait.
 
 ## APPLY (all modes, post-delta)
 
@@ -185,7 +187,7 @@ Table uses named-invariant + placeholder cite form only (`per <named> invariant`
 **Step 3 — show-user**: render diff preview; await user OK.
 
 **Step 4 — write + commit**: on OK → write delta to its resolved body file(s) (telegraph) + auto-commit path-scoped `git commit -m <subject> [-m <body>] -- <body-file(s)>` (write-ownership invariant — scopes to the owned file set, pre-staged files never leak).
-github-issue fold: after OK, github BRANCH (`gh issue develop <N> --checkout`) then this SPEC.md commit on that branch then `gh pr create --draft` (spec commit first on PR; no close trailer @ create; no review-at-create) then github post-spec-commit chain.
+github-issue fold: after OK, github BRANCH (`gh issue develop <N> --checkout`) then this SPEC.md commit on that branch then `gh pr create --draft` (spec commit first on PR; no close trailer @ create; no review-at-create). Stops at draft PR.
 Body file(s) = SPEC.md every mode + target, except a stub-redirected §V AMEND → `.spec/check-extras.md` per AMEND § resolution + extras-hook invariant (the SPEC.md stub row stays untouched, so check-extras.md is the sole path-scope; mixed delta touching both an inline §V/other § and a stub-redirected §V → path list = the union). `-m` flags ! precede `--` — message tokens after `--` parse as pathspecs, commit fails; no commit prompt (uniform every mode).
 Msg per mode:
 
@@ -199,7 +201,7 @@ FOLD-IN  → fold-in §V.<n>(+) and §T.<n>(+): <slug|fold-shape>  (omit absent 
 
 **Re-entry**: any stage rewriting delta after step 0 — concretely fold-first's fold-into reroute (new §V row → existing-row amend) — re-enters APPLY @ step 0; rewritten delta newly satisfies §V-row prune and prior audits saw a delta that no longer exists.
 
-APPLY ends @ commit (github-issue fold continues: `gh pr create --draft` then github post-spec-commit chain then POST-APPLY). `## POST-APPLY` fires after.
+APPLY ends @ commit (github-issue fold continues: `gh pr create --draft` then POST-APPLY). `## POST-APPLY` fires after.
 
 ## SWEEP-§T SCOPE AUDIT
 
@@ -283,7 +285,7 @@ Default: surface `/sdd:check` as Next item #1 (cascade over just-applied delta).
 Exceptions:
 - **BACKPROP** → item #1 = concrete `/sdd:build §T.<n>` (resume card); item #2 = `/sdd:check`.
 - **DISTILL** → item #1 = `/sdd:check`; item #2 = `/sdd:spec` confirm `?`-flagged rows.
-- **FOLD-IN github issue** → auto-chain run `/sdd:build --all` sub-agent then bundled `review` sub-agent (github post-spec-commit; github-workflow invariant); no operator wait; drop never-auto-build on this path.
+- **FOLD-IN github issue** → github PR recipe owns post-spec-commit chain once (`/sdd:build --all` then `review` then READY remainder); Next merge when approved.
 - Green-path: not default-chained from spec (operator or explicit Next).
 
 Not silent commit-then-done.
@@ -302,11 +304,11 @@ Emit Next item per fragment.
 
 Per `skills/_fragments/NEXT.md`.
 Show-user → apply + revise lead.
-Post-commit → POST-APPLY leads (BACKPROP concrete build; DISTILL check + confirm-?; FOLD-IN github issue auto-chain `/sdd:build --all` then review; else check then build).
+Post-commit → POST-APPLY leads (BACKPROP concrete build; DISTILL check + confirm-?; FOLD-IN github issue merge when approved; else check then build).
 
 ## NON-GOALS
 
 - Writes serialize on main thread; reads delegable to sub-agents; exclusion: github post-spec-commit `/sdd:build --all` child write-capable (github-workflow invariant).
 - No dashboards.
   Cache files (`.spec/backprop-handoff.json`, check memo) are not design truth.
-- No auto-build after non-BACKPROP spec except FOLD-IN github issue POST-APPLY (github-workflow invariant).
+- No auto-build after non-BACKPROP spec except github PR recipe post-spec-commit chain (github-workflow invariant).

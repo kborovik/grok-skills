@@ -46,7 +46,8 @@ Not: plain git ops (commit, push with no issue/PR), `gh release` (release skill 
 No gh issue/PR op → no fire.
 
 Every worked GitHub issue ! one issue-linked PR: BRANCH then PR (`--draft`).
-Spec-fold PR → post-spec-commit chain (github-workflow invariant): `/sdd:build --all` write-capable sub-agent then bundled `review` sub-agent then READY remainder; no operator wait.
+Spec-fold PR → post-spec-commit chain runs once — owner = this PR three-step list (github-workflow invariant): `/sdd:build --all` write-capable sub-agent then bundled `review` sub-agent then READY remainder; no operator wait.
+Spec After OK stops at draft PR.
 Later issue-linked commits → PUSH.
 After operator-run issue-linked code complete → READY.
 Close → MERGE (ACCEPTANCE-GATE then add Closes then squash).
@@ -77,7 +78,7 @@ Never `Closes`/`Fixes`/`Resolves` trailer @ create.
 Body = steno per the github-facing-register invariant.
 Generic structure: change summary; no close trailer; no fixed template.
 
-**After spec APPLY commit + this draft PR** (github-workflow invariant; no operator wait):
+**After spec APPLY commit + this draft PR** (github-workflow invariant; chain runs once; owner = this PR three-step list; no operator wait):
 
 1. run write-capable `/sdd:build --all` sub-agent (child drops READY; write-serialize exclusion).
 2. load-and-run bundled Grok `review` skill as sub-agent on the issue-linked branch vs default base (not slash-dispatch `/review`; recipe-step-no-dispatch invariant).

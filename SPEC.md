@@ -149,7 +149,7 @@ T78|x|github skill: after spec APPLY commit + draft PR, run `/sdd:build --all` w
 T79|x|spec skill: FOLD-IN github issue POST-APPLY auto-chain run build then review (drop never-auto-build on that path)|V69,V22,I.spec
 T80|x|build skill: post-spec-commit child write-capable; drop READY on that child (parent runs review next)|V21,V69
 T81|x|README Issue-linked PR: spec commit + draft PR then auto-build sub-agent then auto-review sub-agent|V69,V2
-T82|.|spec+github: post-spec-commit chain runs once; owner = github PR three-step list; spec After OK stops at draft PR|V69,B32,B33,I.spec
+T82|x|spec+github: post-spec-commit chain runs once; owner = github PR three-step list; spec After OK stops at draft PR|V69,B32,B33,I.spec
 T83|.|V21+§C: post-spec review sub-agent scratch-write exclusion; spawn omits capability_mode read-only|V21,B34
 T84|.|build skill: `POST-SPEC-CHILD=1` discriminator in LOAD; token set → PUSH only, drop READY|V69,V21,B35
 
