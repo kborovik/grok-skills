@@ -6,8 +6,9 @@ description: |
   one, open a PR, push an issue-linked branch with an open PR, mark a PR ready,
   merge a PR, or close one unmerged. Shapes the gh workflow:
   generic issue/PR structures, per-PR issue-linked branch,
-  draft PR then (spec-fold) `/sdd:build --all` write-capable sub-agent then bundled `review` sub-agent then READY remainder (no operator wait),
-  operator-run code complete then review-apply then `gh pr ready`,
+  draft PR then (spec-fold) write-capable `/sdd:build` on fold-produced §T ids
+  then bundled `review` sub-agent then READY remainder (no operator wait),
+  operator-run code complete then review-apply then `gh pr ready` once per run,
   squash-merge with branch cleanup, `Closes #<issue>` at merge.
   No corresponding GitHub issue → no git branch, no GitHub PR
   (work stays on current branch).
@@ -42,7 +43,7 @@ Operator must see the governor (auto-fire visibility).
 - issue-linked `git push` w/ open PR → PUSH
 - operator-run issue-linked code complete → READY
 - post-spec-commit remainder (review already ran as sub-agent) → READY remainder
-- merge a PR → MERGE
+- merge a PR (operator says "merge the PR" / "merge PR `<pr>`" when review approves) → MERGE
 - close a PR unmerged → CLOSE
 
 Not: plain git ops (commit, push with no issue/PR), `gh release` (release skill owns version tag + notes).
@@ -52,10 +53,10 @@ Every worked GitHub issue ! one issue-linked PR: BRANCH then PR (`--draft`).
 No corresponding GitHub issue → no BRANCH, no PR (`gh pr create`).
 Missing issue → bail: no `gh issue develop`, no `git checkout -b`, no `gh pr create`.
 Work stays on current branch; plain git commit still in scope.
-Spec-fold PR → post-spec-commit chain runs once — owner = this PR three-step list (github-workflow invariant): `/sdd:build --all` write-capable sub-agent then bundled `review` sub-agent then READY remainder; no operator wait.
+Spec-fold PR → post-spec-commit chain runs once — owner = this PR three-step list (github-workflow invariant): write-capable `/sdd:build` on fold-produced §T ids (not whole backlog) then bundled `review` sub-agent then READY remainder; no operator wait.
 Spec After OK stops at draft PR.
 Later issue-linked commits → PUSH.
-After operator-run issue-linked code complete → READY.
+After operator-run issue-linked code complete → READY once per run.
 Close → MERGE (ACCEPTANCE-GATE then add Closes then squash).
 
 ## ISSUE — `gh issue create`
@@ -67,14 +68,15 @@ Body shape: problem statement + `## Acceptance` checklist (`- [ ]` bullets).
 Caller-named class in {enhancement, bug, documentation} → pass `--label <class>`.
 Missing label in cwd repo → `gh label create <class>` then retry.
 No fixed template scaffold beyond that heading.
+Shape POST-APPROVE hands title + body + Acceptance + class here (github owns create).
 
 ## BRANCH — issue-linked branch
 
-Corresponding GitHub issue n required (`gh issue view n` succeeds).
+Corresponding GitHub issue `<issue>` required (`gh issue view <issue>` succeeds).
 Missing → bail; no `gh issue develop`, no `git checkout -b`, no `git switch -c`.
 Work stays on current branch.
 
-`gh issue develop <n> --checkout` — creates + checks out the issue-linked branch in place (native gh linkage; branch named by gh, never hand-named).
+`gh issue develop <issue> --checkout` — creates + checks out the issue-linked branch in place (native gh linkage; branch named by gh, never hand-named).
 One branch per session.
 Required when starting work on an issue.
 No corresponding GitHub issue → no BRANCH.
@@ -82,7 +84,7 @@ No corresponding GitHub issue → no BRANCH.
 ## PR — `gh pr create --draft`
 
 Fires when opening a PR (spec fold after SPEC.md commit on issue-linked branch).
-Corresponding GitHub issue required (branch from `gh issue develop n`, or explicit n).
+Corresponding GitHub issue required (branch from `gh issue develop <issue>`, or explicit `<issue>`).
 Missing → bail; no `gh pr create`.
 Never review-at-create.
 Never `Closes`/`Fixes`/`Resolves` trailer @ create.
@@ -93,7 +95,7 @@ Generic structure: change summary; no close trailer; no fixed template.
 
 **After spec APPLY commit + this draft PR** (github-workflow invariant; chain runs once; owner = this PR three-step list; no operator wait):
 
-1. run write-capable `/sdd:build --all` sub-agent (spawn prompt ! `POST-SPEC-CHILD=1`; child drops READY; write-serialize exclusion; child failure halts to parent — parent reports failure and Next leads to `/sdd:build` without running review).
+1. run write-capable `/sdd:build §T.<a>,§T.<b>,…` sub-agent (ids = §T rows the just-applied fold added, in §T order; not `--all` whole backlog; spawn prompt ! `POST-SPEC-CHILD=1`; child implies `--no-chain`; child drops READY; write-serialize exclusion; child failure halts to parent — parent reports failure and Next leads `/sdd:build` and, when fail class is b/c, `/sdd:spec <cause>` BACKPROP; without running review).
 2. load-and-run bundled Grok `review` skill as sub-agent on the issue-linked branch vs default base (not slash-dispatch `/review`; recipe-step-no-dispatch invariant).
    Scratch writes only, no repo edits; spawn omits capability_mode read-only (write-serialize exclusion).
 3. READY remainder — parse findings; apply open bug + suggestion; `git push` (PUSH); `gh pr ready`.
@@ -106,7 +108,7 @@ Plain git push w/ no issue/PR still out of scope — no fire.
 
 ## READY — review-apply then `gh pr ready`
 
-Required after issue-linked code complete.
+Required after issue-linked code complete (once per operator-run build, not per task).
 Never skip.
 Post-spec-commit path already ran `review` as sub-agent → skip review; continue at remainder.
 
@@ -114,13 +116,14 @@ Post-spec-commit path already ran `review` as sub-agent → skip review; continu
 Skip when post-spec-commit already ran `review` as sub-agent.
 
 **Remainder** — parse findings; apply open bug + suggestion (nits listed; apply unless operator declines); `git push` (PUSH); `gh pr ready`.
-Recipe pauses (Next: merge when approved).
+Post Acceptance-evidence comment once per issue-linked run when ALLOW evidence collected (ACCEPTANCE-GATE fragment).
+Recipe pauses (Next: merge when approved — say "merge the PR" / "merge PR `<pr>`"; auto-fires github MERGE).
 
 ## MERGE — ACCEPTANCE-GATE then add Closes then squash
 
-Run ACCEPTANCE-GATE first.
+Run ACCEPTANCE-GATE first (full evidence for every open Acceptance bullet).
 BLOCK → do not add close trailer; do not merge.
-ALLOW → add `Closes #<issue>` to PR body then `gh pr merge <n> --squash --delete-branch --subject "<title> (#<issue>)" --body "Closes #<issue>"` (commits squashed, remote branch deleted); post evidence comment per fragment if not already posted.
+ALLOW → add `Closes #<issue>` to PR body then `gh pr merge <pr> --squash --delete-branch --subject "<title> (#<issue>)" --body "Closes #<issue>"` (commits squashed, remote branch deleted); post evidence comment per fragment if not already posted.
 Squash subject ! `#<issue>` the linked issue not merely PR; GitHub default `(#PR)` insufficient.
 ADVISORY → surface advisory, then add Closes + merge only after the advisory is stated.
 
@@ -131,8 +134,9 @@ Squash commit subject and body carry `#<issue>` → git log recovers closed issu
 
 PR abandoned, not merged → cleanup only, no squash:
 
-1. `gh pr close <n>` — closes the PR, no merge commit.
-2. `git branch -D <branch>` — local branch cleanup.
+1. `gh pr close <pr>` — closes the PR, no merge commit.
+2. `git switch <default-base>` — leave the issue-linked branch before deleting it (git refuses to delete the checked-out branch).
+3. `git branch -D <branch>` — local branch cleanup.
 
 No squash, no `--delete-branch` merge path.
 The linked issue stays open — nothing merged to close it.
@@ -140,15 +144,16 @@ Unmerged PR close does not run ACCEPTANCE-GATE (issue not closed).
 
 ## ACCEPTANCE-GATE — issue close
 
-Load `skills/_fragments/ACCEPTANCE-GATE.md` on issue-linked build verify and before any path that closes an issue.
+Load `skills/_fragments/ACCEPTANCE-GATE.md` on issue-linked build verify (task-scoped) and before any path that closes an issue (MERGE / `gh issue close`).
 Detector = issue linkage (open PR, `github-issue-N` cite, `gh issue develop` branch), not planned close trailer.
-Also fires on `gh issue close N` after issue-linked work.
+Also fires on `gh issue close <issue>` after issue-linked work.
 
 BLOCK → no close trailer, no merge, no `gh issue close`; emit FAIL table.
-ALLOW @ build = evidence sufficient (no trailer); post Acceptance-evidence comment.
-ALLOW @ MERGE = add close trailer then squash; post comment if not already posted.
+ALLOW @ build = evidence sufficient (no trailer); collect evidence; post Acceptance-evidence comment once per issue-linked run (at READY, not per task).
+ALLOW @ MERGE = full gate then add close trailer then squash; post comment if not already posted.
 ADVISORY (no `## Acceptance`) → not silent-verified; surface advisory before close.
 Close trailer MERGE-only.
+Full acceptance gate = MERGE / close only (not PR ready).
 
 ## NON-GOALS
 

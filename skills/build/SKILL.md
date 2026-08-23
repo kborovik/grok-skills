@@ -2,13 +2,14 @@
 name: build
 description: |
   Plan-then-execute implementation against SPEC.md §T tasks. Single-thread
-  main agent; no swarm. Exclusion: github post-spec-commit `/sdd:build --all`
-  child is write-capable (drops github READY; parent runs review next).
+  main agent; no swarm. Exclusion: github post-spec-commit write-capable child
+  builds fold-produced §T ids only (drops github READY; implies --no-chain;
+  parent runs review next).
 when-to-use: |
   Use when asked to build, implement, or execute the spec or a specific §T
   task, or run /sdd:build. Phrasings: "build §T.<n>", "build --next",
   "implement next task", "run the build", "is §T.<n> done?".
-argument-hint: "[§T.n | --next | --all | --no-chain]"
+argument-hint: "[§T.n | §T.a,§T.b,… | --next | --all | --no-chain]"
 metadata:
   short-description: "Plan then implement next §T task vs SPEC.md"
 allowed-tools: ask_user_question, read_file, search_replace, write, run_terminal_command, todo_write
@@ -19,19 +20,22 @@ allowed-tools: ask_user_question, read_file, search_replace, write, run_terminal
 Single-thread native plan→execute.
 You are the main Grok agent.
 No swarm.
-Exclusion: github post-spec-commit `/sdd:build --all` child write-capable (write-serialize + github-workflow invariants); this child ! spawn further build children.
+Exclusion: github post-spec-commit write-capable child (write-serialize + github-workflow invariants); this child ! spawn further build children.
 
 ## LOAD
 
-1. Read `SPEC.md`.
-   Missing → tell user run spec skill first; bail.
+1. Task census via script (single-load invariant): `python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py emit-overview`.
+   Non-zero / no SPEC.md → tell user run spec skill first; bail.
+   Status-cell flip later reads SPEC.md only for the write path (not a second census load).
 2. Parse `$ARGUMENTS`:
    - `§T.n` → that task only
+   - comma-joined `§T.a,§T.b,…` (optional spaces) → those rows only, in §T order (post-spec fold path)
    - `--next` or empty → lowest-numbered `.` row
    - `--all` → every `.` row in §T order — plan once, then chain {edit → verify → commit} per row
    - `--no-chain` → disable green-path check hop after pass
 3. If `.spec/backprop-handoff.json` exists → treat as resume card (see FAIL → BACKPROP); prefer its `T` id when args empty/`--next`.
-4. If prompt or env token `POST-SPEC-CHILD=1` set → this run is the github post-spec-commit child: write-capable; issue-linked pass = github PUSH only; drop READY (parent runs review next; github-workflow invariant).
+4. If prompt or env token `POST-SPEC-CHILD=1` set → this run is the github post-spec-commit child: write-capable; issue-linked pass = github PUSH only; drop READY (parent runs review next); **implies `--no-chain`** — child never hops to check or another build (github-workflow invariant).
+   Prefer comma-joined fold-produced §T ids from spawn prompt over bare `--all`.
 
 ## PLAN
 
@@ -47,7 +51,7 @@ Emit plan inline → EXECUTE.
 
 ## PROGRESS
 
-`--all` = multi-phase per `skills/_fragments/PROGRESS.md`.
+`--all` or multi-id list = multi-phase per `skills/_fragments/PROGRESS.md`.
 todo_write one task per chosen `.` §T row.
 FAIL → BACKPROP (status stays `.`) → task stays `in_progress`.
 
@@ -65,26 +69,34 @@ Per task in order:
    Stage explicit paths for step-3 probe; commit path-scoped (see `skills/_fragments/PATH-SCOPED-COMMIT.md`).
 2. Run verification cmd.
 3. Staged diff touches PUBLISHED → probe `.spec/check-extras.md` judgment recipes when present.
-4. **Acceptance-gate** — when issue-linked (open PR, `github-issue-N` cite, `gh issue develop` branch); detector = issue linkage not planned close trailer:
+4. **Acceptance-gate (task-scoped)** — when issue-linked (open PR, `github-issue-N` cite, `gh issue develop` branch); detector = issue linkage not planned close trailer:
    load `skills/_fragments/ACCEPTANCE-GATE.md` and run the gate (github-workflow invariant).
    - **BLOCK** → verify FAIL; no close trailer; status stays `.`; go FAIL → BACKPROP only if class (b)/(c), else fix evidence and re-run gate.
    - **ADVISORY** (no `## Acceptance`) → surface advisory (not silent-verified); continue only after the advisory is stated.
-   - **ALLOW** → evidence sufficient (no close trailer); post Acceptance-evidence comment per fragment.
+   - **ALLOW** → evidence sufficient (no close trailer); **collect** bullet→evidence map for this task; do **not** post comment here (post once @ READY / MERGE per fragment).
    Build commit never carries `Closes`/`Fixes`/`Resolves` — close trailer MERGE-only (github MERGE after ACCEPTANCE-GATE).
    No issue linkage → skip.
 5. **Pass** → flip §T.n `.`→`x`; path-scoped commit `T<n>: <goal line>` + §V cites on listed paths + SPEC.md.
    Clear `.spec/backprop-handoff.json` if present.
-   Issue-linked (open PR from `/sdd:spec github issue N`):
-   - operator-run `/sdd:build`: github PUSH then load-and-run review-apply + push + `gh pr ready` (github READY; not slash-dispatch `/review` per recipe-step-no-dispatch invariant).
-     Next merge when approved.
-   - post-spec-commit child (`POST-SPEC-CHILD=1`): write-capable; github PUSH only; drop READY (parent runs review next; github-workflow invariant).
+   Issue-linked open PR: github PUSH after each passed task (keep remote current).
+   Do **not** run READY inside the per-task loop.
 6. **Fail** → FAIL → BACKPROP.
    No blind retry.
    Status stays `.`.
 
+## POST-LOOP (issue-linked only)
+
+After the last chosen row closes (single task, last of multi-id list, or last of `--all`):
+
+- operator-run `/sdd:build`: load-and-run github READY once (review-apply + push + `gh pr ready`; not slash-dispatch `/review` per recipe-step-no-dispatch invariant).
+  Post Acceptance-evidence comment once if ALLOW evidence collected.
+  Next: merge when approved — say "merge the PR" (auto-fires github MERGE).
+- post-spec-commit child (`POST-SPEC-CHILD=1`): github PUSH only if not already pushed; drop READY (parent runs review next; github-workflow invariant).
+
 ## FAIL → BACKPROP
 
-Post-spec-commit child (`POST-SPEC-CHILD=1`): child cannot prompt interactively or mutate SPEC.md; halt execution on fail, keep status `.`, emit failure report to parent session (parent surfaces failure to operator per write-serialize invariant).
+Post-spec-commit child (`POST-SPEC-CHILD=1`): child cannot prompt interactively or mutate SPEC.md; halt execution on fail, keep status `.`, emit failure report to parent session (class a/b/c when known).
+Parent surfaces failure: Next leads `/sdd:build` resume; when class b/c also `/sdd:spec <cause>` BACKPROP (write-serialize + backprop-protocol invariants).
 Otherwise (operator-run build):
 
 1. Read failure output.
@@ -101,7 +113,8 @@ Mid-loop spec dispatch = sole mandatory exclusion from operator-only dispatch (p
 ## CHAIN (default-on)
 
 Per `skills/_fragments/CHAIN.md`.
-After successful pass (single task or last of `--all`), unless `--no-chain`: same-turn `/sdd:check` cascade over just-closed §T.
+After successful pass (single task or last of multi-id/`--all`), unless `--no-chain` or `POST-SPEC-CHILD=1`: same-turn `/sdd:check` cascade over just-closed §T.
+Child never chains.
 
 ## WRITE POLICY
 
@@ -118,8 +131,8 @@ Emit Next item per fragment.
 
 Per `skills/_fragments/NEXT.md`.
 Pass (chain off) → check leads, then build --next.
-Issue-linked operator-run pass → merge when approved (github MERGE).
-Post-spec-commit child → drop READY (parent runs review next).
+Issue-linked operator-run pass → merge when approved (say "merge the PR"; github MERGE auto-fire).
+Post-spec-commit child → drop READY (parent runs review next); on fail include BACKPROP Next when class b/c.
 Backlog clear → `/sdd:spec` seed.
 
 ## NON-GOALS

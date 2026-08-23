@@ -278,6 +278,8 @@ ADVISORY = "ADVISORY"
 TOKEN_BUDGET = 20000       # token-budget invariant advisory threshold
 TOKEN_RATIO = 3.4          # bytes-per-token for telegraph register (token-budget invariant)
 ARCHIVE_CLOSED_T = 50      # closed-§T window-vs-archive split (token-budget; condense prong 3)
+# check-dispatch invariant — single source for skill §I + V47 arg set
+CHECK_DISPATCH_ARGS = frozenset({"", "--full", "--no-chain", "--full --no-chain"})
 OVERSIZE_CELL = 300        # history-residue oversized-cell advisory (chars)
 MEMO_SCHEMA = 3            # memo schema version (memo invariant)
 HISTORY_AGGREGATE_THRESHOLD = 10  # per-section body-row aggregation (drift-verdict-vocab invariant)
@@ -1510,11 +1512,11 @@ def audit_mechanize_block(skill_md):
 # --- shape-lifecycle post-approve audit --------------------------------------
 
 # Needles the shape skill body must carry (shape-lifecycle invariant):
-# post-approve ! `gh issue create` + class `--label` then stop; Next leads
-# `/sdd:spec github issue N`; `fold-shape` stays as optional exclusion.
+# post-approve ! hand-off to github ISSUE (github owns create + --label);
+# Next leads `/sdd:spec github issue N`; `fold-shape` stays as optional exclusion.
 SHAPE_POST_APPROVE_NEEDLES = (
-    ("gh issue create", "gh issue create"),
-    ("--label", "class --label"),
+    ("github ISSUE", "hand-off to github ISSUE"),
+    ("--label", "class --label hand-off"),
     ("github issue", "/sdd:spec github issue N Next"),
     ("fold-shape", "fold-shape optional exclusion"),
 )
@@ -1589,6 +1591,9 @@ GITHUB_PR_PER_ISSUE_NEEDLES = (
     ("No corresponding GitHub issue", "no corresponding GitHub issue"),
     ("no BRANCH, no PR", "no BRANCH, no PR without issue"),
     ("no `gh pr create`", "no gh pr create without issue"),
+    ("git switch", "CLOSE git switch before branch -D"),
+    ("fold-produced", "post-spec builds fold-produced §T ids"),
+    ("implies `--no-chain`", "POST-SPEC-CHILD implies --no-chain"),
 )
 # Leftover LINEAR / no-PR optional-track wording in the github skill body
 # (github-workflow invariant). Substring match; any hit → VIOLATE.
@@ -1626,6 +1631,16 @@ def classify_github_pr_per_issue(github_text):
             out.append(("github-workflow", "VIOLATE",
                         "github-workflow VIOLATE: skills/github/SKILL.md "
                         f"leftover {marker}"))
+    # CLOSE: git switch must precede git branch -D (closes §B.40)
+    close_m = re.search(r'(?m)^## CLOSE\b', github_text)
+    if close_m:
+        close_hay = _md_block_until_h2(github_text, close_m.start())
+        sw = close_hay.find("git switch")
+        bd = close_hay.find("git branch -D")
+        if sw < 0 or bd < 0 or sw > bd:
+            out.append(("github-workflow", "VIOLATE",
+                        "github-workflow VIOLATE: skills/github/SKILL.md "
+                        "CLOSE git switch must precede git branch -D"))
     return out
 
 
@@ -2239,7 +2254,8 @@ DISALLOWED_TOOLS_LINE = re.compile(r'^disallowed-tools:\s*(.*)$')
 GRANT_MISSING_REFERENCE = {
     "spawn_subagent": [(r'spawn_subagent|\bsub-agents?\b|\bsubagent\b', re.I)],
     "search_replace": [(r'search_replace|\brewrite\b', re.I)],
-    "write": [(r'\bwrite delta\b', re.I)],
+    "write": [(r'\bwrite (?:delta|the plan file)\b|\bpatch the plan file\b',
+                re.I)],
     "read_file": [(r'read_file|(?:^|\n)\s*(?:\d+\.\s+)?(?:Read|Load)\s+`',
                    re.I)],
 }
@@ -3904,10 +3920,10 @@ def selftest():
     check(validate_vocab([("mechanize", "DRIFT", "")]) == [],
           "mechanize: pseudo-id unrestricted vocab")
 
-    # shape-lifecycle post-approve: gh issue create + class --label + Next
-    # github issue N; fold-shape stays; github ISSUE accepts --label.
+    # shape-lifecycle post-approve: hand-off to github ISSUE + class --label
+    # + Next github issue N; fold-shape stays; github ISSUE accepts --label.
     sl_good = (
-        "post-approve: gh issue create --title t --body b --label enhancement\n"
+        "post-approve: hand title/body to github ISSUE; class --label\n"
         "Next: /sdd:spec github issue N\n"
         "fold-shape optional same-session exclusion\n"
     )
@@ -3918,20 +3934,20 @@ def selftest():
           "shape-lifecycle: github ISSUE --label present → clean")
     miss_cmd = classify_shape_post_approve(
         "Next: /sdd:spec github issue N\nfold-shape\n--label x\n")
-    check(any(v == "VIOLATE" and "gh issue create" in e
+    check(any(v == "VIOLATE" and "github ISSUE" in e
               for _, v, e in miss_cmd),
-          "shape-lifecycle: missing gh issue create → VIOLATE")
+          "shape-lifecycle: missing github ISSUE hand-off → VIOLATE")
     miss_label = classify_shape_post_approve(
-        "gh issue create\nNext: /sdd:spec github issue N\nfold-shape\n")
+        "github ISSUE\nNext: /sdd:spec github issue N\nfold-shape\n")
     check(any(v == "VIOLATE" and "--label" in e for _, v, e in miss_label),
           "shape-lifecycle: missing class --label → VIOLATE")
     miss_next = classify_shape_post_approve(
-        "gh issue create --label x\nfold-shape\n")
+        "github ISSUE --label x\nfold-shape\n")
     check(any(v == "VIOLATE" and "github issue" in e
               for _, v, e in miss_next),
           "shape-lifecycle: missing github issue Next → VIOLATE")
     miss_fold = classify_shape_post_approve(
-        "gh issue create --label x\nNext: /sdd:spec github issue N\n")
+        "github ISSUE --label x\nNext: /sdd:spec github issue N\n")
     check(any(v == "VIOLATE" and "fold-shape" in e for _, v, e in miss_fold),
           "shape-lifecycle: missing fold-shape exclusion → VIOLATE")
     check(classify_shape_post_approve("")[0][1] == "MISSING",
@@ -3964,6 +3980,11 @@ def selftest():
         "(`gh pr create`).\n"
         "Missing issue → bail: no `gh issue develop`, "
         "no `git checkout -b`, no `gh pr create`.\n"
+        "build fold-produced §T ids; spawn implies `--no-chain`\n"
+        "## CLOSE — unmerged\n"
+        "1. gh pr close\n"
+        "2. git switch <default-base>\n"
+        "3. git branch -D <branch>\n"
     )
     check(classify_github_pr_per_issue(gw_good) == [],
           "github-workflow: complete PR-per-issue recipe → clean")
@@ -4481,6 +4502,11 @@ def selftest():
     check(any(v == "VIOLATE" and "write" in e and "missing grant" in e
               for _, v, e in rows_miss_write),
           "classify_grants reverse: missing write → VIOLATE")
+    rows_miss_plan = classify_grants({"skills/shape/SKILL.md": _gk(
+        "grep", "write the plan file then grep")})
+    check(any(v == "VIOLATE" and "write" in e and "missing grant" in e
+              for _, v, e in rows_miss_plan),
+          "classify_grants reverse: missing write (plan file) → VIOLATE")
     # disallowed-tools skip reverse (documented denial is not a missing grant)
     dis_txt = ("---\nname: s\nallowed-tools: grep\n"
                "disallowed-tools: search_replace, write\n---\n\n"
@@ -4700,6 +4726,18 @@ def selftest():
           "token-budget: ARCHIVE_CLOSED_T == 50 (condense prong 3 source)")
     check(isinstance(ARCHIVE_CLOSED_T, int) and ARCHIVE_CLOSED_T > 0,
           "token-budget: ARCHIVE_CLOSED_T positive int")
+    check(CHECK_DISPATCH_ARGS == frozenset(
+              {"", "--full", "--no-chain", "--full --no-chain"}),
+          "check-dispatch: CHECK_DISPATCH_ARGS single-sources V47 arg set")
+    # CLOSE order: switch after branch -D → VIOLATE
+    gw_bad_close = gw_good.replace(
+        "2. git switch <default-base>\n"
+        "3. git branch -D <branch>\n",
+        "2. git branch -D <branch>\n"
+        "3. git switch <default-base>\n")
+    check(any(v == "VIOLATE" and "git switch must precede" in e
+              for _, v, e in classify_github_pr_per_issue(gw_bad_close)),
+          "github-workflow: CLOSE branch -D before git switch → VIOLATE")
 
     # emit-archive-window: skip under threshold; archive older / keep newest over
     # (token-budget + archive-semantics + mechanical-realization)
@@ -4887,7 +4925,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 348
+    return 351
 
 
 # --- entry -------------------------------------------------------------------

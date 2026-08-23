@@ -12,7 +12,7 @@ when-to-use: |
 argument-hint: "<topic>"
 metadata:
   short-description: "Plan-mode structural shape; post-approve GitHub issue then stop"
-allowed-tools: ask_user_question, read_file, grep, enter_plan_mode, exit_plan_mode, run_terminal_command(gh *)
+allowed-tools: ask_user_question, read_file, grep, enter_plan_mode, exit_plan_mode
 ---
 
 # shape — propose-then-critique via Grok Plan mode
@@ -32,10 +32,10 @@ Bundled Grok `/design` is a different skill — never treat bare "design …" as
 Primary working artifact = Grok session **plan file** (`plan.md` under the session directory).
 
 1. Call `enter_plan_mode` at start (user must approve plan mode).
-2. Write / patch the shape proposal **only** into the plan file (plan mode allows that path; other writes fail).
+2. Write / patch the shape proposal **only** into the plan file — plan mode owns that path (harness write; no skill `write` grant); other writes fail.
 3. Iterate Open Questions until empty.
 4. Call `exit_plan_mode` to present the plan for approval.
-5. On approve → open GitHub issue (steno plan body; `## Acceptance` from Success criterion; class label) then stop — see POST-APPROVE.
+5. On approve → hand issue payload to github ISSUE then stop — see POST-APPROVE.
 6. No default write to `designs/<slug>.md`.
    Optional durable export only if operator asks (`--export designs/<slug>.md` after approval, outside plan mode).
 
@@ -130,18 +130,17 @@ Park → `## Unresolved` in plan.
 
 ## POST-APPROVE
 
-On plan approve (after `exit_plan_mode`): github ISSUE auto-fires.
-This skill adds the class label then stops.
+On plan approve (after `exit_plan_mode`): hand off to github ISSUE (auto-fire); github owns `gh label create` and `gh issue create`.
+This skill stops after the hand-off.
 
 1. Title = plan `# <title>`.
 2. Body = steno plan (Problem + Proposal + Design decisions).
    `## Acceptance` checklist (`- [ ]`) from Success criterion (each sentence or bullet → one open item).
    Empty Success criterion → one `- [ ]` bullet from the plan title.
 3. Label = `## Class` when in {enhancement, bug, documentation}; missing or other → enhancement.
-4. Missing label in cwd repo → `gh label create <class>` then retry.
-5. `gh issue create --title "<title>" --body <steno> --label <class>` against cwd (no `--repo` slug).
-6. Parse issue N from printed URL (`.../issues/N`).
-7. Stop — never fold SPEC.md this run.
+4. Hand title, steno body, `## Acceptance` bullets, and class to github ISSUE (auto-fire); github owns `gh label create` and `gh issue create --label`.
+5. Read issue N back from the printed URL (`.../issues/N`).
+6. Stop — never fold SPEC.md this run.
 
 Next leads issue URL + `/sdd:spec github issue N`.
 `/sdd:spec fold-shape` = optional same-session exclusion (retains issue N linkage).

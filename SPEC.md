@@ -16,9 +16,9 @@ LLM writes code faster than humans read → standards + logic drift unchecked; c
 
 external surface — what operator + consuming repo see.
 
-- shape: `/sdd:shape <topic>` → Grok Plan mode propose-critique → approved plan → GitHub issue + class label + stop; later fold via `/sdd:spec github issue N` or same-session `/sdd:spec fold-shape` (preserves issue N linkage; not bundled `/design`; no default `designs/` write)
-- spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit; fold-shape + micro-AMEND paths; `github issue N` folds issue → §V/§T then github BRANCH + `gh pr create --draft` (no close trailer); then github post-spec-commit chain (build `--all` child, bundled `review` sub-agent, READY remainder; no operator wait); non-issue path: no BRANCH, no PR (work stays current branch)
-- build: `/sdd:build [§T.n|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path chain default-on → check; issue-linked pass → github PUSH + review-apply + `gh pr ready` once per run not per task (§T.105); post-spec-commit child: write-capable, PUSH only when `POST-SPEC-CHILD=1` (fails halt to parent; parent runs review on pass; child builds fold-produced §T ids only §T.106); task build verifies task-scoped acceptance; full acceptance gate verifies @ MERGE only (not @ PR ready; §B.58/§T.119 sync V69 + ACCEPTANCE-GATE)
+- shape: `/sdd:shape <topic>` → Grok Plan mode propose-critique → approved plan → hand title/body/Acceptance/class to github ISSUE + stop; later fold via `/sdd:spec github issue N` or same-session `/sdd:spec fold-shape` (preserves issue N linkage; not bundled `/design`; no default `designs/` write)
+- spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit; fold-shape + micro-AMEND paths; `github issue N` / fold-shape+issue N → BRANCH (clean) then write then commit then draft PR; post-spec chain builds fold-produced §T ids then review then READY; non-issue path: no BRANCH, no PR
+- build: `/sdd:build [§T.n|§T.a,§T.b,…|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path one hop per operator turn → check; issue-linked → PUSH per task, READY once post-loop; post-spec child (`POST-SPEC-CHILD=1`): fold-produced §T ids, implies `--no-chain`, PUSH only; task-scoped acceptance @ build; full acceptance @ MERGE only
 - check: `/sdd:check [--full|--no-chain]` → thin recipe + script; read-only REPORT + Next; clean chain → build --next
 - explain: `/sdd:explain [§-cite|--next]` → prose expansion w/ cited siblings, zero writes
 - condense: `/sdd:condense` → six-prong token sweep, single atomic commit
@@ -155,26 +155,26 @@ T100|x|patch monitor + MECHANIZE: route consumer candidate via spec skill|V65,V6
 T101|x|patch build + github: post-spec child failure reports to parent without mid-loop prompt|V21,V69
 T102|x|patch shape + spec: fold-shape retains created issue number for branch + PR linkage|V31,V69
 T103|x|patch reorganize: renumber sweep updates .spec/check-extras.md headings and prefixes|V49,V12
-T104|.|github CLOSE: `git switch <default-base>` before `git branch -D`; script needle asserts order|V69,V40,B40
-T105|.|build: issue-linked READY fires once post-loop (single task or last `--all` row), not per task; per-task PUSH only|V69,V22,B42
-T106|.|build+github: `POST-SPEC-CHILD=1` implies `--no-chain`; child builds fold-produced §T ids only (not whole backlog)|V69,V21,V22,B48,B49
-T107|.|amend V47: check arg set admits `--no-chain` (+ `--full --no-chain`); script constant single-sources arg set|V47,V40,B43
-T108|.|CHAIN+README: one hop per operator turn; hopped recipe never hops again|V22,V24,B44
-T109|.|Next contract: merge dispatch route for issue-linked pause (trigger phrasing or thin surface)|V24,V69,B41
-T110|.|spec: precondition covers resolved body file; branch before delta write on github fold|V20,V69,B50,B51
-T111|.|condense: prong 6 consumes post-fold weights; atomicity non-goal reworded (confirmed set, one commit)|V48,V40,B45,B46
-T112|.|shape: hand issue creation to github; drop gh grant; resolve plan-file write grant|V72,V62,V31,B53,B54
-T113|.|script: widen missing-grant `write` pattern + shape fixture self-test|V62,V40,B54
-T114|.|ACCEPTANCE-GATE: one evidence comment per issue-linked run (post @ READY not per task)|V69,B52
-T115|.|github: `<issue>` vs `<pr>` placeholders throughout (never dual `<n>`)|V69,B55
-T116|.|monitor: drop stale five-member roster line (cite sub-skill-flags invariant)|V61,B47
-T117|.|build+explain: emit modes replace whole-file SPEC.md read, or explain exemption in V64|V64,B56
-T118|.|reorganize CONFIRM: subset restarts the gate pass (no mid-pass re-prompt)|V23,B57
-T119|.|amend V69+§I.build+ACCEPTANCE-GATE: full accept MERGE-only; drop PR-ready full-gate claim (align T99)|V69,B58
-T120|.|amend V25: drop FOLD-IN from socratic mode set; name dispatch shortcut|V25,B59
-T121|.|check description: never invokes remedies except green-path chain|V22,V76,B60
-T122|.|spec POST-APPLY: fold-shape+issue N same chain ownership + Next as FOLD-IN github issue|V31,V69,V22,B61
-T123|.|github+build child-fail: parent Next may `/sdd:spec` BACKPROP when class b/c (not build-only)|V21,V27,V69,B62
+T104|x|github CLOSE: `git switch <default-base>` before `git branch -D`; script needle asserts order|V69,V40,B40
+T105|x|build: issue-linked READY fires once post-loop (single task or last `--all` row), not per task; per-task PUSH only|V69,V22,B42
+T106|x|build+github: `POST-SPEC-CHILD=1` implies `--no-chain`; child builds fold-produced §T ids only (not whole backlog)|V69,V21,V22,B48,B49
+T107|x|amend V47: check arg set admits `--no-chain` (+ `--full --no-chain`); script constant single-sources arg set|V47,V40,B43
+T108|x|CHAIN+README: one hop per operator turn; hopped recipe never hops again|V22,V24,B44
+T109|x|Next contract: merge dispatch route for issue-linked pause (trigger phrasing or thin surface)|V24,V69,B41
+T110|x|spec: precondition covers resolved body file; branch before delta write on github fold|V20,V69,B50,B51
+T111|x|condense: prong 6 consumes post-fold weights; atomicity non-goal reworded (confirmed set, one commit)|V48,V40,B45,B46
+T112|x|shape: hand issue creation to github; drop gh grant; resolve plan-file write grant|V72,V62,V31,B53,B54
+T113|x|script: widen missing-grant `write` pattern + shape fixture self-test|V62,V40,B54
+T114|x|ACCEPTANCE-GATE: one evidence comment per issue-linked run (post @ READY not per task)|V69,B52
+T115|x|github: `<issue>` vs `<pr>` placeholders throughout (never dual `<n>`)|V69,B55
+T116|x|monitor: drop stale five-member roster line (cite sub-skill-flags invariant)|V61,B47
+T117|x|build+explain: emit modes replace whole-file SPEC.md read, or explain exemption in V64|V64,B56
+T118|x|reorganize CONFIRM: subset restarts the gate pass (no mid-pass re-prompt)|V23,B57
+T119|x|amend V69+§I.build+ACCEPTANCE-GATE: full accept MERGE-only; drop PR-ready full-gate claim (align T99)|V69,B58
+T120|x|amend V25: drop FOLD-IN from socratic mode set; name dispatch shortcut|V25,B59
+T121|x|check description: never invokes remedies except green-path chain|V22,V76,B60
+T122|x|spec POST-APPLY: fold-shape+issue N same chain ownership + Next as FOLD-IN github issue|V31,V69,V22,B61
+T123|x|github+build child-fail: parent Next may `/sdd:spec` BACKPROP when class b/c (not build-only)|V21,V27,V69,B62
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)

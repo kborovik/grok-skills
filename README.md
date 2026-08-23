@@ -230,7 +230,9 @@ EXECUTE serializes on main thread; PLAN reads may delegate to sub-agents.
 - `--no-chain` — skip the default same-turn hop into `/sdd:check` after a green pass
 - (empty) — same as `--next`
 
-**Green-path chain (default on):** after a successful close, the run continues into `/sdd:check` on the just-closed task in the same turn unless you passed `--no-chain`.
+**Green-path chain (default on):** one hop per operator turn.
+After a successful close, the run continues into `/sdd:check` on the just-closed task in the same turn unless you passed `--no-chain`.
+A recipe reached by a hop never hops again.
 
 **Issue-linked close:** when the task or commit will close a GitHub issue, verify also runs the Acceptance gate (see Issue-linked PR above) before any close trailer lands.
 
@@ -257,7 +259,8 @@ Always audits §V + §I + §T together.
 
 Output groups violations by severity and suggests a remedy — usually `/sdd:explain`, `/sdd:spec <intent>`, or `/sdd:build`.
 On a dirty report it never auto-remedies.
-On a clean report with pending work it chains into build by default (solo-operator default).
+On a clean report with pending work it hops once into build by default (solo-operator default).
+That build does not hop again in the same operator turn.
 
 ### `/sdd:explain` — telegraph to prose
 

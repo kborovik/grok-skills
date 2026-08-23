@@ -13,7 +13,7 @@ user-invocable: false
 
 # monitor — skill-deviation capture → plugin-repo issue
 
-Auto-fire sub-skill, 5th member of the sub-skill-flags family (telegraph, backprop, socratic, steno, monitor).
+Auto-fire sub-skill per the sub-skill-flags invariant (`user-invocable: false`, never `disable-model-invocation`).
 No hook — the skills-only invariant bans runtime interception; monitor = LLM self-report, not a wrapper.
 Ships PUBLISHED to every consumer → every plugin user is a data source.
 

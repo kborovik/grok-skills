@@ -22,7 +22,8 @@ allowed-tools: ask_user_question, read_file, search_replace, write, grep, run_te
 
 ## DISPATCH
 
-**Step 0 (precondition):** `git status --porcelain SPEC.md` empty → continue; else bail w/ "SPEC.md has uncommitted changes; commit or stash first" (auto-commit assumes clean baseline; porcelain catches staged + untracked, which `git diff --quiet` misses).
+**Step 0a (precondition):** `git status --porcelain SPEC.md` empty → continue; else bail w/ "SPEC.md has uncommitted changes; commit or stash first" (auto-commit assumes clean baseline; porcelain catches staged + untracked, which `git diff --quiet` misses).
+**Step 0b (post-resolution, AMEND only):** after AMEND resolves body file, if body file is not SPEC.md → `git status --porcelain <body-file>` empty → continue; else bail w/ "<body-file> has uncommitted changes; commit or stash first" (stub-redirected §V write must not leak into path-scoped commit).
 
 **Step 1 (fold-in shortcut):** any of:
 - `$ARGUMENTS` matches `mechanization-candidate <pattern>` / free-form candidate report → engage `sdd:monitor` dispatched mechanization-candidate path; stop.
@@ -151,14 +152,16 @@ Ordered:
 
 → APPLY show-user (step 3).
 
-**After OK** (github-workflow invariant; spec-owned prefix):
+**After OK** (github-workflow invariant; spec-owned prefix; sole order for branch + write):
 
-1. github BRANCH — `gh issue develop <N> --checkout` (in-place, one branch per session).
-2. SPEC.md commit on that branch (APPLY step 4; spec commit first on PR).
-3. github PR — `gh pr create --draft` (generic structure; steno body per github-facing-register invariant; no close trailer @ create; no review-at-create).
+1. github BRANCH — `gh issue develop <N> --checkout` (in-place, one branch per session; clean tree; delta not yet written).
+2. Write delta to the resolved body file(s) (telegraph).
+3. Path-scoped SPEC.md commit on that branch (spec commit first on PR; no close trailer).
+4. github PR — `gh pr create --draft` (generic structure; steno body per github-facing-register invariant; no close trailer @ create; no review-at-create).
 
 Stops at draft PR.
-github PR recipe owns post-spec-commit chain once (github-workflow invariant): `/sdd:build --all` write-capable sub-agent then bundled `review` sub-agent then READY remainder; no operator wait.
+Record fold-produced §T ids from this APPLY (new/pending rows the fold added).
+github PR recipe owns post-spec-commit chain once (github-workflow invariant): write-capable `/sdd:build §T.<a>,§T.<b>,…` on those fold ids (not whole backlog; `POST-SPEC-CHILD=1` implies `--no-chain`) then bundled `review` sub-agent then READY remainder; no operator wait.
 
 ## APPLY (all modes, post-delta)
 
@@ -190,7 +193,7 @@ Table uses named-invariant + placeholder cite form only (`per <named> invariant`
 **Step 3 — show-user**: render diff preview; await user OK.
 
 **Step 4 — write + commit**: on OK → write delta to its resolved body file(s) (telegraph) + auto-commit path-scoped `git commit -m <subject> [-m <body>] -- <body-file(s)>` (write-ownership invariant — scopes to the owned file set, pre-staged files never leak).
-github-issue fold: after OK, github BRANCH (`gh issue develop <N> --checkout`) then this SPEC.md commit on that branch then `gh pr create --draft` (spec commit first on PR; no close trailer @ create; no review-at-create).
+github-issue fold (and fold-shape with issue N): after OK follow **After OK** order only (BRANCH → write delta → path-scoped commit → draft PR); do not write delta before BRANCH.
 Stops at draft PR.
 Non-github-issue APPLY: no github BRANCH, no github PR (work stays on current branch).
 Body file(s) = SPEC.md every mode + target, except a stub-redirected §V AMEND → `.spec/check-extras.md` per AMEND § resolution + extras-hook invariant (the SPEC.md stub row stays untouched, so check-extras.md is the sole path-scope; mixed delta touching both an inline §V/other § and a stub-redirected §V → path list = the union). `-m` flags ! precede `--` — message tokens after `--` parse as pathspecs, commit fails; no commit prompt (uniform every mode).
@@ -292,7 +295,7 @@ Default: surface `/sdd:check` as Next item #1 (cascade over just-applied delta).
 Exceptions:
 - **BACKPROP** → item #1 = concrete `/sdd:build §T.<n>` (resume card); item #2 = `/sdd:check`.
 - **DISTILL** → item #1 = `/sdd:check`; item #2 = `/sdd:spec` confirm `?`-flagged rows.
-- **FOLD-IN github issue** → github PR recipe owns post-spec-commit chain once (`/sdd:build --all` then `review` then READY remainder); Next merge when approved.
+- **FOLD-IN github issue** and **fold-shape with issue N** → github PR recipe owns post-spec-commit chain once (`/sdd:build` on fold-produced §T ids then `review` then READY remainder); Next merge when approved — say "merge the PR".
 - Green-path: not default-chained from spec (operator or explicit Next).
 
 Not silent commit-then-done.
@@ -311,11 +314,11 @@ Emit Next item per fragment.
 
 Per `skills/_fragments/NEXT.md`.
 Show-user → apply + revise lead.
-Post-commit → POST-APPLY leads (BACKPROP concrete build; DISTILL check + confirm-?; FOLD-IN github issue merge when approved; else check then build).
+Post-commit → POST-APPLY leads (BACKPROP concrete build; DISTILL check + confirm-?; FOLD-IN github issue or fold-shape+issue N merge when approved — say "merge the PR"; else check then build).
 
 ## NON-GOALS
 
 - Writes serialize on main thread; reads delegable to sub-agents; exclusion: github post-spec-commit `/sdd:build --all` child write-capable; bundled `review` sub-agent scratch writes only, no repo edits; spawn omits capability_mode read-only (github-workflow invariant).
 - No dashboards.
   Cache files (`.spec/backprop-handoff.json`, check memo) are not design truth.
-- No auto-build after non-BACKPROP spec except github PR recipe post-spec-commit chain (github-workflow invariant).
+- No auto-build after non-BACKPROP spec except github PR recipe post-spec-commit chain on fold-produced §T ids (github-workflow invariant).

@@ -23,7 +23,7 @@ Zero writes.
 
 ## LOAD
 
-1. Read `SPEC.md`.
+1. Read `SPEC.md` (whole-file allowed — explain exemption from single-load invariant for cited-sibling expansion; no script emit covers cross-section prose).
    Missing → "no spec, nothing to explain."
    Bail.
 2. Parse `$ARGUMENTS`:

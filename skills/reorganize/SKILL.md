@@ -94,13 +94,13 @@ Not CONFIRM, not EXECUTE.
 
 ## CONFIRM
 
-ask_user_question per decision-gate invariant — single bulk-confirm covers renumber + sweep (mid-flow re-prompt not allowed per atomic-operation discipline):
+ask_user_question per decision-gate invariant — single bulk-confirm per gate pass (no prompt inside an in-flight pass):
 
 - **question**: `Reorganize SPEC.md: <m> clusters, <k> id renumbers, <a> archive-retired rows, cite-DAG sweep over <s> sites. Apply?`
 - **header**: `Reorganize gate`
 - **options** (3, mutually exclusive):
   - `apply renumber + cite-DAG sweep + archive-retired` → EXECUTE w/ full map + flagged set.
-  - `subset` → operator-typed cluster list or `skip archive-retired` keyword (retains flagged rows in active §V this run); re-render PROPOSE w/ filter, re-emit CONFIRM.
+  - `subset` → ends this gate pass; operator-typed cluster list or `skip archive-retired` keyword (retains flagged rows in active §V this run); restart PROPOSE with filter then CONFIRM (new pass).
   - `cancel` → stop, no mutation.
 
 ## EXECUTE

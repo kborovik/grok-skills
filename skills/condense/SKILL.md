@@ -51,7 +51,7 @@ Fold pattern-mirrored sibling §V rows into target row inline.
 Seed = `## fold-seeds` table (`cluster_members|co_citers`) — connected components of live §V rows sharing a citer (§T `cites` or §B `fix` naming ≥ 2 live §V rows).
 Seed advisory not auto-apply: co-citation is candidacy signal not proof; operator confirms each fold @ CONFIRM (LLM judges topic coherence).
 Augment seed w/ topic-keyword overlap (shared scope tokens / procedure refs / verb pattern) where co-citation thin.
-Fires first — fold reshapes later prongs (prong 6 inherits folded shape).
+Fires first — fold reshapes later prongs (prong 6 re-runs weights after fold when this prong fires).
 
 ### Prong 2 — SUPERSEDED §T inline marker
 
@@ -98,6 +98,7 @@ Verbatim-preservation holds: code, paths, URLs, identifiers, numbers, versions, 
 ### Prong 6 — §V audit-recipe extraction
 
 Heavy set = `## v-weights` table (`v_row|bytes|tokens|cum_pct|heavy`), heaviest first.
+Prong 1 fired → re-run `python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py emit-v-weights` post-fold and consume that table; else consume the `## v-weights` table from PROPOSE.
 Consume stub-skip from table: extract `heavy=yes` only; `heavy=no` (already-stubbed `→ .spec/check-extras.md §V<n>` rows) → no re-extract.
 Not by inspection.
 Not a second stub-detect pass — the table owns stub-skip.
@@ -147,5 +148,5 @@ CONFIRM subset → Next-block unchanged.
 ## NON-GOALS
 
 - not auto-fire — /sdd:check emits advisory; operator invokes /sdd:condense next turn.
-- not partial commit — every firing prong applies or none.
+- not partial commit — the confirmed prong set applies in one commit or not at all; CONFIRM may narrow that set (force-skip, subset), never split the commit.
 - not retune thresholds (`TOKEN_BUDGET` 20k-token advisory, `ARCHIVE_CLOSED_T` closed-§T archive trigger) in this skill body — canonical values live in the token-budget invariant row (SPEC.md) w/ mechanical mirrors in `check-mechanical.py` constants; retune via /sdd:spec AMEND + sync the script constant same commit.

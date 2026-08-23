@@ -2,6 +2,7 @@
 
 Default-on for solo operators per recipe-step-no-dispatch invariant.
 Operator may pass `--no-chain` on build or check to disable for that run.
+`POST-SPEC-CHILD=1` implies `--no-chain` — the post-spec build child never hops.
 
 ## Edges (same turn, high confidence only)
 
@@ -14,7 +15,9 @@ Operator may pass `--no-chain` on build or check to disable for that run.
 
 ## Rules
 
-- Chain is not an orchestrator: at most one hop after the primary recipe completes.
-- `--all` build: chain check once after the last closed row in the chain, not after every row.
+- One hop per operator turn: the recipe the operator dispatched may hop once; a recipe reached by a hop never hops again.
+  Concretely: operator build pass hops to check and stops there; operator check clean hops to build --next and stops there.
+- `--all` / multi-id build: chain check once after the last closed row, not after every row.
 - `--no-chain` wins over default-on.
+- `POST-SPEC-CHILD=1` never hops (implies `--no-chain`).
 - Backprop handoff after build FAIL still mid-loop; after BACKPROP APPLY, prefer concrete `/sdd:build §T.n` (resume card).

@@ -3,7 +3,7 @@ name: check
 description: |
   Read-only drift detector. Diffs SPEC.md vs current code, reports violations
   grouped by severity. Writes nothing — suggests remedies via spec or build
-  skills, never invokes them.
+  skills; never invokes them except green-path chain (clean → build --next).
 when-to-use: |
   Use when asked to check drift, audit the spec, verify invariants, or run
   /sdd:check. Phrasings: "check drift", "audit the spec", "check invariants",
@@ -34,8 +34,7 @@ Per `skills/_fragments/PROGRESS.md` — todo_write one task per phase; status `i
 1. `python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py emit-overview`
    Non-zero / no SPEC.md → "no spec, nothing to check."
    Stop.
-2. Args (check-dispatch invariant): bare = memo-driven default; `--full` = drop memo, re-classify all; other → bail.
-   `--no-chain` disables green-path chain after clean report.
+2. Args (check-dispatch invariant): bare = memo-driven default; `--full` = drop memo, re-classify all; `--no-chain` = suppress green-path hop; `--full --no-chain` both; other → bail.
 3. `python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py audit [--full]`
    Consume scope-feed + batch advisory rows machine-side (never surface in advisory prose).
 4. §V bodies: `emit-v-slices [--dirty V…]` — resolves check-extras stubs; never whole-file SPEC.md Read (single-load invariant).
