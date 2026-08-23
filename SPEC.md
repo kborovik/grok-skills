@@ -9,7 +9,7 @@ LLM writes code faster than humans read → standards + logic drift unchecked; c
 - installable Grok skills plugin; root-source plugin `sdd` (`.grok-plugin/plugin.json`, optional `.grok-plugin/marketplace.json` source `./`)
 - skills-only: every surface = `skills/<name>/SKILL.md`; no commands/ tree, no hooks
 - `scripts/check-mechanical.py` single-file, stdlib-only python3
-- no orchestrator, no swarm: main Grok agent executes; sub-agents read-only; exclusion: github post-spec-commit `/sdd:build --all` child write-capable; bundled `review` sub-agent scratch writes only (github-workflow invariant)
+- no orchestrator, no swarm: main Grok agent executes; sub-agents read-only; exclusion: github post-spec-commit `/sdd:build` child on fold-produced §T ids write-capable; bundled `review` sub-agent scratch writes only (github-workflow invariant)
 - no state beyond SPEC.md + git + REPO-LOCAL `.spec/` cache
 
 ## §I INTERFACES
