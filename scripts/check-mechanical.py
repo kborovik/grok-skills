@@ -165,12 +165,16 @@ Modes:
                 operator confirms each fold at the condense CONFIRM gate (never
                 auto-applied) per the fold-first-authoring invariant.
   emit-v-weights — read SPEC.md, print the condenser's prong-6 per-§V-row
-                byte/token weight ranking plus the heavy-row set (top rows whose
-                cumulative weight first reaches ≥ 50% of the §V section; stable
-                tie-break descending weight then ascending id so run-stable).
-                Prints a `v_row|bytes|tokens|cum_pct|heavy` table sorted heaviest
+                byte/token weight ranking plus the heavy-row set (top non-stub
+                rows whose cumulative weight first reaches ≥ 50% of the
+                non-stub §V section; stable tie-break descending weight then
+                ascending id so run-stable). Already-stubbed rows
+                (`→ .spec/check-extras.md §Vn`) are never heavy (stub =
+                extraction-complete; re-extract no-op). Prints a
+                `v_row|bytes|tokens|cum_pct|heavy` table sorted heaviest
                 first — the condenser extracts the heavy rows' audit recipes
-                without a by-inspection guess.
+                without a by-inspection guess. All-stub fixture → empty
+                heavy set.
   emit-row-ids — read SPEC.md, print the canonical live id-set skeleton: every
                 live §V + §I + §T id as a verdict-table row. Default is blank
                 verdict and evidence (`id||`). With --from-audit, pre-fill from
@@ -687,27 +691,39 @@ def emit_v_weights(v_rows):
     """Prong-6 per-§V-row weight ranking (token-budget-condense invariant): byte
     weight is utf-8 length of the full row line, token weight is byte/TOKEN_RATIO
     per the token-budget invariant. Ranks rows descending weight, tie-break
-    ascending id so run-stable; the heavy set is the prefix whose cumulative weight
-    first reaches ≥ 50% of the §V-section total. Returns (ranked, total_bytes)
-    where each ranked entry is {id, bytes, tokens, cum_pct, heavy}. The condenser
-    extracts heavy rows' audit recipes without a by-inspection guess."""
+    ascending id so run-stable; the heavy set is the prefix of non-stub rows
+    whose cumulative weight first reaches ≥ 50% of the non-stub §V-section
+    total. Already-stubbed rows (`→ .spec/check-extras.md §Vn`) are never
+    heavy (stub = extraction-complete; re-extract no-op). Returns
+    (ranked, total_bytes) where each ranked entry is {id, bytes, tokens,
+    cum_pct, heavy}. The condenser extracts heavy rows' audit recipes
+    without a by-inspection guess."""
     weights = []
     for r in v_rows:
-        b = len(r["full"].encode("utf-8"))
-        weights.append({"id": r["id"], "bytes": b, "tokens": int(b / TOKEN_RATIO)})
-    total = sum(w["bytes"] for w in weights)
+        full = r["full"]
+        b = len(full.encode("utf-8"))
+        weights.append({"id": r["id"], "bytes": b,
+                        "tokens": int(b / TOKEN_RATIO),
+                        "stub": bool(V_STUB_RE.search(full))})
     ranked = sorted(weights, key=lambda w: (-w["bytes"], int(w["id"][1:])))
-    half = total / 2
+    total = sum(w["bytes"] for w in ranked)
+    live_total = sum(w["bytes"] for w in ranked if not w["stub"])
+    half = live_total / 2
     cum = 0
+    live_cum = 0
     heavy_done = False
     for w in ranked:
         cum += w["bytes"]
         w["cum_pct"] = round(100 * cum / total, 1) if total else 0.0
-        if heavy_done:
+        if w["stub"]:
+            w["heavy"] = False
+            continue
+        if heavy_done or live_total == 0:
             w["heavy"] = False
         else:
+            live_cum += w["bytes"]
             w["heavy"] = True
-            if cum >= half:
+            if live_cum >= half:
                 heavy_done = True
     return ranked, total
 
@@ -3575,6 +3591,29 @@ def selftest():
     tied, _ = emit_v_weights(tv)
     check([w["id"] for w in tied] == [f"V{1}", f"V{2}"],
           "v-weights: tie-break ascending id")
+    # stub rows never heavy; all-stub fixture → empty heavy set
+    # (token-budget invariant; stub = extraction-complete).
+    stub_full = (
+        f"V{{n}}: name — → `.spec/check-extras.md §V{{n}}`"
+    )
+    sv = [{"id": f"V{n}", "body": "", "line": n,
+           "full": stub_full.format(n=n)} for n in (1, 2, 3)]
+    stub_ranked, _ = emit_v_weights(sv)
+    check([w["id"] for w in stub_ranked if w["heavy"]] == [],
+          "v-weights: all-stub fixture → empty heavy set")
+    check(all(not w["heavy"] for w in stub_ranked),
+          "v-weights: stub rows not heavy")
+    mixed = [
+        {"id": f"V{1}", "body": "", "line": 1,
+         "full": stub_full.format(n=1) + "x" * 90},
+        {"id": f"V{2}", "body": "", "line": 2,
+         "full": "V" + "2: " + "y" * 40},
+    ]
+    mixed_ranked, _ = emit_v_weights(mixed)
+    check(all(not w["heavy"] for w in mixed_ranked if w["id"] == f"V{1}"),
+          "v-weights: stub row not heavy even when longest")
+    check([w["id"] for w in mixed_ranked if w["heavy"]] == [f"V{2}"],
+          "v-weights: remaining inline row still heavy")
 
     # emit-row-ids: §I ids from kind prefixes; skeleton is §V+§I+§T in order
     isec = ("## §I INTERFACES\n"
@@ -4681,7 +4720,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 331
+    return 335
 
 
 # --- entry -------------------------------------------------------------------
