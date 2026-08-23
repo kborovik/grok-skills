@@ -151,7 +151,7 @@ T80|x|build skill: post-spec-commit child write-capable; drop READY on that chil
 T81|x|README Issue-linked PR: spec commit + draft PR then auto-build sub-agent then auto-review sub-agent|V69,V2
 T82|x|spec+github: post-spec-commit chain runs once; owner = github PR three-step list; spec After OK stops at draft PR|V69,B32,B33,I.spec
 T83|x|V21+§C: post-spec review sub-agent scratch-write exclusion; spawn omits capability_mode read-only|V21,B34
-T84|.|build skill: `POST-SPEC-CHILD=1` discriminator in LOAD; token set → PUSH only, drop READY|V69,V21,B35
+T84|x|build skill: `POST-SPEC-CHILD=1` discriminator in LOAD; token set → PUSH only, drop READY|V69,V21,B35
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)

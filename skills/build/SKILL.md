@@ -31,6 +31,7 @@ Exclusion: github post-spec-commit `/sdd:build --all` child write-capable (write
    - `--all` → every `.` row in §T order — plan once, then chain {edit → verify → commit} per row
    - `--no-chain` → disable green-path check hop after pass
 3. If `.spec/backprop-handoff.json` exists → treat as resume card (see FAIL → BACKPROP); prefer its `T` id when args empty/`--next`.
+4. If prompt or env token `POST-SPEC-CHILD=1` set → this run is the github post-spec-commit child: write-capable; issue-linked pass = github PUSH only; drop READY (parent runs review next; github-workflow invariant).
 
 ## PLAN
 
@@ -76,7 +77,7 @@ Per task in order:
    Issue-linked (open PR from `/sdd:spec github issue N`):
    - operator-run `/sdd:build`: github PUSH then load-and-run review-apply + push + `gh pr ready` (github READY; not slash-dispatch `/review` per recipe-step-no-dispatch invariant).
      Next merge when approved.
-   - post-spec-commit child: write-capable; github PUSH only; drop READY (parent runs review next; github-workflow invariant).
+   - post-spec-commit child (`POST-SPEC-CHILD=1`): write-capable; github PUSH only; drop READY (parent runs review next; github-workflow invariant).
 6. **Fail** → FAIL → BACKPROP.
    No blind retry.
    Status stays `.`.

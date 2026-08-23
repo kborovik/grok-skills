@@ -59,6 +59,9 @@ Modes:
                 invariant's post-spec review spawn: `skills/github/SKILL.md`
                 requires `scratch writes` and
                 `omits capability_mode read-only` (closes §B.34).
+                Emits `github-workflow|VIOLATE|…` for missing
+                `POST-SPEC-CHILD=1` in `skills/build/SKILL.md` LOAD or
+                `skills/github/SKILL.md` spawn prompt (closes §B.35).
                 Emits `linear-no-pr|VIOLATE|…` — leftover LINEAR-no-PR
                 wording (`LINEAR|solo linear|no PR required`) on skill
                 bodies, fragments, README, AGENTS.md (not SPEC.md — the
@@ -1777,6 +1780,61 @@ def audit_review_scratch_write(repo_root):
     return classify_review_scratch_write(github_text)
 
 
+# --- github-workflow POST-SPEC-CHILD discriminator (closes §B.35) ------------
+
+# Needles the post-spec build child must carry (github-workflow +
+# write-serialize): spawn prompt sets `POST-SPEC-CHILD=1`; build LOAD
+# treats that token as the child discriminator → PUSH only, drop READY.
+POST_SPEC_CHILD_TOKEN = "POST-SPEC-CHILD=1"
+
+
+def classify_post_spec_child(build_text, github_text):
+    """POST-SPEC-CHILD=1 discriminator contract — pure, unit-testable
+    without the filesystem (github-workflow + write-serialize; closes
+    §B.35). `build_text` is `skills/build/SKILL.md`; `github_text` is
+    `skills/github/SKILL.md`. Empty/unreadable file → MISSING. Token
+    absent from either body → VIOLATE."""
+    out = []
+    if not build_text:
+        out.append(("github-workflow", "MISSING",
+                    "github-workflow MISSING: skills/build/SKILL.md "
+                    "unreadable"))
+    elif POST_SPEC_CHILD_TOKEN not in build_text:
+        out.append(("github-workflow", "VIOLATE",
+                    "github-workflow VIOLATE: skills/build/SKILL.md "
+                    "missing POST-SPEC-CHILD=1"))
+    if not github_text:
+        out.append(("github-workflow", "MISSING",
+                    "github-workflow MISSING: skills/github/SKILL.md "
+                    "unreadable"))
+    elif POST_SPEC_CHILD_TOKEN not in github_text:
+        out.append(("github-workflow", "VIOLATE",
+                    "github-workflow VIOLATE: skills/github/SKILL.md "
+                    "missing POST-SPEC-CHILD=1"))
+    return out
+
+
+def audit_post_spec_child(repo_root):
+    """File-reading wrapper around classify_post_spec_child
+    (github-workflow invariant). Resolves PUBLISHED build + github
+    skill bodies via discover_skill_md — realized once here so the
+    drift-detector retires a hand-run POST-SPEC-CHILD grep."""
+    by_name = {}
+    for path in discover_skill_md(repo_root):
+        by_name[os.path.basename(os.path.dirname(path))] = path
+    build_p = by_name.get("build")
+    github_p = by_name.get("github")
+    try:
+        build_text = read_text(build_p) if build_p else ""
+    except OSError:
+        build_text = ""
+    try:
+        github_text = read_text(github_p) if github_p else ""
+    except OSError:
+        github_text = ""
+    return classify_post_spec_child(build_text, github_text)
+
+
 # --- github-workflow README Issue-linked PR audit ----------------------------
 
 # Needles the README Issue-linked PR section must carry (github-workflow +
@@ -2608,6 +2666,7 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
     findings += audit_spec_fold_github(repo_root)
     findings += audit_build_issue_linked(repo_root)
     findings += audit_review_scratch_write(repo_root)
+    findings += audit_post_spec_child(repo_root)
     findings += audit_readme_issue_linked(repo_root)
     findings += audit_linear_no_pr(repo_root)
     findings += audit_dispatch_targets(skill_md, plugin_names(repo_root))
@@ -3764,6 +3823,34 @@ def selftest():
     check(validate_vocab([("write-serialize", "VIOLATE", "")]) == [],
           "write-serialize: pseudo-id unrestricted vocab")
 
+    # POST-SPEC-CHILD=1 discriminator in build LOAD + github spawn prompt
+    # (github-workflow + write-serialize; closes §B.35).
+    # test_name_hint: POST-SPEC-CHILD=1
+    psc_build = (
+        "## LOAD\n"
+        "4. If prompt or env token `POST-SPEC-CHILD=1` set → "
+        "github PUSH only; drop READY\n"
+    )
+    psc_github = (
+        "spawn prompt ! `POST-SPEC-CHILD=1`; child drops READY\n"
+    )
+    check(classify_post_spec_child(psc_build, psc_github) == [],
+          "POST-SPEC-CHILD=1: build LOAD + github spawn → clean")
+    check(any(v == "VIOLATE" and "build" in e and "POST-SPEC-CHILD=1" in e
+              for _, v, e in classify_post_spec_child(
+                  "## LOAD\nPUSH only; drop READY\n", psc_github)),
+          "POST-SPEC-CHILD=1: build missing token → VIOLATE")
+    check(any(v == "VIOLATE" and "github" in e and "POST-SPEC-CHILD=1" in e
+              for _, v, e in classify_post_spec_child(
+                  psc_build, "run write-capable /sdd:build --all sub-agent\n")),
+          "POST-SPEC-CHILD=1: github missing token → VIOLATE")
+    check(any(v == "MISSING" and "build" in e
+              for _, v, e in classify_post_spec_child("", psc_github)),
+          "POST-SPEC-CHILD=1: empty build body → MISSING")
+    check(any(v == "MISSING" and "github" in e
+              for _, v, e in classify_post_spec_child(psc_build, "")),
+          "POST-SPEC-CHILD=1: empty github body → MISSING")
+
     # github-workflow build issue-linked pass: github PUSH then load-and-run
     # review-apply + gh pr ready; Next merge when approved.
     bi_good = (
@@ -4283,7 +4370,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 317
+    return 322
 
 
 # --- entry -------------------------------------------------------------------
