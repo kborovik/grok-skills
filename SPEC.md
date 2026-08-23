@@ -18,7 +18,7 @@ external surface — what operator + consuming repo see.
 
 - shape: `/sdd:shape <topic>` → Grok Plan mode propose-critique → approved plan → GitHub issue + class label + stop; later fold via `/sdd:spec github issue N` (optional same-session fold-shape; not bundled `/design`; no default `designs/` write)
 - spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit; fold-shape + micro-AMEND paths; `github issue N` folds issue → §V/§T then github BRANCH + `gh pr create --draft` (no close trailer); then github post-spec-commit chain (build `--all` child, bundled `review` sub-agent, READY remainder; no operator wait); non-issue path: no BRANCH, no PR (work stays current branch)
-- build: `/sdd:build [§T.n|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path chain default-on → check; issue-linked pass → github PUSH + review-apply + `gh pr ready`; post-spec-commit child: write-capable, PUSH only when `POST-SPEC-CHILD=1` (parent runs review); issue-linked close ! acceptance-gate per github-workflow invariant
+- build: `/sdd:build [§T.n|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path chain default-on → check; issue-linked pass → github PUSH + review-apply + `gh pr ready`; post-spec-commit child: write-capable, PUSH only when `POST-SPEC-CHILD=1` (parent runs review); issue-linked pass ! acceptance-gate verify (detector = issue linkage not close trailer); close trailer @ MERGE only per github-workflow invariant
 - check: `/sdd:check [--full|--no-chain]` → thin recipe + script; read-only REPORT + Next; clean chain → build --next
 - explain: `/sdd:explain [§-cite|--next]` → prose expansion w/ cited siblings, zero writes
 - condense: `/sdd:condense` → six-prong token sweep, single atomic commit
@@ -144,6 +144,12 @@ T89|x|github skill: BRANCH+PR require corresponding GitHub issue; missing → no
 T90|x|spec skill: non-github-issue APPLY: no github BRANCH, no github PR|V69,I.spec
 T91|x|README Issue-linked PR: no corresponding issue → no git branch, no GitHub PR|V69,V2
 T92|x|script: github no-issue-no-PR needles (corresponding GitHub issue + no BRANCH/no PR); self-test|V69,V40
+T93|.|build+ACCEPTANCE-GATE+github: fire verify on issue linkage not planned trailer; ALLOW @ build = evidence only; close trailer MERGE-only|V69,B37
+T94|.|script emit-v-weights: stub rows not heavy; self-test all-stub fixture → empty heavy set|V48,V40,B38
+T95|.|condense prong 6: consume stub-skip from table (no re-extract)|V48,B38
+T96|.|script classify_grants reverse (missing grant VIOLATE) + github allowed-tools add spawn_subagent, read_file, search_replace, write|V62,B39
+T97|.|github skill: READY remainder wording — no cross-section step index|V69
+T98|.|spec skill: split multi-sentence lines 93, 190, 193|V70
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)
@@ -185,3 +191,6 @@ B33|2026-08-22|spec-side post-spec chain omitted READY remainder|V69
 B34|2026-08-22|V21 read-only default blocked review sub-agent scratch writes|V21
 B35|2026-08-22|post-spec build child had no discriminator; took operator-run READY path|V69
 B36|2026-08-23|squash-merge default subject PR title `(#PR)`; `Closes #<issue>` on PR body not squash commit → git log cannot recover closed issue|V69
+B37|2026-08-23|acceptance-gate trigger keyed on close trailer after close trailer banned on build commits|V69
+B38|2026-08-23|emit-v-weights ranks already-stubbed §V rows as heavy|V48
+B39|2026-08-23|grant-use audit extras-only; recipes omit required grants|V62
