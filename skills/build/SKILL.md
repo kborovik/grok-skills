@@ -98,7 +98,7 @@ After the last chosen row closes (single task, last of multi-id list, or last of
 ## FAIL → BACKPROP
 
 Post-spec-commit child (`POST-SPEC-CHILD=1`): child cannot prompt interactively or mutate SPEC.md; halt execution on fail, keep status `.`, emit failure report to parent session (class a/b/c when known).
-Parent surfaces failure: Next leads `/sdd:build` resume; when class b/c also `/sdd:spec <cause>` BACKPROP (write-serialize + backprop-protocol invariants).
+Parent posts `gh pr comment` steno on the draft PR (§T, class, Next); Next leads `/sdd:build` resume; when class b/c also `/sdd:spec <cause>` BACKPROP (write-serialize + backprop-protocol invariants).
 Otherwise (operator-run build):
 
 1. Read failure output.
