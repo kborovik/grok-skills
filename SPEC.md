@@ -17,7 +17,7 @@ LLM writes code faster than humans read → standards + logic drift unchecked; c
 external surface — what operator + consuming repo see.
 
 - shape: `/sdd:shape <topic>` → Grok Plan mode propose-critique → approved plan → GitHub issue + class label + stop; later fold via `/sdd:spec github issue N` (optional same-session fold-shape; not bundled `/design`; no default `designs/` write)
-- spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit; fold-shape + micro-AMEND paths; `github issue N` folds issue → §V/§T then github BRANCH + `gh pr create --draft` (no close trailer); then github post-spec-commit chain (build `--all` child, bundled `review` sub-agent, READY remainder; no operator wait)
+- spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit; fold-shape + micro-AMEND paths; `github issue N` folds issue → §V/§T then github BRANCH + `gh pr create --draft` (no close trailer); then github post-spec-commit chain (build `--all` child, bundled `review` sub-agent, READY remainder; no operator wait); non-issue path: no BRANCH, no PR (work stays current branch)
 - build: `/sdd:build [§T.n|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path chain default-on → check; issue-linked pass → github PUSH + review-apply + `gh pr ready`; post-spec-commit child: write-capable, PUSH only when `POST-SPEC-CHILD=1` (parent runs review); issue-linked close ! acceptance-gate per github-workflow invariant
 - check: `/sdd:check [--full|--no-chain]` → thin recipe + script; read-only REPORT + Next; clean chain → build --next
 - explain: `/sdd:explain [§-cite|--next]` → prose expansion w/ cited siblings, zero writes
@@ -140,6 +140,10 @@ T85|x|add `backprop-handoff.json` to `.spec/.gitignore` during initial setup|V73
 T86|.|github skill MERGE: squash commit subject ! hold `#<issue>` via `gh pr merge --squash --subject "<title> (#<issue>)" --body "Closes #<issue>"`; GitHub default `(#PR)` insufficient|V69,B36
 T87|.|script: github MERGE needles `--subject` + `#<issue>` (issue not merely PR); self-test|V69,V40,B36
 T88|.|README Issue-linked PR: squash commit message holds `#<issue>`|V69,V2,B36
+T89|.|github skill: BRANCH+PR require corresponding GitHub issue; missing → no git branch, no `gh pr create`|V69
+T90|.|spec skill: non-github-issue APPLY: no github BRANCH, no github PR|V69,I.spec
+T91|.|README Issue-linked PR: no corresponding issue → no git branch, no GitHub PR|V69,V2
+T92|.|script: github no-issue-no-PR needles (corresponding GitHub issue + no BRANCH/no PR); self-test|V69,V40
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)
