@@ -188,7 +188,7 @@ V72: shared-fragments — canonical cross-skill recipe text lives in `skills/_fr
 
 ## §V73 backprop-resume-card
 
-V73: backprop-resume-card — BACKPROP APPLY writes `.spec/backprop-handoff.json` `{B,V,T,test_name_hint}`; Next leads with concrete `/sdd:build §T.n`; build LOAD consumes + deletes on close; card is resume pointer, not design truth.
+V73: backprop-resume-card — BACKPROP APPLY writes `.spec/backprop-handoff.json` `{B,V,T,test_name_hint}`; Next leads with concrete `/sdd:build §T.n`; build LOAD consumes + deletes on close; card is resume pointer, not design truth; `.spec/.gitignore` lists `backprop-handoff.json` from first `.spec/` write (NEW/DISTILL init or first BACKPROP, whichever first).
 
 ## §V74 micro-amend
 

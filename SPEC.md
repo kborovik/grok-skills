@@ -136,6 +136,7 @@ T81|x|README Issue-linked PR: spec commit + draft PR then auto-build sub-agent t
 T82|x|spec+github: post-spec-commit chain runs once; owner = github PR three-step list; spec After OK stops at draft PR|V69,B32,B33,I.spec
 T83|x|V21+§C: post-spec review sub-agent scratch-write exclusion; spawn omits capability_mode read-only|V21,B34
 T84|x|build skill: `POST-SPEC-CHILD=1` discriminator in LOAD; token set → PUSH only, drop READY|V69,V21,B35
+T85|.|add `backprop-handoff.json` to `.spec/.gitignore` during initial setup|V73
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)
