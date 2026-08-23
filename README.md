@@ -186,6 +186,8 @@ Examples (all free-form — the gate classifies):
 ### Issue-linked PR
 
 Every worked GitHub issue gets one issue-linked pull request.
+No corresponding GitHub issue: no git branch, no GitHub PR.
+Work commits on the current branch.
 `/sdd:shape` post-approve is one source of that issue: the skill opens it, labels it, and stops.
 
 ```text
