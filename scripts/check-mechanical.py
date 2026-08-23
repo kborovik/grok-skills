@@ -1940,12 +1940,16 @@ ACCEPTANCE_GATE_DETECT_NEEDLES = (
 )
 
 
+GITHUB_ACCEPTANCE_GATE_PTR = "ACCEPTANCE-GATE.md"
+
+
 def classify_acceptance_gate_detect(frag_text, github_text):
     """github-workflow acceptance-gate detector contract — pure,
     unit-testable without the filesystem (closes B37). `frag_text` is
-    `skills/_fragments/ACCEPTANCE-GATE.md`; `github_text` is
-    `skills/github/SKILL.md`. Empty/unreadable → MISSING. Each required
-    needle absent → VIOLATE (one row per miss)."""
+    `skills/_fragments/ACCEPTANCE-GATE.md` (needles live here);
+    `github_text` is `skills/github/SKILL.md` (load-only pointer).
+    Empty/unreadable → MISSING. Fragment missing a needle → VIOLATE.
+    Github missing the fragment pointer → VIOLATE."""
     out = []
     if not frag_text:
         out.append(("github-workflow", "MISSING",
@@ -1962,13 +1966,11 @@ def classify_acceptance_gate_detect(frag_text, github_text):
         out.append(("github-workflow", "MISSING",
                     "github-workflow MISSING: skills/github/SKILL.md "
                     "unreadable"))
-    else:
-        for needle, what in ACCEPTANCE_GATE_DETECT_NEEDLES:
-            if needle not in github_text:
-                out.append(("github-workflow", "VIOLATE",
-                            "github-workflow VIOLATE: "
-                            "skills/github/SKILL.md "
-                            f"missing {what}"))
+    elif GITHUB_ACCEPTANCE_GATE_PTR not in github_text:
+        out.append(("github-workflow", "VIOLATE",
+                    "github-workflow VIOLATE: "
+                    "skills/github/SKILL.md "
+                    "missing ACCEPTANCE-GATE.md pointer"))
     return out
 
 
@@ -4691,19 +4693,22 @@ def selftest():
         "ALLOW @ build = evidence sufficient (no trailer).\n"
         "Close trailer MERGE-only.\n"
     )
-    check(classify_acceptance_gate_detect(agd_good, agd_good) == [],
+    agd_gh = "Load skills/_fragments/ACCEPTANCE-GATE.md\n"
+    check(classify_acceptance_gate_detect(agd_good, agd_gh) == [],
           "acceptance-gate detector = issue linkage not close trailer: "
-          "complete fragment+github → clean")
+          "complete fragment+github pointer → clean")
     miss_agd_frag = classify_acceptance_gate_detect(
-        "evidence sufficient\nMERGE-only\n", agd_good)
+        "evidence sufficient\nMERGE-only\n", agd_gh)
     check(any(v == "VIOLATE" and "ACCEPTANCE-GATE.md" in e
               and "issue linkage" in e for _, v, e in miss_agd_frag),
           "acceptance-gate detect: fragment missing issue linkage → VIOLATE")
     miss_agd_gh = classify_acceptance_gate_detect(
         agd_good, "issue linkage\nevidence sufficient\n")
     check(any(v == "VIOLATE" and "github/SKILL.md" in e
-              and "MERGE-only" in e for _, v, e in miss_agd_gh),
-          "acceptance-gate detect: github missing MERGE-only → VIOLATE")
+              and "ACCEPTANCE-GATE.md pointer" in e
+              for _, v, e in miss_agd_gh),
+          "acceptance-gate detect: github missing ACCEPTANCE-GATE.md "
+          "pointer → VIOLATE")
     check(classify_acceptance_gate_detect("", "")[0][1] == "MISSING",
           "acceptance-gate detect: empty fragment → MISSING")
 

@@ -13,7 +13,7 @@ when-to-use: |
 argument-hint: "<intent | fold-shape | github issue N>"
 metadata:
   short-description: "Sole writer of SPEC.md (create / amend / fold / backprop)"
-allowed-tools: ask_user_question, read_file, search_replace, write, grep, run_terminal_command(git *), run_terminal_command(grep *), run_terminal_command(gh *), spawn_subagent
+allowed-tools: ask_user_question, read_file, search_replace, write, grep, run_terminal_command(git *), run_terminal_command(grep *), run_terminal_command(gh *)
 ---
 
 # spec — spec mutator
@@ -183,8 +183,6 @@ next-block  | touches user-typeable SKILL.md | bail → NEXT-BLOCK-SECTION AUDIT
 fold-first  | adds §V row to pre-existing §V section, mode not FOLD-IN | ask_user_question gate → FOLD-FIRST AUDIT
 ```
 
-pinned-cite (a) + next-block rows structurally no-op while step 4 writes SPEC.md only — retained defensive (fire only if future mode widens write set).
-
 Table uses named-invariant + placeholder cite form only (`per <named> invariant`, `§V.<n>`) — `skills/**` in PUBLISHED where pinned §-digit cites banned per sub-recipe (a); body pinned-cite count is 0, stays 0.
 
 **Step 2 — render-split**: §V + §B content rows → steno per steno skill (audience: user reviewing proposal); all else → telegraph (§T/§I pipe forms already legible, §G/§C targets, header-only §B row).
@@ -195,7 +193,8 @@ Table uses named-invariant + placeholder cite form only (`per <named> invariant`
 github-issue fold (and fold-shape with issue N): after OK follow **After OK** order only (BRANCH → write delta → path-scoped commit → draft PR); do not write delta before BRANCH.
 Stops at draft PR.
 Non-github-issue APPLY: no github BRANCH, no github PR (work stays on current branch).
-Body file(s) = SPEC.md every mode + target, except a stub-redirected §V AMEND → `.spec/check-extras.md` per AMEND § resolution + extras-hook invariant (the SPEC.md stub row stays untouched, so check-extras.md is the sole path-scope; mixed delta touching both an inline §V/other § and a stub-redirected §V → path list = the union). No commit prompt (uniform every mode).
+Body file(s) = SPEC.md every mode + target, except a stub-redirected §V AMEND → `.spec/check-extras.md` per AMEND § resolution + extras-hook invariant (the SPEC.md stub row stays untouched, so check-extras.md is the sole path-scope; mixed delta touching both an inline §V/other § and a stub-redirected §V → path list = the union).
+No commit prompt (uniform every mode).
 NEW / DISTILL / BACKPROP: first `.spec/` write (NEW/DISTILL init or first BACKPROP, whichever first) → grep `^backprop-handoff.json$` in `.spec/.gitignore`; missing → init or append that line (backprop-resume-card invariant); path-scope `.spec/.gitignore` when created or patched.
 Resume-card JSON stays untracked (post-commit BACKPROP write).
 Msg per mode:
@@ -229,9 +228,6 @@ Each surviving match resolves against current SPEC.md §V row set (parse `^V[0-9
 Unresolved → bail `stale §V.<n> cite in delta — row absent (likely folded); backtick-wrap historical or substitute live row` until rewrite.
 No narrative delta → no-op.
 
-(a) defends against PUBLISHED-touching deltas via spec-cmd flow — `/sdd:spec` normally writes SPEC.md only so typically no-op. (b) closes post-fold authoring gap — fold-time sweep (condense prong-1) substitutes existing cites @ fold-commit; new bare cites to folded id authored post-fold bypass until next `/sdd:check`.
-Pattern-match catches what LLM prose-review missed (see §B history).
-
 ## NEXT-BLOCK-SECTION AUDIT
 
 Audits touched user-typeable `<plugin>/skills/<n>/SKILL.md` per skills-only architecture invariant.
@@ -242,9 +238,6 @@ Each touched file in post-amend tree:
 2. Opt-out match → no-op for this file (auto-fire or programmatic-only, no slash-cmd surface).
 3. Else grep `## OUTPUT — "Next" block` heading in post-amend file.
    Match → no-op; else bail `<skill> SKILL.md lacks Next-block section per /<plugin>:<n> response-shape contract` until author adds §.
-
-Defends against new user-typeable skill bodies (or cross-plugin migrations) omitting Next-block contract sister skills carry — V20-class runtime rule governs response shape, not authoring-time presence (see §B history).
-Structurally no-op while APPLY step 4 writes SPEC.md only (mirrors pinned-cite (a) posture).
 
 ## FOLD-FIRST AUDIT
 
@@ -264,8 +257,6 @@ Each proposed new §V row in delta:
      - `New row (orthogonal concept)` → proceed; user-typed orthogonal-concept declaration recorded in commit msg post-selection.
 3. Fold-into → re-render delta as §V.<m> amend, re-enter APPLY @ step 0 per Re-entry rule (re-prune + re-audit — not jump to show-user); new-row branches → record justification, proceed to show-user.
 
-Defends against premature-split class — small audit or enforcement-meta additions creating new §V row when inline amend sufficed. "mirrors §V.<n>" alone insufficient justification per fold-first authoring invariant.
-
 ## WRITE-TIME PRUNE
 
 Per freshness-contract invariant (SPEC.md is clean current design; history in commit log + archive, not inlined).
@@ -273,14 +264,9 @@ Auto-rewrites delta → clean current state; pruned history → auto-commit msg 
 Show-user diff displays post-prune row — prune reviewed, not blind.
 
 **§V-row delta prune** (delta patches pre-existing §V row): strip inlined-history residue.
-Pattern set (single source per freshness-contract invariant — shared w/ /sdd:check history-residue audit + token-budget condense body-trim prong):
-
-- amendment-counter `(∆)` markers → drop (clean current state carries no edit tally).
-- dated-retirement `retired YYYY-MM-DD` clause in live row → drop (wholesale-retired row is reorganize archival job, not amend residue).
-- supersession-narration (`pre-amend …`, `prior … retired/dropped/superseded`) → drop.
-- `Closes §B.<x>` standalone narration → fold to `(closes §B.<x>)` suffix.
-
-Pre-filters (exempt, not pruned): backtick-wrapped tokens per verbatim-preservation invariant (code-context pattern-defs + quoted historical refs — §V row whose subject is a retirement rule not self-flag); cite-modifier `§V.<n>(∆)` (∆-on-citation marks amended cross-ref, differs ∆-on-retired-value).
+Pattern set = script `HR_*` / `HR_PATTERN_ORDER` (single source per freshness-contract invariant — shared w/ /sdd:check history-residue audit + token-budget condense body-trim prong).
+Drop `(∆)` markers; drop `retired YYYY-MM-DD` clauses in live rows; drop `pre-amend` / `prior … retired/dropped/superseded` narration; fold standalone `Closes §B.<x>` to `(closes §B.<x>)` suffix.
+Pre-filters (exempt, not pruned): backtick-wrapped tokens per verbatim-preservation invariant; cite-modifier `§V.<n>(∆)`.
 Stripped content → commit-msg body per APPLY step 4.
 
 **§B cause trim** (delta adds/rewrites §B `cause` cell): auto-trim → one-line bug-class description; multi-line forensics (repro transcript, root-cause walk, sha lineage) → commit-msg body per APPLY step 4.
@@ -315,7 +301,6 @@ Post-commit → POST-APPLY leads (BACKPROP concrete build; DISTILL check + confi
 
 ## NON-GOALS
 
-- Writes serialize on main thread; reads delegable to sub-agents; exclusion: github post-spec-commit child per `skills/_fragments/POST-SPEC-CHAIN.md` (github-workflow invariant).
 - No dashboards.
   Cache files (`.spec/backprop-handoff.json`, check memo) are not design truth.
 - No auto-build after non-BACKPROP spec except github PR recipe post-spec-commit chain per `skills/_fragments/POST-SPEC-CHAIN.md`.

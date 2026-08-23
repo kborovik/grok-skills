@@ -189,7 +189,7 @@ T134|x|script: github MERGE check-probe + CLOSE `--delete-branch` + PR `Related:
 T135|x|script: github READY remainder no-wait + fold-produced Acceptance-notes + re-run verify + `gh pr comment` needles; self-test|V69,V40,B66,B67,B68,B71
 T136|x|init skills/_fragments/POST-SPEC-CHAIN.md; spec After OK + POST-APPLY + NON-GOALS, github WHEN/PR, build LOAD/POST-LOOP/CHAIN/OUTPUT point not restated three-step chain; scope grep `fold-produced|POST-SPEC-CHILD|parent runs review`|V72,V69,V21,I.spec,I.build
 T137|x|pointer-only MECHANIZE + PROGRESS + PATH-SCOPED-COMMIT (drop paraphrase after pointer; spec/condense/reorganize load PATH-SCOPED-COMMIT); scope grep `Run probe. Emit Next item per fragment|todo_write one task per phase|-m. flags`|V72,V66,V20
-T138|.|drop restated fragment/invariant bodies (github ACCEPTANCE-GATE load-only; monitor PROTOCOL/DISPATCHED share WRITE; WRITE-TIME PRUNE + condense prong 4 cite script HR_* names; NON-GOALS unique-boundary only; spec APPLY drop structurally-no-op + Defends-against tails); scope grep `## ACCEPTANCE-GATE|structurally no-op|Defends against|amendment-counter|no hook / runtime`|V72,V28,V40,V69
+T138|x|drop restated fragment/invariant bodies (github ACCEPTANCE-GATE load-only; monitor PROTOCOL/DISPATCHED share WRITE; WRITE-TIME PRUNE + condense prong 4 cite script HR_* names; NON-GOALS unique-boundary only; spec APPLY drop structurally-no-op + Defends-against tails); scope grep `## ACCEPTANCE-GATE|structurally no-op|Defends against|amendment-counter|no hook / runtime`|V72,V28,V40,V69
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)

@@ -52,11 +52,8 @@ No deviation → no fire.
 6. **GATE** — ask_user_question before any gh write (decision-gate invariant).
    Header `Skill deviation`, question body surfaces the resolved `--repo <target>` verbatim (operator confirms exact write destination before any publish); mutually-exclusive labels: `File issue` (miss), `Comment` (hit), `Skip`.
    No auto-file path exists.
-7. **WRITE** — immediately pre-write assert resolved `--repo` == `<target>` (= manifest `.repository`, step 4); mismatch → abort, no gh write (monitor-protocol invariant). `<target>` ! derive from `.repository` only — a repo named in the deviation excerpt is never sourced as `--repo` (redaction strips it; this assertion backstops a leak).
-   Then per gate selection:
-   - miss + File issue → `gh issue create --repo <target> --title "<skill>: <deviation summary>" --body <steno>` (github-facing-register → steno per steno skill).
-   - hit + Comment → `gh issue comment <n> --repo <target> --body <steno occurrence>` (occurrence count = signal; one issue per deviation class).
-   - Skip → nothing written.
+7. **WRITE** — per `## WRITE`.
+   Title `<skill>: <deviation summary>`.
 
 ## DISPATCHED — `mechanization-candidate` entry path
 
@@ -78,11 +75,19 @@ Ordered, stop on bail:
 4. **GATE** — ask_user_question before any gh write (decision-gate invariant).
    Header `Mech candidate`, question body surfaces the resolved `--repo <target>` verbatim (operator confirms exact write destination before any publish); mutually-exclusive labels: `File issue` (miss), `Comment` (hit), `Skip`.
    No auto-file path exists.
-5. **WRITE** — immediately pre-write assert resolved `--repo` == `<target>` (= manifest `.repository`, TARGET step); mismatch → abort, no gh write (monitor-protocol invariant). `<target>` ! derive from `.repository` only — a repo named in the candidate excerpt is never sourced as `--repo` (redaction strips it; this assertion backstops a leak).
-   Then per gate selection:
-   - miss + File issue → `gh issue create --repo <target> --title "<skill>: mech candidate — <pattern>" --body <steno>` (github-facing-register → steno per steno skill; body = observed pattern + proposed script mode).
-   - hit + Comment → `gh issue comment <n> --repo <target> --body <steno occurrence>` (occurrence count = signal; one issue per candidate class).
-   - Skip → nothing written.
+5. **WRITE** — per `## WRITE`.
+   Title `<skill>: mech candidate — <pattern>`.
+   Body = observed pattern + proposed script mode.
+
+## WRITE
+
+Immediately pre-write assert resolved `--repo` == `<target>` (= manifest `.repository`); mismatch → abort, no gh write (monitor-protocol invariant).
+`<target>` ! derive from `.repository` only — a repo named in the excerpt is never sourced as `--repo` (redaction strips it; this assertion backstops a leak).
+Then per gate selection:
+- miss + File issue → `gh issue create --repo <target> --title <title> --body <steno>` (github-facing-register → steno per steno skill).
+- hit + Comment → `gh issue comment <n> --repo <target> --body <steno occurrence>` (occurrence count = signal; one issue per class).
+- Skip → nothing written.
+Title and body supplied by the entry path (PROTOCOL vs DISPATCHED).
 
 ## REDACTION — mandatory
 
@@ -98,7 +103,6 @@ Hand off to backprop, file no issue.
 
 ## NON-GOALS
 
-- no hook / runtime interception (skills-only invariant — no hooks).
 - no auto-file — every gh write operator-gated; silent publish impossible (decision-gate invariant).
 - no CI / scheduled filing, no telemetry, metrics, or dashboards.
-- never edits SPEC.md or any skill body — existing skills stay byte-identical.
+- never writes or edits SPEC.md or any skill body — existing skills stay byte-identical.

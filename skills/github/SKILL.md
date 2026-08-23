@@ -144,28 +144,19 @@ PR abandoned, not merged → cleanup only, no squash:
 2. `git switch <default-base>` — leave the issue-linked branch before deleting it (git refuses to delete the checked-out branch).
 3. `git branch -D <branch>` — local branch cleanup.
 
-No squash. Remote delete via `gh pr close --delete-branch`, not merge.
+No squash.
+Remote delete via `gh pr close --delete-branch`, not merge.
 The linked issue stays open — nothing merged to close it.
 Unmerged PR close does not run ACCEPTANCE-GATE (issue not closed).
 
-## ACCEPTANCE-GATE — issue close
+## ACCEPTANCE-GATE
 
-Load `skills/_fragments/ACCEPTANCE-GATE.md` on issue-linked build verify (task-scoped) and before any path that closes an issue (MERGE / `gh issue close`).
-Detector = issue linkage (open PR, `github-issue-N` cite, `gh issue develop` branch), not planned close trailer.
-Also fires on `gh issue close <issue>` after issue-linked work.
-
-BLOCK → no close trailer, no merge, no `gh issue close`; emit FAIL table.
-ALLOW @ build = evidence sufficient (no trailer); collect evidence; post Acceptance-evidence comment once per issue-linked run (at READY, not per task).
-ALLOW @ MERGE = full gate then add close trailer then squash; post comment if not already posted.
-ADVISORY (no `## Acceptance`) → not silent-verified; surface advisory before close.
-Close trailer MERGE-only.
-Full acceptance gate = MERGE / close only (not PR ready).
+Load `skills/_fragments/ACCEPTANCE-GATE.md`.
 
 ## NON-GOALS
 
-- no hook / runtime interception (skills-only invariant — no hooks).
 - no `gh release` — the release skill (REPO-LOCAL) owns version tag + release notes.
 - no hardcoded repo slug, no `--repo` flag — every op runs against the cwd repo (parametric-recipe invariant).
-- never edits SPEC.md or any skill body.
+- never writes or edits SPEC.md or any skill body.
 - no close of a worked issue without an issue-linked PR.
 - no git branch, no GitHub PR without corresponding GitHub issue.
