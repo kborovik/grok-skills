@@ -90,7 +90,9 @@ After the last chosen row closes (single task, last of multi-id list, or last of
 
 - operator-run `/sdd:build`: load-and-run github READY once (review-apply + push + `gh pr ready`; not slash-dispatch `/review` per recipe-step-no-dispatch invariant).
   Post Acceptance-evidence comment once if ALLOW evidence collected.
-  Next: merge when approved — say "merge the PR" (auto-fires github MERGE).
+  Issue-linked READY implies no check hop.
+  Next item #1: merge when approved — say "merge the PR" (auto-fires github MERGE).
+  `/sdd:check` listed not hopped.
 - post-spec-commit child (`POST-SPEC-CHILD=1`): github PUSH only if not already pushed; drop READY (parent runs review next; github-workflow invariant).
 
 ## FAIL → BACKPROP
@@ -113,7 +115,8 @@ Mid-loop spec dispatch = sole mandatory exclusion from operator-only dispatch (p
 ## CHAIN (default-on)
 
 Per `skills/_fragments/CHAIN.md`.
-After successful pass (single task or last of multi-id/`--all`), unless `--no-chain` or `POST-SPEC-CHILD=1`: same-turn `/sdd:check` cascade over just-closed §T.
+After successful pass (single task or last of multi-id/`--all`), unless `--no-chain` or `POST-SPEC-CHILD=1` or issue-linked READY: same-turn `/sdd:check` cascade over just-closed §T.
+Issue-linked READY implies no check hop — Next merge phrasing leads; `/sdd:check` listed not hopped.
 Child never chains.
 
 ## WRITE POLICY
@@ -131,7 +134,7 @@ Emit Next item per fragment.
 
 Per `skills/_fragments/NEXT.md`.
 Pass (chain off) → check leads, then build --next.
-Issue-linked operator-run pass → merge when approved (say "merge the PR"; github MERGE auto-fire).
+Issue-linked operator-run pass → merge when approved (say "merge the PR"; github MERGE auto-fire) leads; `/sdd:check` listed not hopped.
 Post-spec-commit child → drop READY (parent runs review next); on fail include BACKPROP Next when class b/c.
 Backlog clear → `/sdd:spec` seed.
 

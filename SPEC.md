@@ -175,7 +175,7 @@ T120|x|amend V25: drop FOLD-IN from socratic mode set; name dispatch shortcut|V2
 T121|x|check description: never invokes remedies except green-path chain|V22,V76,B60
 T122|x|spec POST-APPLY: fold-shape+issue N same chain ownership + Next as FOLD-IN github issue|V31,V69,V22,B61
 T123|x|github+build child-fail: parent Next may `/sdd:spec` BACKPROP when class b/c (not build-only)|V21,V27,V69
-T124|.|CHAIN+build+NEXT: issue-linked READY skips check hop; Next merge phrasing leads, `/sdd:check` listed not hopped|V22,V24,V69,B63
+T124|x|CHAIN+build+NEXT: issue-linked READY skips check hop; Next merge phrasing leads, `/sdd:check` listed not hopped|V22,V24,V69,B63
 T125|.|README Issue-linked PR: drop post-spec `--all`; fold-produced §T ids only|V69,V2,B64
 T126|.|shape ISSUE body: Effect + Out of scope + Unresolved when present + Acceptance|V31,V69,I.shape,B65
 T127|.|github READY remainder: post-spec apply bug+suggestion, list nits no wait; operator-run may wait nits|V69,B66

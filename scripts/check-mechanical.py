@@ -58,7 +58,12 @@ Modes:
                 `skills/build/SKILL.md`
                 issue-linked pass
                 requires github PUSH then load-and-run review-apply +
-                `gh pr ready`; Next merge when approved. README
+                `gh pr ready`; Next merge when approved.
+                Issue-linked READY skips the green-path check hop:
+                `skills/_fragments/CHAIN.md`, `skills/_fragments/NEXT.md`,
+                and `skills/build/SKILL.md` require no check hop,
+                Next item #1 merge phrasing, and `/sdd:check` listed
+                not hopped (closes §B.63). README
                 Issue-linked PR requires `gh pr create --draft`,
                 `gh pr ready`, Closes only at merge, no-issue
                 converse (`No corresponding GitHub issue`,
@@ -1801,6 +1806,97 @@ def audit_build_issue_linked(repo_root):
     return classify_build_issue_linked(build_text)
 
 
+# Needles CHAIN + NEXT + build must carry for issue-linked READY
+# (recipe-step-no-dispatch + response-shape + github-workflow;
+# closes B63): no check hop; Next item #1 = merge phrasing;
+# `/sdd:check` listed not hopped.
+CHAIN_ISSUE_LINKED_READY_NEEDLES = (
+    ("issue-linked READY", "issue-linked READY"),
+    ("no check hop", "no check hop"),
+    ("listed not hopped", "/sdd:check listed not hopped"),
+)
+NEXT_ISSUE_LINKED_READY_NEEDLES = (
+    ("item #1", "Next item #1 = merge phrasing"),
+    ("listed not hopped", "/sdd:check listed not hopped"),
+)
+BUILD_ISSUE_LINKED_READY_CHAIN_NEEDLES = (
+    ("issue-linked READY", "issue-linked READY skips check hop"),
+    ("no check hop", "no check hop"),
+    ("listed not hopped", "/sdd:check listed not hopped"),
+)
+
+
+def classify_issue_linked_ready_chain(chain_text, next_text, build_text):
+    """issue-linked READY skips green-path check hop — pure,
+    unit-testable without the filesystem (closes B63).
+    `chain_text` is `skills/_fragments/CHAIN.md`; `next_text` is
+    `skills/_fragments/NEXT.md`; `build_text` is
+    `skills/build/SKILL.md`. Empty/unreadable → MISSING. Each
+    required needle absent → VIOLATE (one row per miss)."""
+    out = []
+    if not chain_text:
+        out.append(("github-workflow", "MISSING",
+                    "github-workflow MISSING: "
+                    "skills/_fragments/CHAIN.md unreadable"))
+    else:
+        for needle, what in CHAIN_ISSUE_LINKED_READY_NEEDLES:
+            if needle not in chain_text:
+                out.append(("github-workflow", "VIOLATE",
+                            "github-workflow VIOLATE: "
+                            "skills/_fragments/CHAIN.md "
+                            f"missing {what}"))
+    if not next_text:
+        out.append(("github-workflow", "MISSING",
+                    "github-workflow MISSING: "
+                    "skills/_fragments/NEXT.md unreadable"))
+    else:
+        for needle, what in NEXT_ISSUE_LINKED_READY_NEEDLES:
+            if needle not in next_text:
+                out.append(("github-workflow", "VIOLATE",
+                            "github-workflow VIOLATE: "
+                            "skills/_fragments/NEXT.md "
+                            f"missing {what}"))
+    if not build_text:
+        out.append(("github-workflow", "MISSING",
+                    "github-workflow MISSING: skills/build/SKILL.md "
+                    "unreadable"))
+    else:
+        for needle, what in BUILD_ISSUE_LINKED_READY_CHAIN_NEEDLES:
+            if needle not in build_text:
+                out.append(("github-workflow", "VIOLATE",
+                            "github-workflow VIOLATE: "
+                            "skills/build/SKILL.md "
+                            f"missing {what}"))
+    return out
+
+
+def audit_issue_linked_ready_chain(repo_root):
+    """File-reading wrapper around classify_issue_linked_ready_chain
+    (github-workflow invariant; closes B63). Resolves PUBLISHED
+    CHAIN + NEXT fragments and `skills/build/SKILL.md` — realized
+    once here so the drift-detector retires a hand-run hop-skip grep."""
+    chain_p = os.path.join(repo_root, "skills", "_fragments", "CHAIN.md")
+    next_p = os.path.join(repo_root, "skills", "_fragments", "NEXT.md")
+    try:
+        chain_text = read_text(chain_p) if os.path.isfile(chain_p) else ""
+    except OSError:
+        chain_text = ""
+    try:
+        next_text = read_text(next_p) if os.path.isfile(next_p) else ""
+    except OSError:
+        next_text = ""
+    by_name = {}
+    for path in discover_skill_md(repo_root):
+        by_name[os.path.basename(os.path.dirname(path))] = path
+    build_p = by_name.get("build")
+    try:
+        build_text = read_text(build_p) if build_p else ""
+    except OSError:
+        build_text = ""
+    return classify_issue_linked_ready_chain(chain_text, next_text,
+                                             build_text)
+
+
 # Needles the ACCEPTANCE-GATE fragment + github skill must carry with build
 # (github-workflow invariant; closes B37): detector = issue linkage not
 # planned close trailer; ALLOW @ build = evidence sufficient; close trailer
@@ -2949,6 +3045,7 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
     findings += audit_github_merge_subject(repo_root)
     findings += audit_spec_fold_github(repo_root)
     findings += audit_build_issue_linked(repo_root)
+    findings += audit_issue_linked_ready_chain(repo_root)
     findings += audit_acceptance_gate_detect(repo_root)
     findings += audit_condense_stub_skip(repo_root)
     findings += audit_review_scratch_write(repo_root)
@@ -4283,6 +4380,69 @@ def selftest():
     check(any(v == "VIOLATE" and "evidence sufficient" in e
               for _, v, e in miss_bi_ev),
           "build-issue-linked: missing evidence sufficient → VIOLATE")
+
+    # issue-linked READY skips check hop; Next item #1 merge phrasing;
+    # /sdd:check listed not hopped (closes B63).
+    # test_name_hint: issue-linked READY skips check hop
+    ilrc_chain = (
+        "issue-linked READY implies no check hop\n"
+        "`/sdd:check` listed not hopped\n"
+    )
+    ilrc_next = (
+        "after READY, Next item #1 names merge phrasing\n"
+        "`/sdd:check` listed not hopped\n"
+    )
+    ilrc_build = (
+        "unless issue-linked READY: hop check\n"
+        "issue-linked READY implies no check hop\n"
+        "`/sdd:check` listed not hopped\n"
+    )
+    check(classify_issue_linked_ready_chain(
+              ilrc_chain, ilrc_next, ilrc_build) == [],
+          "issue-linked READY chain: complete CHAIN+NEXT+build → clean")
+    miss_ilrc_chain = classify_issue_linked_ready_chain(
+        "POST-SPEC-CHILD never hops\n", ilrc_next, ilrc_build)
+    check(any(v == "VIOLATE" and "CHAIN.md" in e
+              and "issue-linked READY" in e
+              for _, v, e in miss_ilrc_chain),
+          "issue-linked READY chain: CHAIN missing issue-linked READY "
+          "→ VIOLATE")
+    miss_ilrc_hop = classify_issue_linked_ready_chain(
+        "issue-linked READY\nlisted not hopped\n", ilrc_next, ilrc_build)
+    check(any(v == "VIOLATE" and "CHAIN.md" in e and "no check hop" in e
+              for _, v, e in miss_ilrc_hop),
+          "issue-linked READY chain: CHAIN missing no check hop → VIOLATE")
+    miss_ilrc_next = classify_issue_linked_ready_chain(
+        ilrc_chain, "merge when approved\nlisted not hopped\n", ilrc_build)
+    check(any(v == "VIOLATE" and "NEXT.md" in e and "item #1" in e
+              for _, v, e in miss_ilrc_next),
+          "issue-linked READY chain: NEXT missing item #1 → VIOLATE")
+    miss_ilrc_listed = classify_issue_linked_ready_chain(
+        ilrc_chain, "Next item #1 names merge\n", ilrc_build)
+    check(any(v == "VIOLATE" and "NEXT.md" in e
+              and "listed not hopped" in e
+              for _, v, e in miss_ilrc_listed),
+          "issue-linked READY chain: NEXT missing listed not hopped "
+          "→ VIOLATE")
+    miss_ilrc_build = classify_issue_linked_ready_chain(
+        ilrc_chain, ilrc_next, "merge when approved\n")
+    check(any(v == "VIOLATE" and "build/SKILL.md" in e
+              and "issue-linked READY" in e
+              for _, v, e in miss_ilrc_build),
+          "issue-linked READY chain: build missing issue-linked READY "
+          "→ VIOLATE")
+    check(any(v == "MISSING" and "CHAIN.md" in e
+              for _, v, e in classify_issue_linked_ready_chain(
+                  "", ilrc_next, ilrc_build)),
+          "issue-linked READY chain: empty CHAIN → MISSING")
+    check(any(v == "MISSING" and "NEXT.md" in e
+              for _, v, e in classify_issue_linked_ready_chain(
+                  ilrc_chain, "", ilrc_build)),
+          "issue-linked READY chain: empty NEXT → MISSING")
+    check(any(v == "MISSING" and "build" in e
+              for _, v, e in classify_issue_linked_ready_chain(
+                  ilrc_chain, ilrc_next, "")),
+          "issue-linked READY chain: empty build → MISSING")
 
     # acceptance-gate detector = issue linkage not close trailer;
     # ALLOW @ build = evidence sufficient; close trailer MERGE-only
