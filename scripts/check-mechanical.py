@@ -83,13 +83,18 @@ Modes:
                 exempt. Realized once here so the sweep cannot silently
                 re-accumulate.
                 Emits `grant|VIOLATE|…` — the tooling-preference invariant's
-                grant-use rule: no frontmatter `allowed-tools` grant is
-                zero-body-use (a granted tool the skill body never invokes).
-                Sound by construction — flagged only on total body-absence
-                (token, alias, operation verb, or run_terminal_command anchor), spanning
-                the PUBLISHED + REPO-LOCAL skill set — realized once here so the
-                drift-detector retires its hand-run allowed-tools grant sweep
-                (a manual sweep misses rows).
+                grant-use rule, both directions: no frontmatter `allowed-tools`
+                grant is zero-body-use (a granted tool the skill body never
+                invokes); a body-prescribed catalogued tool with no grant is
+                also VIOLATE (prescribed spawn/edit/write/read ! auto-run).
+                Extra direction is sound by construction — flagged only on
+                total body-absence (token, alias, operation verb, or
+                run_terminal_command anchor). Reverse uses stricter
+                prescription patterns so incidental "agent"/"edit"/"write"
+                prose does not flood. `disallowed-tools` entries skip reverse.
+                Spans the PUBLISHED + REPO-LOCAL skill set — realized once
+                here so the drift-detector retires its hand-run allowed-tools
+                grant sweep (a manual sweep misses rows).
                 Emits `symbols|VIOLATE|…` — the symbol-set + human-clarity
                 invariants' spell-out rule: no human-facing surface (README,
                 AGENTS.md, the plugin manifest) carries a naked `→ ≥ ≤ & ~`
@@ -2202,7 +2207,7 @@ def audit_dispatch_targets(skill_md, plugins):
 # ("mid-glob") never masks a missing grant for it.
 
 GRANT_REFERENCE = {
-    "read_file": [(r'\bread', re.I)],
+    "read_file": [(r'\bread|\bload\b', re.I)],
     "search_replace": [(r'\bedit|\brewrite|\bpatch\b|\bprune|\btrim|\brenumber|\boverwrite|search_replace',
                re.I)],
     "write": [(r'\bwrite', re.I)],
@@ -2218,6 +2223,19 @@ GRANT_REFERENCE = {
 BARE_BASH_CMD = re.compile(r'```|\b(?:git|python3|gh|jq|grep|rg|npm|make|cargo'
                            r'|sed|awk|cat|test)\b')
 ALLOWED_TOOLS_LINE = re.compile(r'^allowed-tools:\s*(.*)$')
+DISALLOWED_TOOLS_LINE = re.compile(r'^disallowed-tools:\s*(.*)$')
+
+# Reverse (missing-grant) prescription patterns — stricter than GRANT_REFERENCE
+# so incidental "agent"/"edit"/"write" prose does not flood. Catalog covers
+# prescribed spawn/edit/write/read (tooling-preference invariant). `skill`
+# omitted — saturates every body (same accepted FN as extra-grant).
+GRANT_MISSING_REFERENCE = {
+    "spawn_subagent": [(r'spawn_subagent|\bsub-agents?\b|\bsubagent\b', re.I)],
+    "search_replace": [(r'search_replace|\brewrite\b', re.I)],
+    "write": [(r'\bwrite delta\b', re.I)],
+    "read_file": [(r'read_file|(?:^|\n)\s*(?:\d+\.\s+)?(?:Read|Load)\s+`',
+                   re.I)],
+}
 
 
 def split_grant_tokens(value):
@@ -2244,13 +2262,24 @@ def find_allowed_tools(text):
     """Locate the frontmatter `allowed-tools:` line: return (grant tokens, 1-based
     line number), or (None, None) when absent. Scans only the frontmatter region
     (between the leading `---` fences) so a body mention never registers."""
+    return _find_frontmatter_tools(text, ALLOWED_TOOLS_LINE)
+
+
+def find_disallowed_tools(text):
+    """Locate the frontmatter `disallowed-tools:` line: return (tokens, 1-based
+    line number), or (None, None) when absent. Reverse missing-grant skips
+    these — documented denial is not a missing grant."""
+    return _find_frontmatter_tools(text, DISALLOWED_TOOLS_LINE)
+
+
+def _find_frontmatter_tools(text, line_re):
     lines = text.splitlines()
     if not lines or lines[0].strip() != "---":
         return None, None
     for i in range(1, len(lines)):
         if lines[i].strip() == "---":
             break
-        m = ALLOWED_TOOLS_LINE.match(lines[i])
+        m = line_re.match(lines[i])
         if m:
             return split_grant_tokens(m.group(1)), i + 1
     return None, None
@@ -2284,26 +2313,52 @@ def grant_used(token, body):
     return any(re.search(p, body, f) for p, f in pats)
 
 
+def grant_prescribed(tool, body):
+    """True when the skill body prescribes `tool` at reverse-audit confidence
+    (tooling-preference invariant). Stricter than grant_used — incidental
+    "agent"/"edit"/"write" prose does not count as a missing-grant hit."""
+    pats = GRANT_MISSING_REFERENCE.get(tool)
+    if not pats:
+        return False
+    return any(re.search(p, body, f) for p, f in pats)
+
+
 def classify_grants(skill_texts):
     """Grant-use audit core over {path: text} — pure, unit-testable without the
-    filesystem (tooling-preference invariant). For each skill's frontmatter
-    `allowed-tools` grant, emit `grant|VIOLATE|…` when the body prescribes no
-    invocation of that tool (zero-body-use grant banned). Skills without an
-    `allowed-tools` line carry no grants → no rows. Realized once here so the
-    drift-detector retires its hand-run grant sweep — a manual sweep misses rows,
-    the recurrence class this closes."""
+    filesystem (tooling-preference invariant). Both directions: extra grant
+    (frontmatter `allowed-tools` token the body never invokes) → VIOLATE;
+    missing grant (body prescribes a catalogued tool with no grant and not
+    in `disallowed-tools`) → VIOLATE. Skills without an `allowed-tools` line
+    carry no grants → no rows. Realized once here so the drift-detector
+    retires its hand-run grant sweep — a manual sweep misses rows, the
+    recurrence class this closes."""
     out = []
     for path in sorted(skill_texts):
         text = skill_texts[path]
         tokens, lineno = find_allowed_tools(text)
         if not tokens:
             continue
+        disallowed, _ = find_disallowed_tools(text)
+        disallowed_bases = {t.split("(", 1)[0].strip()
+                            for t in (disallowed or [])}
         body = body_after_frontmatter(text)
+        granted_bases = set()
         for tok in tokens:
+            granted_bases.add(tok.split("(", 1)[0].strip())
             if not grant_used(tok, body):
                 out.append(("grant", "VIOLATE",
                             f"grant VIOLATE: {path}:{lineno} grants {tok} "
-                            f"zero body use (drop per tooling-preference invariant)"))
+                            f"zero body use (drop per tooling-preference "
+                            f"invariant)"))
+        loc = lineno
+        for tool in GRANT_MISSING_REFERENCE:
+            if tool in granted_bases or tool in disallowed_bases:
+                continue
+            if grant_prescribed(tool, body):
+                out.append(("grant", "VIOLATE",
+                            f"grant VIOLATE: {path}:{loc} body prescribes "
+                            f"{tool} missing grant (add per "
+                            f"tooling-preference invariant)"))
     return out
 
 
@@ -4364,6 +4419,8 @@ def selftest():
     check(find_allowed_tools("no fence\nallowed-tools: read_file\n") == (None, None),
           "grant: no frontmatter → no grants")
     check(grant_used("read_file", "first Read `SPEC.md`"), "grant_used: token present")
+    check(grant_used("read_file", "Load `skills/_fragments/X.md`"),
+          "grant_used: load → read")
     check(grant_used("grep", "we grep the files"), "grant_used: lowercase token")
     check(grant_used("spawn_subagent", "spawn Explore sub-agents"),
           "grant_used: alias Explore → agent-spawner")
@@ -4390,7 +4447,45 @@ def selftest():
           == [],
           "classify_grants: all-used → clean")
     check(classify_grants({"skills/z/SKILL.md": "# no frontmatter\nbody\n"}) == [],
-          "classify_grants: no allowed-tools → no rows")
+          "classify_grants: no allowed-tools and no prescription → no rows")
+    # reverse: body-prescribed catalogued tool with no grant → VIOLATE
+    rows_miss_spawn = classify_grants({"skills/g/SKILL.md": _gk(
+        "run_terminal_command(gh *)",
+        "run write-capable sub-agent then `gh issue view`")})
+    check(any(v == "VIOLATE" and "spawn_subagent" in e and "missing grant" in e
+              for _, v, e in rows_miss_spawn),
+          "classify_grants reverse: missing spawn_subagent → VIOLATE")
+    rows_miss_edit = classify_grants({"skills/e/SKILL.md": _gk(
+        "grep", "rewrite the rows in place then grep files")})
+    check(any(v == "VIOLATE" and "search_replace" in e and "missing grant" in e
+              for _, v, e in rows_miss_edit),
+          "classify_grants reverse: missing search_replace → VIOLATE")
+    rows_miss_read = classify_grants({"skills/r/SKILL.md": _gk(
+        "grep", "Load `skills/_fragments/X.md` then grep")})
+    check(any(v == "VIOLATE" and "read_file" in e and "missing grant" in e
+              for _, v, e in rows_miss_read),
+          "classify_grants reverse: missing read_file → VIOLATE")
+    rows_miss_write = classify_grants({"skills/w/SKILL.md": _gk(
+        "grep", "write delta to `SPEC.md` then grep")})
+    check(any(v == "VIOLATE" and "write" in e and "missing grant" in e
+              for _, v, e in rows_miss_write),
+          "classify_grants reverse: missing write → VIOLATE")
+    # disallowed-tools skip reverse (documented denial is not a missing grant)
+    dis_txt = ("---\nname: s\nallowed-tools: grep\n"
+               "disallowed-tools: search_replace, write\n---\n\n"
+               "# s\n\nrewrite the rows then grep files\n")
+    check(classify_grants({"skills/d/SKILL.md": dis_txt}) == [],
+          "classify_grants reverse: disallowed-tools skips missing grant")
+    toks_d, _ = find_disallowed_tools(dis_txt)
+    check(toks_d == ["search_replace", "write"],
+          "grant: disallowed-tools parsed")
+    both_ok = classify_grants({"skills/ok/SKILL.md": _gk(
+        "read_file, search_replace, write, spawn_subagent, "
+        "run_terminal_command(gh *)",
+        "Load `skills/_fragments/X.md` then spawn a sub-agent; "
+        "rewrite the rows; write delta to `SPEC.md`; run `gh pr ready`")})
+    check(both_ok == [],
+          "classify_grants: extra+missing both clean when grants match body")
     # pseudo-id row: VIOLATE is dirty, unrestricted vocab
     check(compute_clean([("grant", "VIOLATE", "")])[0] is False,
           "grant: VIOLATE is dirty")
@@ -4781,7 +4876,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 339
+    return 347
 
 
 # --- entry -------------------------------------------------------------------

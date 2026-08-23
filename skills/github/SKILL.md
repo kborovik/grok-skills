@@ -13,7 +13,7 @@ description: |
   (work stays on current branch).
   Not for plain git ops (commit, or push with no issue/PR) nor `gh release`
   — the release skill owns version tag + release notes.
-allowed-tools: run_terminal_command(gh *), run_terminal_command(git *)
+allowed-tools: read_file, search_replace, write, spawn_subagent, run_terminal_command(gh *), run_terminal_command(git *)
 user-invocable: false
 ---
 
