@@ -184,7 +184,7 @@ V71: consumer-core-profile — core loop = shape? → spec → build → check �
 
 ## §V72 shared-fragments
 
-V72: shared-fragments — canonical cross-skill recipe text lives in `skills/_fragments/` (MECHANIZE, NEXT, PROGRESS, PATH-SCOPED-COMMIT, CHAIN, CHECK-RECIPE, CHECK-AGENT-PROMPT, UPSTREAM-FR); user-invocable skills point, never copy; `_fragments` is not a slash surface.
+V72: shared-fragments — canonical cross-skill recipe text lives in `skills/_fragments/` (MECHANIZE, NEXT, PROGRESS, PATH-SCOPED-COMMIT, CHAIN, CHECK-RECIPE, CHECK-AGENT-PROMPT, UPSTREAM-FR, ACCEPTANCE-GATE, POST-SPEC-CHAIN); user-invocable skills point, never copy, never paraphrase after pointer; restated §V body in skill → named-invariant cite only; NON-GOALS + audit rationale state unique boundaries, never reprint recipe above; `_fragments` is not a slash surface.
 
 ## §V73 backprop-resume-card
 

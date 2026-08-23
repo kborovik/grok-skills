@@ -24,7 +24,7 @@ external surface — what operator + consuming repo see.
 - condense: `/sdd:condense` → six-prong token sweep, single atomic commit
 - reorganize: `/sdd:reorganize [--taxonomy-only]` → §V cluster + renumber + cite sweep (updates SPEC.md stubs and `.spec/check-extras.md` row prefixes), single atomic commit
 - script: `python3 ${GROK_PLUGIN_ROOT}/scripts/check-mechanical.py <mode>` → pipe-table `id|verdict|evidence`; modes: audit, write-memo, fix-sembr, emit-v-slices, emit-superseded, emit-fold-seeds, emit-v-weights, emit-row-ids, emit-overview, emit-token-estimate, emit-residue, emit-archive-window, emit-condense-propose, emit-check-agent-prompt, --self-test
-- fragments: `skills/_fragments/*` shared recipe text (MECHANIZE, NEXT, CHAIN, CHECK-RECIPE, …) — not slash surfaces
+- fragments: `skills/_fragments/*` shared recipe text (MECHANIZE, NEXT, CHAIN, CHECK-RECIPE, POST-SPEC-CHAIN, …) — not slash surfaces
 - format: `SPEC-FORMAT.md` → row shape + section catalog contract; loaded by spec, check, condense, reorganize
 
 ## §V INVARIANTS
@@ -187,6 +187,9 @@ T132|x|github+build child-fail: `gh pr comment` steno (§T, class, Next) on draf
 T133|x|github PR body: `Related: #<issue>` line; no Acceptance copy; no secondary Closes @ create|V69
 T134|x|script: github MERGE check-probe + CLOSE `--delete-branch` + PR `Related: #<issue>` needles; self-test|V69,V40
 T135|.|script: github READY remainder no-wait + fold-produced Acceptance-notes + re-run verify + `gh pr comment` needles; self-test|V69,V40,B66,B67,B68,B71
+T136|.|init skills/_fragments/POST-SPEC-CHAIN.md; spec After OK + POST-APPLY + NON-GOALS, github WHEN/PR, build LOAD/POST-LOOP/CHAIN/OUTPUT point not restated three-step chain; scope grep `fold-produced|POST-SPEC-CHILD|parent runs review`|V72,V69,V21,I.spec,I.build
+T137|.|pointer-only MECHANIZE + PROGRESS + PATH-SCOPED-COMMIT (drop paraphrase after pointer; spec/condense/reorganize load PATH-SCOPED-COMMIT); scope grep `Run probe. Emit Next item per fragment|todo_write one task per phase|-m. flags`|V72,V66,V20
+T138|.|drop restated fragment/invariant bodies (github ACCEPTANCE-GATE load-only; monitor PROTOCOL/DISPATCHED share WRITE; WRITE-TIME PRUNE + condense prong 4 cite script HR_* names; NON-GOALS unique-boundary only; spec APPLY drop structurally-no-op + Defends-against tails); scope grep `## ACCEPTANCE-GATE|structurally no-op|Defends against|amendment-counter|no hook / runtime`|V72,V28,V40,V69
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)
