@@ -160,8 +160,7 @@ Ordered:
 4. github PR — `gh pr create --draft` (generic structure; steno body per github-facing-register invariant; no close trailer @ create; no review-at-create).
 
 Stops at draft PR.
-Record fold-produced §T ids from this APPLY (new rows this fold + existing `.` rows that received Acceptance notes this fold).
-github PR recipe owns post-spec-commit chain once (github-workflow invariant): write-capable `/sdd:build §T.<a>,§T.<b>,…` on those fold ids (not whole backlog; `POST-SPEC-CHILD=1` implies `--no-chain`) then bundled `review` sub-agent then READY remainder; no operator wait.
+Post-spec-commit chain: load `skills/_fragments/POST-SPEC-CHAIN.md` (`/sdd:build`; READY remainder).
 
 ## APPLY (all modes, post-delta)
 
@@ -295,7 +294,7 @@ Default: surface `/sdd:check` as Next item #1 (cascade over just-applied delta).
 Exceptions:
 - **BACKPROP** → item #1 = concrete `/sdd:build §T.<n>` (resume card); item #2 = `/sdd:check`.
 - **DISTILL** → item #1 = `/sdd:check`; item #2 = `/sdd:spec` confirm `?`-flagged rows.
-- **FOLD-IN github issue** and **fold-shape with issue N** → github PR recipe owns post-spec-commit chain once (`/sdd:build` on fold-produced §T ids then `review` then READY remainder); Next merge when approved — say "merge the PR".
+- **FOLD-IN github issue** and **fold-shape with issue N** → load `skills/_fragments/POST-SPEC-CHAIN.md` (`/sdd:build`; READY remainder); Next merge when approved — say "merge the PR".
 - Green-path: not default-chained from spec (operator or explicit Next).
 
 Not silent commit-then-done.
@@ -318,7 +317,7 @@ Post-commit → POST-APPLY leads (BACKPROP concrete build; DISTILL check + confi
 
 ## NON-GOALS
 
-- Writes serialize on main thread; reads delegable to sub-agents; exclusion: github post-spec-commit `/sdd:build` child on fold-produced §T ids write-capable; bundled `review` sub-agent scratch writes only, no repo edits; spawn omits capability_mode read-only (github-workflow invariant).
+- Writes serialize on main thread; reads delegable to sub-agents; exclusion: github post-spec-commit child per `skills/_fragments/POST-SPEC-CHAIN.md` (github-workflow invariant).
 - No dashboards.
   Cache files (`.spec/backprop-handoff.json`, check memo) are not design truth.
-- No auto-build after non-BACKPROP spec except github PR recipe post-spec-commit chain on fold-produced §T ids (github-workflow invariant).
+- No auto-build after non-BACKPROP spec except github PR recipe post-spec-commit chain per `skills/_fragments/POST-SPEC-CHAIN.md`.

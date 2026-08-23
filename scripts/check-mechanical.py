@@ -1626,22 +1626,25 @@ GITHUB_LINEAR_NO_PR_MARKERS = (
 READY_CROSS_STEP_RE = re.compile(r'remainder \(step \d+\)', re.I)
 
 
-def classify_github_pr_per_issue(github_text):
+def classify_github_pr_per_issue(github_text, frag_text=""):
     """github-workflow PR-per-issue contract — pure, unit-testable without the
-    filesystem. `github_text` is `skills/github/SKILL.md`; empty/unreadable →
-    MISSING. Each required needle absent → VIOLATE (one row per miss).
+    filesystem. `github_text` is `skills/github/SKILL.md`; `frag_text` is
+    `skills/_fragments/POST-SPEC-CHAIN.md` (chain needles may live there).
+    Empty/unreadable github → MISSING. Each required needle absent from
+    github+fragment hay → VIOLATE (one row per miss).
     Leftover LINEAR / no-PR optional-track markers → VIOLATE so the governor
     cannot keep a solo-push exclusion."""
     if not github_text:
         return [("github-workflow", "MISSING",
                  "github-workflow MISSING: skills/github/SKILL.md unreadable")]
+    hay = github_text if not frag_text else github_text + "\n" + frag_text
     out = []
     if READY_CROSS_STEP_RE.search(github_text):
         out.append(("github-workflow", "VIOLATE",
                     "github-workflow VIOLATE: skills/github/SKILL.md "
                     "READY remainder cross-section step index"))
     for needle, what in GITHUB_PR_PER_ISSUE_NEEDLES:
-        if needle not in github_text:
+        if needle not in hay:
             out.append(("github-workflow", "VIOLATE",
                         "github-workflow VIOLATE: skills/github/SKILL.md "
                         f"missing {what}"))
@@ -1681,7 +1684,8 @@ def audit_github_pr_per_issue(repo_root):
         github_text = read_text(github_p) if github_p else ""
     except OSError:
         github_text = ""
-    return classify_github_pr_per_issue(github_text)
+    return classify_github_pr_per_issue(github_text,
+                                        _read_post_spec_chain(repo_root))
 
 
 # --- github-workflow spec FOLD-IN github issue audit -------------------------
@@ -1705,6 +1709,15 @@ SPEC_FOLD_GITHUB_NEEDLES = (
 )
 SPEC_AFTER_OK_NUMBERED = re.compile(r'^\d+\.\s')
 SPEC_POST_APPLY_AUTOCHAIN = "auto-chain run"
+
+
+def _read_post_spec_chain(repo_root):
+    """Read `skills/_fragments/POST-SPEC-CHAIN.md` or '' if missing."""
+    p = os.path.join(repo_root, "skills", "_fragments", "POST-SPEC-CHAIN.md")
+    try:
+        return read_text(p) if os.path.isfile(p) else ""
+    except OSError:
+        return ""
 
 
 def _md_block_until_h2(text, start_idx):
@@ -2035,16 +2048,20 @@ REVIEW_SCRATCH_NEEDLES = (
 )
 
 
-def classify_review_scratch_write(github_text):
+def classify_review_scratch_write(github_text, frag_text=""):
     """write-serialize post-spec review spawn contract — pure,
     unit-testable without the filesystem. `github_text` is
-    `skills/github/SKILL.md`; empty/unreadable → MISSING. Each required
-    needle absent → VIOLATE (one row per miss). Closes §B.34."""
+    `skills/github/SKILL.md`; `frag_text` is
+    `skills/_fragments/POST-SPEC-CHAIN.md` (spawn recipe may live
+    there). Empty/unreadable github → MISSING. Each required
+    needle absent from github+fragment hay → VIOLATE (one row per
+    miss). Closes §B.34."""
     if not github_text:
         return [("write-serialize", "MISSING",
                  "write-serialize MISSING: skills/github/SKILL.md unreadable")]
     out = []
-    hay = github_text.lower()
+    combined = github_text if not frag_text else github_text + "\n" + frag_text
+    hay = combined.lower()
     for needle, what in REVIEW_SCRATCH_NEEDLES:
         if needle.lower() not in hay:
             out.append(("write-serialize", "VIOLATE",
@@ -2066,7 +2083,8 @@ def audit_review_scratch_write(repo_root):
         github_text = read_text(github_p) if github_p else ""
     except OSError:
         github_text = ""
-    return classify_review_scratch_write(github_text)
+    return classify_review_scratch_write(github_text,
+                                         _read_post_spec_chain(repo_root))
 
 
 # --- github-workflow POST-SPEC-CHILD discriminator (closes §B.35) ------------
@@ -2077,12 +2095,14 @@ def audit_review_scratch_write(repo_root):
 POST_SPEC_CHILD_TOKEN = "POST-SPEC-CHILD=1"
 
 
-def classify_post_spec_child(build_text, github_text):
+def classify_post_spec_child(build_text, github_text, frag_text=""):
     """POST-SPEC-CHILD=1 discriminator contract — pure, unit-testable
     without the filesystem (github-workflow + write-serialize; closes
     §B.35). `build_text` is `skills/build/SKILL.md`; `github_text` is
-    `skills/github/SKILL.md`. Empty/unreadable file → MISSING. Token
-    absent from either body → VIOLATE."""
+    `skills/github/SKILL.md`; `frag_text` is
+    `skills/_fragments/POST-SPEC-CHAIN.md` (spawn token may live
+    there). Empty/unreadable file → MISSING. Token absent from
+    build, or from github+fragment hay → VIOLATE."""
     out = []
     if not build_text:
         out.append(("github-workflow", "MISSING",
@@ -2092,11 +2112,12 @@ def classify_post_spec_child(build_text, github_text):
         out.append(("github-workflow", "VIOLATE",
                     "github-workflow VIOLATE: skills/build/SKILL.md "
                     "missing POST-SPEC-CHILD=1"))
+    gh_hay = github_text if not frag_text else github_text + "\n" + frag_text
     if not github_text:
         out.append(("github-workflow", "MISSING",
                     "github-workflow MISSING: skills/github/SKILL.md "
                     "unreadable"))
-    elif POST_SPEC_CHILD_TOKEN not in github_text:
+    elif POST_SPEC_CHILD_TOKEN not in gh_hay:
         out.append(("github-workflow", "VIOLATE",
                     "github-workflow VIOLATE: skills/github/SKILL.md "
                     "missing POST-SPEC-CHILD=1"))
@@ -2121,7 +2142,8 @@ def audit_post_spec_child(repo_root):
         github_text = read_text(github_p) if github_p else ""
     except OSError:
         github_text = ""
-    return classify_post_spec_child(build_text, github_text)
+    return classify_post_spec_child(build_text, github_text,
+                                    _read_post_spec_chain(repo_root))
 
 
 # --- github-workflow README Issue-linked PR audit ----------------------------
@@ -2291,18 +2313,22 @@ GITHUB_READY_REMAINDER_NEEDLES = (
 )
 
 
-def classify_github_ready_remainder(github_text):
+def classify_github_ready_remainder(github_text, frag_text=""):
     """github-workflow READY remainder + fold-produced Acceptance-notes
     contract — pure, unit-testable without the filesystem (closes
     §B.66, §B.67, §B.68, §B.71). `github_text` is
-    `skills/github/SKILL.md`; empty/unreadable → MISSING. Each
-    required needle absent → VIOLATE (one row per miss)."""
+    `skills/github/SKILL.md`; `frag_text` is
+    `skills/_fragments/POST-SPEC-CHAIN.md` (fold-produced Acceptance
+    notes + `gh pr comment` may live there). Empty/unreadable github →
+    MISSING. Each required needle absent from github+fragment hay →
+    VIOLATE (one row per miss)."""
     if not github_text:
         return [("github-workflow", "MISSING",
                  "github-workflow MISSING: skills/github/SKILL.md unreadable")]
+    hay = github_text if not frag_text else github_text + "\n" + frag_text
     out = []
     for needle, what in GITHUB_READY_REMAINDER_NEEDLES:
-        if needle not in github_text:
+        if needle not in hay:
             out.append(("github-workflow", "VIOLATE",
                         "github-workflow VIOLATE: skills/github/SKILL.md "
                         f"missing {what}"))
@@ -2322,7 +2348,8 @@ def audit_github_ready_remainder(repo_root):
         github_text = read_text(github_p) if github_p else ""
     except OSError:
         github_text = ""
-    return classify_github_ready_remainder(github_text)
+    return classify_github_ready_remainder(github_text,
+                                           _read_post_spec_chain(repo_root))
 
 
 # --- leftover LINEAR-no-PR wording audit -------------------------------------
@@ -4377,6 +4404,10 @@ def selftest():
           "github READY remainder: missing gh pr comment → VIOLATE")
     check(classify_github_ready_remainder("")[0][1] == "MISSING",
           "github READY remainder: empty github body → MISSING")
+    check(classify_github_ready_remainder(
+              "no wait\nre-run task verify\n",
+              "Acceptance notes\ngh pr comment\n") == [],
+          "github READY remainder: fold needles in fragment → clean")
 
     # github-workflow spec FOLD-IN github issue: BRANCH then SPEC.md commit
     # then gh pr create --draft; no close trailer @ create; no review-at-create;
@@ -4490,6 +4521,11 @@ def selftest():
     )
     check(classify_review_scratch_write(rs_good) == [],
           "review scratch write: complete spawn recipe → clean")
+    check(classify_review_scratch_write(
+              "load-and-run bundled review as sub-agent\n",
+              "Scratch writes only; spawn omits capability_mode read-only\n")
+          == [],
+          "review scratch write: needles in fragment → clean")
     check(any(v == "VIOLATE" and "scratch writes" in e
               for _, v, e in classify_review_scratch_write(
                   "spawn omits capability_mode read-only\n")),
@@ -4519,6 +4555,10 @@ def selftest():
     )
     check(classify_post_spec_child(psc_build, psc_github) == [],
           "POST-SPEC-CHILD=1: build LOAD + github spawn → clean")
+    check(classify_post_spec_child(
+              psc_build, "run write-capable /sdd:build sub-agent\n",
+              "spawn prompt ! `POST-SPEC-CHILD=1`\n") == [],
+          "POST-SPEC-CHILD=1: github token in fragment → clean")
     check(any(v == "VIOLATE" and "build" in e and "POST-SPEC-CHILD=1" in e
               for _, v, e in classify_post_spec_child(
                   "## LOAD\nPUSH only; drop READY\n", psc_github)),
@@ -5304,7 +5344,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 362
+    return 365
 
 
 # --- entry -------------------------------------------------------------------

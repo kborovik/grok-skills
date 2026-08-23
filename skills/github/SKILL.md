@@ -6,8 +6,7 @@ description: |
   one, open a PR, push an issue-linked branch with an open PR, mark a PR ready,
   merge a PR, or close one unmerged. Shapes the gh workflow:
   generic issue/PR structures, per-PR issue-linked branch,
-  draft PR then (spec-fold) write-capable `/sdd:build` on fold-produced §T ids
-  then bundled `review` sub-agent then READY remainder (no operator wait),
+  spec-fold draft PR then post-spec-commit chain (`skills/_fragments/POST-SPEC-CHAIN.md`),
   operator-run code complete then review-apply then `gh pr ready` once per run,
   squash-merge with branch cleanup, `Closes #<issue>` at merge.
   No corresponding GitHub issue → no git branch, no GitHub PR
@@ -53,7 +52,7 @@ Every worked GitHub issue ! one issue-linked PR: BRANCH then PR (`--draft`).
 No corresponding GitHub issue → no BRANCH, no PR (`gh pr create`).
 Missing issue → bail: no `gh issue develop`, no `git checkout -b`, no `gh pr create`.
 Work stays on current branch; plain git commit still in scope.
-Spec-fold PR → post-spec-commit chain runs once — owner = this PR three-step list (github-workflow invariant): write-capable `/sdd:build` on fold-produced §T ids (not whole backlog) then bundled `review` sub-agent then READY remainder; no operator wait.
+Spec-fold PR → load `skills/_fragments/POST-SPEC-CHAIN.md`.
 Spec After OK stops at draft PR.
 Later issue-linked commits → PUSH.
 After operator-run issue-linked code complete → READY once per run.
@@ -96,12 +95,7 @@ No Acceptance copy.
 No secondary Closes @ create.
 Generic structure: change summary; no close trailer; no fixed template.
 
-**After spec APPLY commit + this draft PR** (github-workflow invariant; chain runs once; owner = this PR three-step list; no operator wait):
-
-1. run write-capable `/sdd:build §T.<a>,§T.<b>,…` sub-agent (ids = new §T this fold + existing `.` rows that received Acceptance notes this fold, in §T order; not `--all` whole backlog; spawn prompt ! `POST-SPEC-CHILD=1`; child implies `--no-chain`; child drops READY; write-serialize exclusion; child failure halts to parent — parent `gh pr comment` steno on draft PR (§T, class, Next) then Next leads `/sdd:build` and, when fail class is b/c, `/sdd:spec <cause>` BACKPROP; without running review).
-2. load-and-run bundled Grok `review` skill as sub-agent on the issue-linked branch vs default base (not slash-dispatch `/review`; recipe-step-no-dispatch invariant).
-   Scratch writes only, no repo edits; spawn omits capability_mode read-only (write-serialize exclusion).
-3. READY remainder — parse findings; apply open bug + suggestion; list nits; no wait; re-run task verify; fail → no `gh pr ready`; pass → `git push` (PUSH); `gh pr ready`.
+**After spec APPLY commit + this draft PR:** load `skills/_fragments/POST-SPEC-CHAIN.md`.
 
 ## PUSH — `git push` issue-linked branch w/ open PR
 
@@ -117,11 +111,12 @@ Post-spec-commit path already ran `review` as sub-agent → skip review; continu
 
 **Review** — load-and-run bundled Grok `review` skill on the issue-linked branch vs default base (not slash-dispatch `/review`; recipe-step-no-dispatch invariant).
 Skip when post-spec-commit already ran `review` as sub-agent.
+Scratch writes only, no repo edits; spawn omits capability_mode read-only.
 
 **Remainder** — parse findings.
 Post-spec: apply open bug + suggestion; list nits; no wait.
 Operator-run: apply open bug + suggestion; list nits; ? wait nits (apply unless operator declines).
-Re-run task verify.
+re-run task verify.
 Fail → no `gh pr ready`.
 Pass → `git push` (PUSH); `gh pr ready`.
 Post Acceptance-evidence comment once per issue-linked run when ALLOW evidence collected (ACCEPTANCE-GATE fragment).

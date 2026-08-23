@@ -3,8 +3,7 @@ name: build
 description: |
   Plan-then-execute implementation against SPEC.md §T tasks. Single-thread
   main agent; no swarm. Exclusion: github post-spec-commit write-capable child
-  builds fold-produced §T ids only (drops github READY; implies --no-chain;
-  parent runs review next).
+  (`POST-SPEC-CHILD=1`; `skills/_fragments/POST-SPEC-CHAIN.md`).
 when-to-use: |
   Use when asked to build, implement, or execute the spec or a specific §T
   task, or run /sdd:build. Phrasings: "build §T.<n>", "build --next",
@@ -34,8 +33,8 @@ Exclusion: github post-spec-commit write-capable child (write-serialize + github
    - `--all` → every `.` row in §T order — plan once, then chain {edit → verify → commit} per row
    - `--no-chain` → disable green-path check hop after pass
 3. If `.spec/backprop-handoff.json` exists → treat as resume card (see FAIL → BACKPROP); prefer its `T` id when args empty/`--next`.
-4. If prompt or env token `POST-SPEC-CHILD=1` set → this run is the github post-spec-commit child: write-capable; issue-linked pass = github PUSH only; drop READY (parent runs review next); **implies `--no-chain`** — child never hops to check or another build (github-workflow invariant).
-   Prefer comma-joined fold-produced §T ids from spawn prompt over bare `--all`.
+4. If prompt or env token `POST-SPEC-CHILD=1` set → post-spec child per `skills/_fragments/POST-SPEC-CHAIN.md`.
+   Prefer comma-joined ids from spawn prompt over bare `--all`.
 
 ## PLAN
 
@@ -93,7 +92,7 @@ After the last chosen row closes (single task, last of multi-id list, or last of
   Issue-linked READY implies no check hop.
   Next item #1: merge when approved — say "merge the PR" (auto-fires github MERGE).
   `/sdd:check` listed not hopped.
-- post-spec-commit child (`POST-SPEC-CHILD=1`): github PUSH only if not already pushed; drop READY (parent runs review next; github-workflow invariant).
+- post-spec-commit child (`POST-SPEC-CHILD=1`): per `skills/_fragments/POST-SPEC-CHAIN.md`.
 
 ## FAIL → BACKPROP
 
@@ -115,9 +114,7 @@ Mid-loop spec dispatch = sole mandatory exclusion from operator-only dispatch (p
 ## CHAIN (default-on)
 
 Per `skills/_fragments/CHAIN.md`.
-After successful pass (single task or last of multi-id/`--all`), unless `--no-chain` or `POST-SPEC-CHILD=1` or issue-linked READY: same-turn `/sdd:check` cascade over just-closed §T.
-Issue-linked READY implies no check hop — Next merge phrasing leads; `/sdd:check` listed not hopped.
-Child never chains.
+issue-linked READY implies no check hop — Next merge phrasing leads; `/sdd:check` listed not hopped.
 
 ## WRITE POLICY
 
@@ -135,7 +132,7 @@ Emit Next item per fragment.
 Per `skills/_fragments/NEXT.md`.
 Pass (chain off) → check leads, then build --next.
 Issue-linked operator-run pass → merge when approved (say "merge the PR"; github MERGE auto-fire) leads; `/sdd:check` listed not hopped.
-Post-spec-commit child → drop READY (parent runs review next); on fail include BACKPROP Next when class b/c.
+Post-spec-commit child → `skills/_fragments/POST-SPEC-CHAIN.md`; on fail include BACKPROP Next when class b/c.
 Backlog clear → `/sdd:spec` seed.
 
 ## NON-GOALS
