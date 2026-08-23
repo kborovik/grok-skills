@@ -54,7 +54,11 @@ Modes:
                 Issue-linked PR requires `gh pr create --draft`,
                 `gh pr ready`, Closes only at merge. Realized once
                 here so the drift-detector retires a hand-run github-skill
-                grep.
+                grep. Emits `write-serialize|VIOLATE|…` /
+                `write-serialize|MISSING|…` — the write-serialize
+                invariant's post-spec review spawn: `skills/github/SKILL.md`
+                requires `scratch writes` and
+                `omits capability_mode read-only` (closes §B.34).
                 Emits `linear-no-pr|VIOLATE|…` — leftover LINEAR-no-PR
                 wording (`LINEAR|solo linear|no PR required`) on skill
                 bodies, fragments, README, AGENTS.md (not SPEC.md — the
@@ -1726,6 +1730,53 @@ def audit_build_issue_linked(repo_root):
     return classify_build_issue_linked(build_text)
 
 
+# --- write-serialize review scratch-write audit (closes §B.34) ---------------
+
+# Needles the github post-spec review spawn must carry (write-serialize
+# invariant): scratch writes only, no repo edits; spawn omits
+# capability_mode read-only so the bundled review child can write its
+# scratch file.
+REVIEW_SCRATCH_NEEDLES = (
+    ("scratch writes", "review scratch writes"),
+    ("omits capability_mode read-only",
+     "spawn omits capability_mode read-only"),
+)
+
+
+def classify_review_scratch_write(github_text):
+    """write-serialize post-spec review spawn contract — pure,
+    unit-testable without the filesystem. `github_text` is
+    `skills/github/SKILL.md`; empty/unreadable → MISSING. Each required
+    needle absent → VIOLATE (one row per miss). Closes §B.34."""
+    if not github_text:
+        return [("write-serialize", "MISSING",
+                 "write-serialize MISSING: skills/github/SKILL.md unreadable")]
+    out = []
+    hay = github_text.lower()
+    for needle, what in REVIEW_SCRATCH_NEEDLES:
+        if needle.lower() not in hay:
+            out.append(("write-serialize", "VIOLATE",
+                        "write-serialize VIOLATE: skills/github/SKILL.md "
+                        f"missing {what}"))
+    return out
+
+
+def audit_review_scratch_write(repo_root):
+    """File-reading wrapper around classify_review_scratch_write
+    (write-serialize invariant). Resolves PUBLISHED `skills/github/SKILL.md`
+    via discover_skill_md — realized once here so the drift-detector retires
+    a hand-run review-spawn grep."""
+    by_name = {}
+    for path in discover_skill_md(repo_root):
+        by_name[os.path.basename(os.path.dirname(path))] = path
+    github_p = by_name.get("github")
+    try:
+        github_text = read_text(github_p) if github_p else ""
+    except OSError:
+        github_text = ""
+    return classify_review_scratch_write(github_text)
+
+
 # --- github-workflow README Issue-linked PR audit ----------------------------
 
 # Needles the README Issue-linked PR section must carry (github-workflow +
@@ -2556,6 +2607,7 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
     findings += audit_github_pr_per_issue(repo_root)
     findings += audit_spec_fold_github(repo_root)
     findings += audit_build_issue_linked(repo_root)
+    findings += audit_review_scratch_write(repo_root)
     findings += audit_readme_issue_linked(repo_root)
     findings += audit_linear_no_pr(repo_root)
     findings += audit_dispatch_targets(skill_md, plugin_names(repo_root))
@@ -3686,6 +3738,32 @@ def selftest():
     check(classify_spec_fold_github("")[0][1] == "MISSING",
           "spec-fold-github: empty spec body → MISSING")
 
+    # write-serialize post-spec review spawn: scratch writes only; spawn
+    # omits capability_mode read-only (closes §B.34).
+    # test_name_hint: review scratch write
+    rs_good = (
+        "load-and-run bundled review as sub-agent\n"
+        "Scratch writes only, no repo edits; "
+        "spawn omits capability_mode read-only\n"
+    )
+    check(classify_review_scratch_write(rs_good) == [],
+          "review scratch write: complete spawn recipe → clean")
+    check(any(v == "VIOLATE" and "scratch writes" in e
+              for _, v, e in classify_review_scratch_write(
+                  "spawn omits capability_mode read-only\n")),
+          "review scratch write: missing scratch writes → VIOLATE")
+    check(any(v == "VIOLATE" and "capability_mode read-only" in e
+              for _, v, e in classify_review_scratch_write(
+                  "scratch writes only, no repo edits\n")),
+          "review scratch write: missing omits capability_mode read-only "
+          "→ VIOLATE")
+    check(classify_review_scratch_write("")[0][1] == "MISSING",
+          "review scratch write: empty github body → MISSING")
+    check(compute_clean([("write-serialize", "VIOLATE", "")])[0] is False,
+          "write-serialize: VIOLATE is dirty")
+    check(validate_vocab([("write-serialize", "VIOLATE", "")]) == [],
+          "write-serialize: pseudo-id unrestricted vocab")
+
     # github-workflow build issue-linked pass: github PUSH then load-and-run
     # review-apply + gh pr ready; Next merge when approved.
     bi_good = (
@@ -4205,7 +4283,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 311
+    return 317
 
 
 # --- entry -------------------------------------------------------------------

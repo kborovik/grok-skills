@@ -308,7 +308,7 @@ Post-commit → POST-APPLY leads (BACKPROP concrete build; DISTILL check + confi
 
 ## NON-GOALS
 
-- Writes serialize on main thread; reads delegable to sub-agents; exclusion: github post-spec-commit `/sdd:build --all` child write-capable (github-workflow invariant).
+- Writes serialize on main thread; reads delegable to sub-agents; exclusion: github post-spec-commit `/sdd:build --all` child write-capable; bundled `review` sub-agent scratch writes only, no repo edits; spawn omits capability_mode read-only (github-workflow invariant).
 - No dashboards.
   Cache files (`.spec/backprop-handoff.json`, check memo) are not design truth.
 - No auto-build after non-BACKPROP spec except github PR recipe post-spec-commit chain (github-workflow invariant).
