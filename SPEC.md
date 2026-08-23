@@ -146,7 +146,7 @@ T91|x|README Issue-linked PR: no corresponding issue → no git branch, no GitHu
 T92|x|script: github no-issue-no-PR needles (corresponding GitHub issue + no BRANCH/no PR); self-test|V69,V40
 T93|x|build+ACCEPTANCE-GATE+github: fire verify on issue linkage not planned trailer; ALLOW @ build = evidence only; close trailer MERGE-only|V69,B37
 T94|x|script emit-v-weights: stub rows not heavy; self-test all-stub fixture → empty heavy set|V48,V40,B38
-T95|.|condense prong 6: consume stub-skip from table (no re-extract)|V48,B38
+T95|x|condense prong 6: consume stub-skip from table (no re-extract)|V48,B38
 T96|.|script classify_grants reverse (missing grant VIOLATE) + github allowed-tools add spawn_subagent, read_file, search_replace, write|V62,B39
 T97|.|github skill: READY remainder wording — no cross-section step index|V69
 T98|.|spec skill: split multi-sentence lines 93, 190, 193|V70

@@ -1839,6 +1839,47 @@ def audit_acceptance_gate_detect(repo_root):
     return classify_acceptance_gate_detect(frag_text, github_text)
 
 
+# Needles condense prong 6 must carry (token-budget invariant): consume
+# stub-skip from the v-weights table; no re-extract of already-stubbed rows.
+CONDENSE_PRONG6_NEEDLES = (
+    ("stub-skip", "consume stub-skip from table"),
+    ("no re-extract", "no re-extract already-stubbed rows"),
+)
+
+
+def classify_condense_stub_skip(condense_text):
+    """token-budget condense prong-6 stub-skip contract — pure,
+    unit-testable without the filesystem. `condense_text` is
+    `skills/condense/SKILL.md`; empty/unreadable → MISSING. Each
+    required needle absent → VIOLATE (one row per miss)."""
+    if not condense_text:
+        return [("token", "MISSING",
+                 "token MISSING: skills/condense/SKILL.md unreadable")]
+    out = []
+    for needle, what in CONDENSE_PRONG6_NEEDLES:
+        if needle not in condense_text:
+            out.append(("token", "VIOLATE",
+                        "token VIOLATE: skills/condense/SKILL.md "
+                        f"missing {what}"))
+    return out
+
+
+def audit_condense_stub_skip(repo_root):
+    """File-reading wrapper around classify_condense_stub_skip
+    (token-budget invariant). Resolves PUBLISHED
+    `skills/condense/SKILL.md` via discover_skill_md — realized once
+    here so the drift-detector retires a hand-run prong-6 consume grep."""
+    by_name = {}
+    for path in discover_skill_md(repo_root):
+        by_name[os.path.basename(os.path.dirname(path))] = path
+    condense_p = by_name.get("condense")
+    try:
+        condense_text = read_text(condense_p) if condense_p else ""
+    except OSError:
+        condense_text = ""
+    return classify_condense_stub_skip(condense_text)
+
+
 # --- write-serialize review scratch-write audit (closes §B.34) ---------------
 
 # Needles the github post-spec review spawn must carry (write-serialize
@@ -2831,6 +2872,7 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
     findings += audit_spec_fold_github(repo_root)
     findings += audit_build_issue_linked(repo_root)
     findings += audit_acceptance_gate_detect(repo_root)
+    findings += audit_condense_stub_skip(repo_root)
     findings += audit_review_scratch_write(repo_root)
     findings += audit_post_spec_child(repo_root)
     findings += audit_readme_issue_linked(repo_root)
@@ -4636,6 +4678,25 @@ def selftest():
           == "v_row|bytes|tokens|cum_pct|heavy",
           "emit-condense-propose: standalone headers preserved")
 
+    # condense prong 6 consumes stub-skip from the v-weights table
+    # (token-budget invariant; no re-extract).
+    cp6_good = (
+        "Heavy set = v-weights table.\n"
+        "Consume stub-skip from table (no re-extract).\n"
+    )
+    check(classify_condense_stub_skip(cp6_good) == [],
+          "condense prong-6: stub-skip + no re-extract → clean")
+    check(any(v == "VIOLATE" and "stub-skip" in e
+              for _, v, e in classify_condense_stub_skip(
+                  "no re-extract of stubs\n")),
+          "condense prong-6: missing stub-skip → VIOLATE")
+    check(any(v == "VIOLATE" and "no re-extract" in e
+              for _, v, e in classify_condense_stub_skip(
+                  "consume stub-skip from table\n")),
+          "condense prong-6: missing no re-extract → VIOLATE")
+    check(classify_condense_stub_skip("")[0][1] == "MISSING",
+          "condense prong-6: empty body → MISSING")
+
     # acceptance-gate parse + verdict (github-workflow invariant; closes §B.31)
     # test_name_hint: acceptance_gate_blocks_unproven_close
     ag_body = (
@@ -4720,7 +4781,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 335
+    return 339
 
 
 # --- entry -------------------------------------------------------------------

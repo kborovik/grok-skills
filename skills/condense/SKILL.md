@@ -97,8 +97,10 @@ Verbatim-preservation holds: code, paths, URLs, identifiers, numbers, versions, 
 
 ### Prong 6 — §V audit-recipe extraction
 
-Heavy set = `## v-weights` table (`v_row|bytes|tokens|cum_pct|heavy`), heaviest first; heavy = top rows whose cumulative weight first reaches ≥ 50% of §V-section total (tie-break descending weight then ascending id — run-stable).
+Heavy set = `## v-weights` table (`v_row|bytes|tokens|cum_pct|heavy`), heaviest first.
+Consume stub-skip from table: extract `heavy=yes` only; `heavy=no` (already-stubbed `→ .spec/check-extras.md §V<n>` rows) → no re-extract.
 Not by inspection.
+Not a second stub-detect pass — the table owns stub-skip.
 Heavy rows: extract audit-recipe content → `.spec/check-extras.md` (REPO-LOCAL extension); SPEC.md row keeps 1-line ref.
 Check skill loader already path-probes `.spec/check-extras.md` — no check-skill amend.
 
