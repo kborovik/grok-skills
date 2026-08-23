@@ -122,10 +122,12 @@ Recipe pauses (Next: merge when approved).
 
 Run ACCEPTANCE-GATE first.
 BLOCK → do not add close trailer; do not merge.
-ALLOW → add `Closes #<issue>` to PR body then `gh pr merge <n> --squash --delete-branch` (commits squashed, remote branch deleted); post evidence comment per fragment if not already posted.
+ALLOW → add `Closes #<issue>` to PR body then `gh pr merge <n> --squash --delete-branch --subject "<title> (#<issue>)" --body "Closes #<issue>"` (commits squashed, remote branch deleted); post evidence comment per fragment if not already posted.
+Squash subject ! `#<issue>` the linked issue not merely PR; GitHub default `(#PR)` insufficient.
 ADVISORY → surface advisory, then add Closes + merge only after the advisory is stated.
 
 `Closes #<issue>` in the PR body auto-closes the linked issue on merge → no separate `gh issue close`.
+Squash commit subject and body carry `#<issue>` → git log recovers closed issue.
 
 ## CLOSE — unmerged
 

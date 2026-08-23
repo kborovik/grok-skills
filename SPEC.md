@@ -137,7 +137,7 @@ T82|x|spec+github: post-spec-commit chain runs once; owner = github PR three-ste
 T83|x|V21+§C: post-spec review sub-agent scratch-write exclusion; spawn omits capability_mode read-only|V21,B34
 T84|x|build skill: `POST-SPEC-CHILD=1` discriminator in LOAD; token set → PUSH only, drop READY|V69,V21,B35
 T85|x|add `backprop-handoff.json` to `.spec/.gitignore` during initial setup|V73
-T86|.|github skill MERGE: squash commit subject ! hold `#<issue>` via `gh pr merge --squash --subject "<title> (#<issue>)" --body "Closes #<issue>"`; GitHub default `(#PR)` insufficient|V69,B36
+T86|x|github skill MERGE: squash commit subject ! hold `#<issue>` via `gh pr merge --squash --subject "<title> (#<issue>)" --body "Closes #<issue>"`; GitHub default `(#PR)` insufficient|V69,B36
 T87|.|script: github MERGE needles `--subject` + `#<issue>` (issue not merely PR); self-test|V69,V40,B36
 T88|.|README Issue-linked PR: squash commit message holds `#<issue>`|V69,V2,B36
 T89|x|github skill: BRANCH+PR require corresponding GitHub issue; missing → no git branch, no `gh pr create`|V69
