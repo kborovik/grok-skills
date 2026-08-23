@@ -128,6 +128,9 @@ Recipe pauses (Next: merge when approved — say "merge the PR" / "merge PR `<pr
 
 Run ACCEPTANCE-GATE first (full evidence for every open Acceptance bullet).
 BLOCK → do not add close trailer; do not merge.
+Probe `gh pr checks <pr>` + `gh pr view <pr> --json reviewDecision,mergeable`.
+Empty checks skip.
+Required reviews missing or CHANGES_REQUESTED or unmergeable → BLOCK, no merge.
 ALLOW → add `Closes #<issue>` to PR body then `gh pr merge <pr> --squash --delete-branch --subject "<title> (#<issue>)" --body "Closes #<issue>"` (commits squashed, remote branch deleted); post evidence comment per fragment if not already posted.
 Squash subject ! `#<issue>` the linked issue not merely PR; GitHub default `(#PR)` insufficient.
 ADVISORY → surface advisory, then add Closes + merge only after the advisory is stated.
