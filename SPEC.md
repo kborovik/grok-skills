@@ -31,28 +31,28 @@ external surface — what operator + consuming repo see.
 
 numbered, testable, named; each ! hold. ids clustered by topic; gaps = cluster spans + closure history.
 
-V1: spec-adjacent-register — SPEC.md, `skills/**/SKILL.md`, SPEC-FORMAT.md, spec-referencing prose ! telegraph per telegraph skill; /sdd:explain decodes on demand.
-V2: github-facing-register — README, issues, PRs, commit-msg bodies ! steno per steno skill; commit subjects = per-skill fixed templates, verbatim.
+V1: spec-adjacent-register — → `.spec/check-extras.md §V1`
+V2: github-facing-register — → `.spec/check-extras.md §V2`
 V3: verbatim-preservation — → `.spec/check-extras.md §V3`
 V4: symbol-set — → `.spec/check-extras.md §V4`
-V10: sole-source-of-truth — SPEC.md @ repo root is sole live spec; no docs/ tree, no sidecars; SPEC.archive.md sibling carries immutable archived rows only.
-V11: shape-semantics-split — SPEC-FORMAT.md binds row shape + section catalog + citation grammar; §V rows bind semantics + enforcement; neither restates the other.
-V12: monotonic-numbering — V/T/B ids strictly increasing in section order; gaps OK, reuse banned; sole renumber path = /sdd:reorganize (map append + cite sweep, same commit).
+V10: sole-source-of-truth — → `.spec/check-extras.md §V10`
+V11: shape-semantics-split — → `.spec/check-extras.md §V11`
+V12: monotonic-numbering — → `.spec/check-extras.md §V12`
 V13: cite-resolution — → `.spec/check-extras.md §V13`
-V14: pinned-cite-ban — PUBLISHED bodies ! placeholder (`§V.<n>`) or named-invariant form, never pinned §-digit cites; SPEC.md-narrative + REPO-LOCAL pinned cites ! resolve live.
+V14: pinned-cite-ban — → `.spec/check-extras.md §V14`
 V15: renumber-chain-walk — → `.spec/check-extras.md §V15`
 V16: archive-semantics — → `.spec/check-extras.md §V16`
 V20: write-ownership — → `.spec/check-extras.md §V20`
-V21: write-serialize — SPEC.md + code writes serialize main-thread; reads delegable to read-only sub-agents; exclusion: github post-spec-commit chain runs write-capable `/sdd:build --all` child and bundled `review` sub-agent (scratch writes only, no repo edits; spawn omits capability_mode read-only) (github-workflow invariant) (closes §B.34).
+V21: write-serialize — → `.spec/check-extras.md §V21`
 V22: recipe-step-no-dispatch — → `.spec/check-extras.md §V22`
 V23: decision-gate — → `.spec/check-extras.md §V23`
 V24: response-shape — → `.spec/check-extras.md §V24`
 V25: socratic-gate — → `.spec/check-extras.md §V25`
-V26: first-principle-probe — NEW mode fires foundational-claim question exactly once, declinable; `first-principle-asked` recorded regardless of answer.
+V26: first-principle-probe — → `.spec/check-extras.md §V26`
 V27: backprop-protocol — → `.spec/check-extras.md §V27`
 V28: freshness-contract — → `.spec/check-extras.md §V28`
 V29: fold-first — → `.spec/check-extras.md §V29`
-V30: sweep-scope — sweep-class §T row ! declare scope as grep pattern or vocab table; named-procedure + named-site lists rejected.
+V30: sweep-scope — → `.spec/check-extras.md §V30`
 V31: shape-lifecycle — → `.spec/check-extras.md §V31`
 V40: mechanical-realization — → `.spec/check-extras.md §V40`
 V41: parametric-recipe — → `.spec/check-extras.md §V41`
@@ -61,10 +61,10 @@ V43: drift-verdict-vocab — → `.spec/check-extras.md §V43`
 V44: memo — → `.spec/check-extras.md §V44`
 V45: scope-feed — → `.spec/check-extras.md §V45`
 V46: batch — → `.spec/check-extras.md §V46`
-V47: check-dispatch — /sdd:check accepts bare (memo-driven) or `--full` (drop memo, re-classify all) only; other args bail.
+V47: check-dispatch — → `.spec/check-extras.md §V47`
 V48: token-budget — → `.spec/check-extras.md §V48`
 V49: extras-hook — → `.spec/check-extras.md §V49`
-V60: skills-only — every surface = `skills/<name>/SKILL.md` dispatched natively as `/<plugin>:<name>`; no commands/ tree, no hooks, no orchestrator.
+V60: skills-only — → `.spec/check-extras.md §V60`
 V61: sub-skill-flags — → `.spec/check-extras.md §V61`
 V62: tooling-preference — → `.spec/check-extras.md §V62`
 V63: plugin-shape — → `.spec/check-extras.md §V63`
@@ -79,29 +79,13 @@ V71: consumer-core-profile — → `.spec/check-extras.md §V71`
 V72: shared-fragments — → `.spec/check-extras.md §V72`
 V73: backprop-resume-card — → `.spec/check-extras.md §V73`
 V74: micro-amend — → `.spec/check-extras.md §V74`
-V75: auto-fire-engage-log — auto-fire sub-skills (telegraph, steno, monitor, github) emit one telegraph `engaged sdd:<name>` line when they fire so the operator sees the governor.
+V75: auto-fire-engage-log — → `.spec/check-extras.md §V75`
 V76: thin-check — → `.spec/check-extras.md §V76`
 
 ## §T TASKS
-## archived: §T.1..§T.18 → SPEC.archive.md (18 rows)
+## archived: §T.1..§T.34 → SPEC.archive.md (34 rows)
 
 id|status|task|cites
-T19|x|script: MECHANIZE block byte-identity audit + self-test|V66,V40
-T20|x|script: ban slash-dispatch of auto-fire sub-skills|V24,V40,B14
-T21|x|reframe backprop frontmatter as caller-engaged sub-skill|V24,V61,B14
-T22|x|sweep allowed-tools: drop zero-body-use Skill grants|V62
-T23|x|read-only skills: add disallowed-tools Edit, Write|V20,V62
-T24|x|drop remaining zero-body-use grants (backprop/design/explain)|V62
-T25|x|drop residual Glob/Skill zero-use grants after T24|V62,B17
-T26|x|script: zero-body-use grant audit + self-test|V62,V40,B17
-T27|x|script emit-token-estimate mode for budget baseline|V40,V48
-T28|x|rename surface compact → condense across plugin|V60
-T29|x|sweep 25k → 20k token-budget threshold in docs|V48
-T30|x|socratic CONVERGENCE: AskUserQuestion gate not prose or|V23,B18
-T31|x|sweep human-facing surfaces: spell out → ≥ ≤ & ~|V4,V67,B19
-T32|x|script: naked-symbol audit on human-facing surfaces|V4,V67,V40,B19
-T33|x|fix manifest description token-cut figure 30% → 40%|B20
-T34|x|sweep steno + design bodies per symbol-set + human-clarity|V4,V67,B21
 T35|x|author root clarity carrier (CLAUDE.md era) + marker block|V67,B21
 T36|x|script: clarity-carrier presence + marker-block audit|V67,V40,B21
 T37|x|sweep README banned idiom/metaphor → literal phrasing|V67,B22

@@ -2,6 +2,14 @@
 
 /sdd:condense-extracted §V row bodies for token-budget management. Consulted verbatim by /sdd:check sub-agents via RECIPE_EXCERPT. Row ordering: ascending §V id.
 
+## §V1 spec-adjacent-register
+
+V1: spec-adjacent-register — SPEC.md, `skills/**/SKILL.md`, SPEC-FORMAT.md, spec-referencing prose ! telegraph per telegraph skill; /sdd:explain decodes on demand.
+
+## §V2 github-facing-register
+
+V2: github-facing-register — README, issues, PRs, commit-msg bodies ! steno per steno skill; commit subjects = per-skill fixed templates, verbatim.
+
 ## §V3 verbatim-preservation
 
 V3: verbatim-preservation — code, backticked text, paths, URLs, identifiers, numbers, versions, error strings, SQL, regex, JSON, YAML, quoted strings never compressed; backtick-wrapped tokens exempt every residue + cite audit.
@@ -10,9 +18,25 @@ V3: verbatim-preservation — code, backticked text, paths, URLs, identifiers, n
 
 V4: symbol-set — telegraph (LLM-facing: SPEC.md, skill bodies) keeps `→ ≥ ≤ ! ? §`; human-facing prose (steno surfaces, AGENTS.md, chat) spells out `→ ≥ ≤ &` as words, retains `|` for list/table separators + `§` for cites only; heavier math operators ! ASCII words.
 
+## §V10 sole-source-of-truth
+
+V10: sole-source-of-truth — SPEC.md @ repo root is sole live spec; no docs/ tree, no sidecars; SPEC.archive.md sibling carries immutable archived rows only.
+
+## §V11 shape-semantics-split
+
+V11: shape-semantics-split — SPEC-FORMAT.md binds row shape + section catalog + citation grammar; §V rows bind semantics + enforcement; neither restates the other.
+
+## §V12 monotonic-numbering
+
+V12: monotonic-numbering — V/T/B ids strictly increasing in section order; gaps OK, reuse banned; sole renumber path = /sdd:reorganize (map append + cite sweep, same commit).
+
 ## §V13 cite-resolution
 
 V13: cite-resolution — every cite ! resolve: `cites` tokens → live/archived V/T/B row or live §I kind, `fix` tokens → §V row, free-text `§<S>.<n>` → §<S> row; renumber sweeps citers same commit.
+
+## §V14 pinned-cite-ban
+
+V14: pinned-cite-ban — PUBLISHED bodies ! placeholder (`§V.<n>`) or named-invariant form, never pinned §-digit cites; SPEC.md-narrative + REPO-LOCAL pinned cites ! resolve live.
 
 ## §V15 renumber-chain-walk
 
@@ -25,6 +49,10 @@ V16: archive-semantics — archived §T/§B + retired §V rows migrate verbatim 
 ## §V20 write-ownership
 
 V20: write-ownership — /sdd:spec sole SPEC.md author; exclusions: /sdd:build flips one §T status cell per closed task; /sdd:condense + /sdd:reorganize apply operator-confirmed structural sweeps; /sdd:check + /sdd:explain write nothing; every skill auto-commit path-scoped to owned files (`git commit -m <subject> [-m <body>] -- <paths>` / `--only`; `-m` flags ! precede `--` — tokens after `--` parse as pathspecs, commit aborts) — bare `git add <paths>` + `git commit` banned (commits whole index → pre-staged file leaks into the scoped commit), subsumes per-skill `never git add -A` (closes §B.12, §B.13).
+
+## §V21 write-serialize
+
+V21: write-serialize — SPEC.md + code writes serialize main-thread; reads delegable to read-only sub-agents; exclusion: github post-spec-commit chain runs write-capable `/sdd:build --all` child and bundled `review` sub-agent (scratch writes only, no repo edits; spawn omits capability_mode read-only) (github-workflow invariant) (closes §B.34).
 
 ## §V22 recipe-step-no-dispatch
 
@@ -42,6 +70,10 @@ V24: response-shape — user-typeable skill output ends `## Next` (1–5 atomic 
 
 V25: socratic-gate — /sdd:spec mode {NEW, DISTILL, BACKPROP, AMEND, FOLD-IN} = gate byproduct of free-form `$ARGUMENTS`; no mode prefixes, no skip flags; concrete intent converges ≤ 1 turn.
 
+## §V26 first-principle-probe
+
+V26: first-principle-probe — NEW mode fires foundational-claim question exactly once, declinable; `first-principle-asked` recorded regardless of answer.
+
 ## §V27 backprop-protocol
 
 V27: backprop-protocol — every bug → §B row; recurrence class → new or tightened §V preferred; two commits cross-cited: spec commit (§B + §V + §T) first, build commit (failing test first, then fix) cites the new rows.
@@ -53,6 +85,10 @@ V28: freshness-contract — live rows = clean current design; history → commit
 ## §V29 fold-first
 
 V29: fold-first — new §V row vs amend of closest existing row ! operator gate; split justification = §B recurrence cite or declared orthogonal concept; "mirrors existing row" alone insufficient.
+
+## §V30 sweep-scope
+
+V30: sweep-scope — sweep-class §T row ! declare scope as grep pattern or vocab table; named-procedure + named-site lists rejected.
 
 ## §V31 shape-lifecycle
 
@@ -86,6 +122,10 @@ V45: scope-feed — default-sweep scope = script-emitted rows (v_row_shas drift,
 
 V46: batch — §V classification MAY parallelize; count = script audit `batch|ADVISORY|recommended: <n> agents` row: `ceil(|V|/15)` clamp [1, 4], PUBLISHED file census < `ceil(|V|/2)` → 1 agent; LLM never hand-computes count; contiguous spans, canonical prompt block copied verbatim (fill `{...}` only); failed batch re-runs serially (closes §B.7).
 
+## §V47 check-dispatch
+
+V47: check-dispatch — /sdd:check accepts bare (memo-driven) or `--full` (drop memo, re-classify all) only; other args bail.
+
 ## §V48 token-budget
 
 V48: token-budget — estimate = bytes / 3.4; > 20k tokens → check advisory → operator /sdd:condense; > 50 closed §T rows → window-vs-archive split; canonical values here, mirrored as script constants, retuned via AMEND + script sync same commit.
@@ -93,6 +133,10 @@ V48: token-budget — estimate = bytes / 3.4; > 20k tokens → check advisory �
 ## §V49 extras-hook
 
 V49: extras-hook — executable `.spec/scripts/check-extras.sh` runs inside script audit, rows appended verbatim (language-agnostic `id|verdict|evidence` contract); judgment-class extras live in `.spec/check-extras.md`, consulted by check + build pre-commit probe; condense-extracted §V bodies live here too, SPEC.md row left a `→ .spec/check-extras.md §V<n>` stub — /sdd:spec AMEND of a stub-redirected §V resolves the target to its body file + path-scopes write + commit there (check-extras.md, not SPEC.md) (closes §B.23).
+
+## §V60 skills-only
+
+V60: skills-only — every surface = `skills/<name>/SKILL.md` dispatched natively as `/<plugin>:<name>`; no commands/ tree, no hooks, no orchestrator.
 
 ## §V61 sub-skill-flags
 
@@ -149,6 +193,10 @@ V73: backprop-resume-card — BACKPROP APPLY writes `.spec/backprop-handoff.json
 ## §V74 micro-amend
 
 V74: micro-amend — single-§ single-line AMEND with no new §V row uses shortened APPLY gate (preview + Apply-led ask_user_question; skip fold-first); structural modes keep full gate.
+
+## §V75 auto-fire-engage-log
+
+V75: auto-fire-engage-log — auto-fire sub-skills (telegraph, steno, monitor, github) emit one telegraph `engaged sdd:<name>` line when they fire so the operator sees the governor.
 
 ## §V76 thin-check
 

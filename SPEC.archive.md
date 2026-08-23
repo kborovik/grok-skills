@@ -21,6 +21,22 @@ T15|x|sweep body rg → builtin Grep / grep -v -E invert|V62,V3
 T16|x|copy canonical MECHANIZE block into user-invocable skills|V66,V30
 T17|x|monitor: add mechanization-candidate dispatch path|V65,V66
 T18|x|pin git commit -m before -- in path-scoped recipes|V20,V30
+T19|x|script: MECHANIZE block byte-identity audit + self-test|V66,V40
+T20|x|script: ban slash-dispatch of auto-fire sub-skills|V24,V40,B14
+T21|x|reframe backprop frontmatter as caller-engaged sub-skill|V24,V61,B14
+T22|x|sweep allowed-tools: drop zero-body-use Skill grants|V62
+T23|x|read-only skills: add disallowed-tools Edit, Write|V20,V62
+T24|x|drop remaining zero-body-use grants (backprop/design/explain)|V62
+T25|x|drop residual Glob/Skill zero-use grants after T24|V62,B17
+T26|x|script: zero-body-use grant audit + self-test|V62,V40,B17
+T27|x|script emit-token-estimate mode for budget baseline|V40,V48
+T28|x|rename surface compact → condense across plugin|V60
+T29|x|sweep 25k → 20k token-budget threshold in docs|V48
+T30|x|socratic CONVERGENCE: AskUserQuestion gate not prose or|V23,B18
+T31|x|sweep human-facing surfaces: spell out → ≥ ≤ & ~|V4,V67,B19
+T32|x|script: naked-symbol audit on human-facing surfaces|V4,V67,V40,B19
+T33|x|fix manifest description token-cut figure 30% → 40%|B20
+T34|x|sweep steno + design bodies per symbol-set + human-clarity|V4,V67,B21
 
 ## §B BUGS
 
