@@ -59,6 +59,10 @@ Modes:
                 `reviewDecision,mergeable` (closes §B.69);
                 CLOSE `gh pr close --delete-branch` (closes §B.70);
                 PR body `Related: #<issue>` (no Acceptance copy).
+                READY remainder no wait, fold-produced Acceptance
+                notes, re-run task verify, child-fail
+                `gh pr comment` (closes §B.66, §B.67, §B.68,
+                §B.71).
                 `skills/build/SKILL.md`
                 issue-linked pass
                 requires github PUSH then load-and-run review-apply +
@@ -2273,6 +2277,54 @@ def audit_github_merge_subject(repo_root):
     return classify_github_merge_subject(github_text)
 
 
+# --- github-workflow READY remainder + fold ids (closes §B.66–§B.68, §B.71)
+
+# Needles the github skill must carry (github-workflow invariant):
+# post-spec READY remainder no wait; fold-produced ids include existing
+# `.` rows that received Acceptance notes; READY re-runs task verify
+# before `gh pr ready`; child-fail posts `gh pr comment`.
+GITHUB_READY_REMAINDER_NEEDLES = (
+    ("no wait", "READY remainder no wait"),
+    ("Acceptance notes", "fold-produced Acceptance notes"),
+    ("re-run task verify", "READY re-run task verify"),
+    ("gh pr comment", "child-fail gh pr comment"),
+)
+
+
+def classify_github_ready_remainder(github_text):
+    """github-workflow READY remainder + fold-produced Acceptance-notes
+    contract — pure, unit-testable without the filesystem (closes
+    §B.66, §B.67, §B.68, §B.71). `github_text` is
+    `skills/github/SKILL.md`; empty/unreadable → MISSING. Each
+    required needle absent → VIOLATE (one row per miss)."""
+    if not github_text:
+        return [("github-workflow", "MISSING",
+                 "github-workflow MISSING: skills/github/SKILL.md unreadable")]
+    out = []
+    for needle, what in GITHUB_READY_REMAINDER_NEEDLES:
+        if needle not in github_text:
+            out.append(("github-workflow", "VIOLATE",
+                        "github-workflow VIOLATE: skills/github/SKILL.md "
+                        f"missing {what}"))
+    return out
+
+
+def audit_github_ready_remainder(repo_root):
+    """File-reading wrapper around classify_github_ready_remainder
+    (github-workflow invariant). Resolves PUBLISHED
+    `skills/github/SKILL.md` via discover_skill_md — realized once here
+    so the drift-detector retires a hand-run READY-remainder grep."""
+    by_name = {}
+    for path in discover_skill_md(repo_root):
+        by_name[os.path.basename(os.path.dirname(path))] = path
+    github_p = by_name.get("github")
+    try:
+        github_text = read_text(github_p) if github_p else ""
+    except OSError:
+        github_text = ""
+    return classify_github_ready_remainder(github_text)
+
+
 # --- leftover LINEAR-no-PR wording audit -------------------------------------
 
 # Sweep-scope grep from §T.73 (github-workflow invariant): remaining
@@ -3111,6 +3163,7 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
     findings += audit_github_pr_per_issue(repo_root)
     findings += audit_github_merge_subject(repo_root)
     findings += audit_github_merge_probe(repo_root)
+    findings += audit_github_ready_remainder(repo_root)
     findings += audit_spec_fold_github(repo_root)
     findings += audit_build_issue_linked(repo_root)
     findings += audit_issue_linked_ready_chain(repo_root)
@@ -4292,6 +4345,38 @@ def selftest():
           "→ VIOLATE")
     check(classify_github_merge_probe("")[0][1] == "MISSING",
           "github MERGE check-probe: empty github body → MISSING")
+
+    # github-workflow READY remainder no wait + fold-produced Acceptance
+    # notes + re-run task verify + gh pr comment (closes §B.66, §B.67,
+    # §B.68, §B.71).
+    # test_name_hint: github READY remainder no-wait + fold-produced Acceptance-notes
+    grr_good = (
+        "Post-spec: apply open bug + suggestion; list nits; no wait.\n"
+        "ids = new §T this fold + existing `.` rows that received "
+        "Acceptance notes this fold\n"
+        "re-run task verify. Fail → no gh pr ready.\n"
+        "parent gh pr comment steno on draft PR\n"
+    )
+    check(classify_github_ready_remainder(grr_good) == [],
+          "github READY remainder: complete recipe → clean")
+    check(any(v == "VIOLATE" and "no wait" in e
+              for _, v, e in classify_github_ready_remainder(
+                  "Acceptance notes\nre-run task verify\ngh pr comment\n")),
+          "github READY remainder: missing no wait → VIOLATE")
+    check(any(v == "VIOLATE" and "Acceptance notes" in e
+              for _, v, e in classify_github_ready_remainder(
+                  "no wait\nre-run task verify\ngh pr comment\n")),
+          "github READY remainder: missing Acceptance notes → VIOLATE")
+    check(any(v == "VIOLATE" and "re-run task verify" in e
+              for _, v, e in classify_github_ready_remainder(
+                  "no wait\nAcceptance notes\ngh pr comment\n")),
+          "github READY remainder: missing re-run task verify → VIOLATE")
+    check(any(v == "VIOLATE" and "gh pr comment" in e
+              for _, v, e in classify_github_ready_remainder(
+                  "no wait\nAcceptance notes\nre-run task verify\n")),
+          "github READY remainder: missing gh pr comment → VIOLATE")
+    check(classify_github_ready_remainder("")[0][1] == "MISSING",
+          "github READY remainder: empty github body → MISSING")
 
     # github-workflow spec FOLD-IN github issue: BRANCH then SPEC.md commit
     # then gh pr create --draft; no close trailer @ create; no review-at-create;
