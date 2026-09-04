@@ -99,11 +99,11 @@ Modes:
                 re-accumulate.
                 Plugin-internal skill-body + plugin-README needle audits
                 (shape-lifecycle, github-workflow, write-serialize,
-                condense-stub token, README Issue-linked PR) skip when
-                `plugin_dirs(repo_root)` is empty — empty produces no
-                row, not MISSING/VIOLATE. A plugin repo still emits
-                them. Consumer extras-hook, cite-DAG, history,
-                token-budget, and memo/scope-feed still run.
+                condense-stub token, README Issue-linked PR, linear-no-pr)
+                skip when `plugin_dirs(repo_root)` is empty — empty
+                produces no row, not MISSING/VIOLATE. A plugin repo
+                still emits them. Consumer extras-hook, cite-DAG,
+                history, token-budget, and memo/scope-feed still run.
                 Emits `grant|VIOLATE|…` — the tooling-preference invariant's
                 grant-use rule, both directions: no frontmatter `allowed-tools`
                 grant is zero-body-use (a granted tool the skill body never
@@ -3195,10 +3195,7 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
     findings += audit_pinned_header(published_md)
     skill_md = discover_skill_md(repo_root)
     findings += audit_mechanize_block(skill_md)
-    # consumer-core-profile: skill-body + plugin-README needle audits skip
-    # when plugin_dirs is empty — empty produces no row, not MISSING/VIOLATE.
-    # Format / cite-DAG / history / token-budget / memo / scope / extras-hook
-    # still run.
+    # empty plugin_dirs → no row, not MISSING/VIOLATE
     if plugin_dirs(repo_root):
         findings += audit_shape_post_approve(repo_root)
         findings += audit_github_pr_per_issue(repo_root)
@@ -5352,11 +5349,8 @@ def selftest():
               and extra_lines.count("backprop-handoff.json") == 1,
               "gitignore-guard: preserves extra lines; appends missing memo")
 
-    # consumer-core-profile: plugin-internal skill-body + plugin-README
-    # needle audits skip when plugin_dirs is empty (closes B72). Empty
-    # produces no row, not MISSING/VIOLATE. Plugin repo still emits.
-    # Consumer extras-hook / cite-DAG / history / token-budget / memo stay.
-    _pi_ids = ("shape-lifecycle", "github-workflow", "write-serialize")
+    _pi_ids = ("shape-lifecycle", "github-workflow", "write-serialize",
+               "linear-no-pr")
 
     def _pi_dirty(rows):
         out = []
@@ -5382,7 +5376,7 @@ def selftest():
         with open(spec_p, "w", encoding="utf-8") as f:
             f.write(_min_spec)
         with open(os.path.join(td, "README.md"), "w", encoding="utf-8") as f:
-            f.write("Product readme. No draft PR needles.\n")
+            f.write("Product readme. LINEAR track. No draft PR needles.\n")
         hook_dir = os.path.join(td, ".spec", "scripts")
         os.makedirs(hook_dir)
         hook = os.path.join(hook_dir, "check-extras.sh")
@@ -5450,6 +5444,10 @@ def selftest():
                   for rid, v, _ in plugin_rows),
               "consumer-core-profile: non-empty plugin_dirs still audits "
               "condense-stub token")
+        check(any(rid == "linear-no-pr" and v in DIRTY_VERDICTS
+                  for rid, v, _ in plugin_rows),
+              "consumer-core-profile: non-empty plugin_dirs still audits "
+              "linear-no-pr")
 
     if fails:
         sys.stderr.write("SELF-TEST FAIL:\n  " + "\n  ".join(fails) + "\n")
@@ -5460,7 +5458,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 380
+    return 381
 
 
 # --- entry -------------------------------------------------------------------
