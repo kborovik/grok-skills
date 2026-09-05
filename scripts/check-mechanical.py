@@ -97,6 +97,13 @@ Modes:
                 sweep §T row names the pattern). Backtick-wrapped tokens
                 exempt. Realized once here so the sweep cannot silently
                 re-accumulate.
+                Plugin-internal skill-body + plugin-README needle audits
+                (shape-lifecycle, github-workflow, write-serialize,
+                condense-stub token, README Issue-linked PR, linear-no-pr)
+                skip when `plugin_dirs(repo_root)` is empty — empty
+                produces no row, not MISSING/VIOLATE. A plugin repo
+                still emits them. Consumer extras-hook, cite-DAG,
+                history, token-budget, and memo/scope-feed still run.
                 Emits `grant|VIOLATE|…` — the tooling-preference invariant's
                 grant-use rule, both directions: no frontmatter `allowed-tools`
                 grant is zero-body-use (a granted tool the skill body never
@@ -3188,20 +3195,22 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
     findings += audit_pinned_header(published_md)
     skill_md = discover_skill_md(repo_root)
     findings += audit_mechanize_block(skill_md)
-    findings += audit_shape_post_approve(repo_root)
-    findings += audit_github_pr_per_issue(repo_root)
-    findings += audit_github_merge_subject(repo_root)
-    findings += audit_github_merge_probe(repo_root)
-    findings += audit_github_ready_remainder(repo_root)
-    findings += audit_spec_fold_github(repo_root)
-    findings += audit_build_issue_linked(repo_root)
-    findings += audit_issue_linked_ready_chain(repo_root)
-    findings += audit_acceptance_gate_detect(repo_root)
-    findings += audit_condense_stub_skip(repo_root)
-    findings += audit_review_scratch_write(repo_root)
-    findings += audit_post_spec_child(repo_root)
-    findings += audit_readme_issue_linked(repo_root)
-    findings += audit_linear_no_pr(repo_root)
+    # empty plugin_dirs → no row, not MISSING/VIOLATE
+    if plugin_dirs(repo_root):
+        findings += audit_shape_post_approve(repo_root)
+        findings += audit_github_pr_per_issue(repo_root)
+        findings += audit_github_merge_subject(repo_root)
+        findings += audit_github_merge_probe(repo_root)
+        findings += audit_github_ready_remainder(repo_root)
+        findings += audit_spec_fold_github(repo_root)
+        findings += audit_build_issue_linked(repo_root)
+        findings += audit_issue_linked_ready_chain(repo_root)
+        findings += audit_acceptance_gate_detect(repo_root)
+        findings += audit_condense_stub_skip(repo_root)
+        findings += audit_review_scratch_write(repo_root)
+        findings += audit_post_spec_child(repo_root)
+        findings += audit_readme_issue_linked(repo_root)
+        findings += audit_linear_no_pr(repo_root)
     findings += audit_dispatch_targets(skill_md, plugin_names(repo_root))
     findings += audit_grants(discover_grant_skills(repo_root))
     findings += audit_human_symbols(discover_human_facing(repo_root))
@@ -5340,6 +5349,106 @@ def selftest():
               and extra_lines.count("backprop-handoff.json") == 1,
               "gitignore-guard: preserves extra lines; appends missing memo")
 
+    _pi_ids = ("shape-lifecycle", "github-workflow", "write-serialize",
+               "linear-no-pr")
+
+    def _pi_dirty(rows):
+        out = []
+        for rid, v, e in rows:
+            if v not in DIRTY_VERDICTS:
+                continue
+            if rid in _pi_ids or (rid == "token" and v in ("MISSING", "VIOLATE")):
+                out.append((rid, v, e))
+        return out
+
+    _min_spec = (
+        "## §G GOAL\n" "goal\n"
+        "## §C CONSTRAINTS\n" "- one\n"
+        "## §I INTERFACES\n" "- cmd: `foo` → out\n"
+        "## §V INVARIANTS\n"
+        + _vrow(1, "first axiom") + "\n"
+        "## §T TASKS\n" "id|status|task|cites\n"
+        + f"T{1}|x|do thing|V{1}\n"
+        "## §B BUGS\n" "id|date|cause|fix\n"
+    )
+    with tempfile.TemporaryDirectory() as td:
+        spec_p = os.path.join(td, "SPEC.md")
+        with open(spec_p, "w", encoding="utf-8") as f:
+            f.write(_min_spec)
+        with open(os.path.join(td, "README.md"), "w", encoding="utf-8") as f:
+            f.write("Product readme. LINEAR track. No draft PR needles.\n")
+        hook_dir = os.path.join(td, ".spec", "scripts")
+        os.makedirs(hook_dir)
+        hook = os.path.join(hook_dir, "check-extras.sh")
+        with open(hook, "w", encoding="utf-8") as f:
+            f.write("#!/bin/sh\necho 'hook|ADVISORY|extras-hook ran'\n")
+        os.chmod(hook, 0o755)
+        check(plugin_dirs(td) == [],
+              "consumer-core-profile: no .grok-plugin/ → plugin_dirs empty")
+        empty_rows = run_audit(td, "SPEC.md")
+        check(_pi_dirty(empty_rows) == [],
+              "consumer-core-profile: empty plugin_dirs → no plugin-internal "
+              "MISSING/VIOLATE")
+        check(not any(rid in _pi_ids for rid, _, _ in empty_rows),
+              "consumer-core-profile: empty plugin_dirs → no plugin-internal "
+              "rows at all")
+        check(any(rid == "hook" and "extras-hook ran" in e
+                  for rid, _, e in empty_rows),
+              "consumer-core-profile: empty plugin_dirs → extras-hook still")
+        check(any(rid == "memo" and v == ADVISORY
+                  for rid, v, _ in empty_rows),
+              "consumer-core-profile: empty plugin_dirs → memo still")
+        check(compute_clean(empty_rows)[0] is True,
+              "consumer-core-profile: consumer SPEC + product README → "
+              "mechanical table clean")
+        pad = "x" * (int(TOKEN_BUDGET * TOKEN_RATIO) + 200)
+        with open(spec_p, "w", encoding="utf-8") as f:
+            f.write(_min_spec.replace("goal\n", pad + "\n").replace(
+                _vrow(1, "first axiom"),
+                _vrow(1, "first axiom retired 2026-01-02")).replace(
+                f"T{1}|x|do thing|V{1}",
+                f"T{1}|x|do thing|V{99}"))
+        stay_rows = run_audit(td, "SPEC.md")
+        check(any(rid == "cite" and v == "UNRESOLVED"
+                  for rid, v, _ in stay_rows),
+              "consumer-core-profile: empty plugin_dirs → cite-DAG still")
+        check(any(rid == "history" and v == "VIOLATE"
+                  for rid, v, _ in stay_rows),
+              "consumer-core-profile: empty plugin_dirs → history still")
+        check(any(rid == "token" and v == ADVISORY
+                  for rid, v, _ in stay_rows),
+              "consumer-core-profile: empty plugin_dirs → token-budget still")
+        check(_pi_dirty(stay_rows) == [],
+              "consumer-core-profile: stay-running rows do not add "
+              "plugin-internal dirty")
+        os.makedirs(os.path.join(td, ".grok-plugin"))
+        with open(os.path.join(td, ".grok-plugin", "plugin.json"), "w",
+                  encoding="utf-8") as f:
+            f.write('{"name":"t"}\n')
+        check(plugin_dirs(td) == [td],
+              "consumer-core-profile: plugin.json → plugin_dirs non-empty")
+        plugin_rows = run_audit(td, "SPEC.md", run_hook=False)
+        check(any(rid == "shape-lifecycle" and v in DIRTY_VERDICTS
+                  for rid, v, _ in plugin_rows),
+              "consumer-core-profile: non-empty plugin_dirs still audits "
+              "shape-lifecycle")
+        check(any(rid == "github-workflow" and v in DIRTY_VERDICTS
+                  for rid, v, _ in plugin_rows),
+              "consumer-core-profile: non-empty plugin_dirs still audits "
+              "github-workflow")
+        check(any(rid == "write-serialize" and v in DIRTY_VERDICTS
+                  for rid, v, _ in plugin_rows),
+              "consumer-core-profile: non-empty plugin_dirs still audits "
+              "write-serialize")
+        check(any(rid == "token" and v in ("MISSING", "VIOLATE")
+                  for rid, v, _ in plugin_rows),
+              "consumer-core-profile: non-empty plugin_dirs still audits "
+              "condense-stub token")
+        check(any(rid == "linear-no-pr" and v in DIRTY_VERDICTS
+                  for rid, v, _ in plugin_rows),
+              "consumer-core-profile: non-empty plugin_dirs still audits "
+              "linear-no-pr")
+
     if fails:
         sys.stderr.write("SELF-TEST FAIL:\n  " + "\n  ".join(fails) + "\n")
         return 1
@@ -5349,7 +5458,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 365
+    return 381
 
 
 # --- entry -------------------------------------------------------------------
