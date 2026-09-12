@@ -191,6 +191,7 @@ T136|x|init skills/_fragments/POST-SPEC-CHAIN.md; spec After OK + POST-APPLY + N
 T137|x|pointer-only MECHANIZE + PROGRESS + PATH-SCOPED-COMMIT (drop paraphrase after pointer; spec/condense/reorganize load PATH-SCOPED-COMMIT); scope grep `Run probe. Emit Next item per fragment|todo_write one task per phase|-m. flags`|V72,V66,V20
 T138|x|drop restated fragment/invariant bodies (github ACCEPTANCE-GATE load-only; monitor PROTOCOL/DISPATCHED share WRITE; WRITE-TIME PRUNE + condense prong 4 cite script HR_* names; NON-GOALS unique-boundary only; spec APPLY drop structurally-no-op + Defends-against tails); scope grep `## ACCEPTANCE-GATE|structurally no-op|Defends against|amendment-counter|no hook / runtime`|V72,V28,V40,V69
 T139|x|script: skip plugin-internal audits when plugin_dirs() empty; plugin repo still emits; consumer extras/cite-DAG/history/token/memo stay; self-test empty-skip + non-empty still-audit|V71,V40,V42,B72
+T140|x|script: skip `audit_human_symbols` + `audit_human_idiom` when `plugin_dirs()` empty; consumer SPEC + product README naked `≥` + no `.grok-plugin/` → clean table; plugin repo still emits vs README/AGENTS.md/manifests; extras/cite-DAG/history/token/memo stay; `sembr` ADVISORY stays; self-test empty-skip `≥` + non-empty still-audit|V71,V40,V42,V4,V67,B73
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)
@@ -268,3 +269,4 @@ B69|2026-08-23|MERGE runs `gh pr merge` with no probe of checks or `reviewDecisi
 B70|2026-08-23|CLOSE deletes local branch only; remote branch remains|V69
 B71|2026-08-23|post-spec child fail reports to parent session; draft PR has no GitHub comment|V21,V69
 B72|2026-09-04|run_audit plugin-skill + README audits fire when plugin_dirs empty → consumer check always dirty|V71
+B73|2026-09-12|consumer README symbols/idiom still fire when plugin_dirs empty after V71 skip → memo blocked|V71
