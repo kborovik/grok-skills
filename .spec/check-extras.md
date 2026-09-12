@@ -180,7 +180,7 @@ V70: sembr — repo `.md` prose source lines ! semantic line breaks (sembr.org):
 
 ## §V71 consumer-core-profile
 
-V71: consumer-core-profile — core loop = shape? → spec → build → check → explain; maintenance = condense/reorganize; plugin-meta (UPSTREAM-FR fragment, monitor issue path for plugin repo) loads only when cwd is plugin `.repository` or operator targets plugin; consumer non-plugin repos skip UPSTREAM-FR body weight; plugin-internal mechanical audits (skill-body + plugin-README needles; ids `shape-lifecycle`, `github-workflow`, `write-serialize`, condense-stub `token`, README Issue-linked PR) skip when `plugin_dirs(repo_root)` empty — empty → no row (not MISSING/VIOLATE); plugin repo (non-empty `plugin_dirs`) still emits; consumer extras-hook + cite-DAG + history + token-budget + memo/scope-feed stay (closes §B.72).
+V71: consumer-core-profile — core loop = shape? → spec → build → check → explain; maintenance = condense/reorganize; plugin-meta (UPSTREAM-FR fragment, monitor issue path for plugin repo) loads only when cwd is plugin `.repository` or operator targets plugin; consumer non-plugin repos skip UPSTREAM-FR body weight; plugin-internal mechanical audits (skill-body + plugin-README needles; ids `shape-lifecycle`, `github-workflow`, `write-serialize`, condense-stub `token`, README Issue-linked PR, `symbols`, `idiom`) skip when `plugin_dirs(repo_root)` empty — empty → no row (not MISSING/VIOLATE); plugin repo (non-empty `plugin_dirs`) still emits (README, AGENTS.md, manifests for `symbols`/`idiom`); consumer extras-hook + cite-DAG + history + token-budget + memo/scope-feed stay; `sembr` ADVISORY stays (closes §B.72, §B.73).
 
 ## §V72 shared-fragments
 
