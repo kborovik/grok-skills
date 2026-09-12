@@ -100,10 +100,13 @@ Modes:
                 Plugin-internal skill-body + plugin-README needle audits
                 (shape-lifecycle, github-workflow, write-serialize,
                 condense-stub token, README Issue-linked PR, linear-no-pr)
-                skip when `plugin_dirs(repo_root)` is empty — empty
+                plus human-facing `symbols`/`idiom` skip when
+                `plugin_dirs(repo_root)` is empty — empty
                 produces no row, not MISSING/VIOLATE. A plugin repo
-                still emits them. Consumer extras-hook, cite-DAG,
+                still emits them (README, AGENTS.md, manifests for
+                `symbols`/`idiom`). Consumer extras-hook, cite-DAG,
                 history, token-budget, and memo/scope-feed still run.
+                `sembr` ADVISORY stays.
                 Emits `grant|VIOLATE|…` — the tooling-preference invariant's
                 grant-use rule, both directions: no frontmatter `allowed-tools`
                 grant is zero-body-use (a granted tool the skill body never
@@ -123,7 +126,9 @@ Modes:
                 symbol outside a backtick span or fenced block. SPEC-adjacent
                 telegraph keeps the set, so it is never scanned. Sound (fenced
                 prose treated exempt too) — realized once here so the
-                drift-detector retires its hand-run symbol grep.
+                drift-detector retires its hand-run symbol grep. Skip when
+                `plugin_dirs(repo_root)` is empty (closes §B.73); a plugin
+                repo still emits.
                 Emits `idiom|VIOLATE|…` — the human-clarity invariant's
                 idiom-ban rule: no human-facing surface (README, AGENTS.md, the
                 plugin manifest) carries a banned idiom / jargon-idiom phrase from
@@ -132,6 +137,8 @@ Modes:
                 single words excluded). Backtick-span + fenced-block exempt —
                 realized once here so the drift-detector retires its hand-run
                 idiom grep, a fixed-pattern sweep a manual pass forgets to re-run.
+                Skip when `plugin_dirs(repo_root)` is empty (closes §B.73);
+                a plugin repo still emits.
                 Emits `sembr|ADVISORY|…` — the sembr invariant's
                 one-sentence-per-line rule: a prose source line in the sembr
                 file set (README, AGENTS.md, designs drafts, skill bodies)
@@ -3211,10 +3218,10 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
         findings += audit_post_spec_child(repo_root)
         findings += audit_readme_issue_linked(repo_root)
         findings += audit_linear_no_pr(repo_root)
+        findings += audit_human_symbols(discover_human_facing(repo_root))
+        findings += audit_human_idiom(discover_human_facing(repo_root))
     findings += audit_dispatch_targets(skill_md, plugin_names(repo_root))
     findings += audit_grants(discover_grant_skills(repo_root))
-    findings += audit_human_symbols(discover_human_facing(repo_root))
-    findings += audit_human_idiom(discover_human_facing(repo_root))
     findings += audit_sembr(discover_sembr_files(repo_root))
     findings += audit_batch_advisory(v_rows, published_md)
     findings += audit_token_estimate(spec_bytes)
@@ -5350,7 +5357,7 @@ def selftest():
               "gitignore-guard: preserves extra lines; appends missing memo")
 
     _pi_ids = ("shape-lifecycle", "github-workflow", "write-serialize",
-               "linear-no-pr")
+               "linear-no-pr", "symbols", "idiom")
 
     def _pi_dirty(rows):
         out = []
@@ -5376,7 +5383,10 @@ def selftest():
         with open(spec_p, "w", encoding="utf-8") as f:
             f.write(_min_spec)
         with open(os.path.join(td, "README.md"), "w", encoding="utf-8") as f:
-            f.write("Product readme. LINEAR track. No draft PR needles.\n")
+            f.write("Requires GNU Make ≥ 4.4. Product readme. "
+                    "LINEAR track. No draft PR needles.\n")
+        with open(os.path.join(td, "AGENTS.md"), "w", encoding="utf-8") as f:
+            f.write("This framing is load-bearing.\n")
         hook_dir = os.path.join(td, ".spec", "scripts")
         os.makedirs(hook_dir)
         hook = os.path.join(hook_dir, "check-extras.sh")
@@ -5398,6 +5408,16 @@ def selftest():
         check(any(rid == "memo" and v == ADVISORY
                   for rid, v, _ in empty_rows),
               "consumer-core-profile: empty plugin_dirs → memo still")
+        check(not any(rid == "symbols" and v == "VIOLATE"
+                      for rid, v, _ in empty_rows),
+              "consumer-core-profile: empty plugin_dirs + README ≥ → "
+              "no symbols VIOLATE")
+        check(not any(rid == "idiom" and v == "VIOLATE"
+                      for rid, v, _ in empty_rows),
+              "consumer-core-profile: empty plugin_dirs → no idiom VIOLATE")
+        check(any(rid == "sembr" and v == ADVISORY
+                  for rid, v, _ in empty_rows),
+              "consumer-core-profile: empty plugin_dirs → sembr ADVISORY stays")
         check(compute_clean(empty_rows)[0] is True,
               "consumer-core-profile: consumer SPEC + product README → "
               "mechanical table clean")
@@ -5424,7 +5444,7 @@ def selftest():
         os.makedirs(os.path.join(td, ".grok-plugin"))
         with open(os.path.join(td, ".grok-plugin", "plugin.json"), "w",
                   encoding="utf-8") as f:
-            f.write('{"name":"t"}\n')
+            f.write('{"name":"t","note":"x ≥ y"}\n')
         check(plugin_dirs(td) == [td],
               "consumer-core-profile: plugin.json → plugin_dirs non-empty")
         plugin_rows = run_audit(td, "SPEC.md", run_hook=False)
@@ -5448,6 +5468,18 @@ def selftest():
                   for rid, v, _ in plugin_rows),
               "consumer-core-profile: non-empty plugin_dirs still audits "
               "linear-no-pr")
+        check(any(rid == "symbols" and v == "VIOLATE" and "README.md" in e
+                  for rid, v, e in plugin_rows),
+              "consumer-core-profile: non-empty plugin_dirs still audits "
+              "symbols vs README")
+        check(any(rid == "idiom" and v == "VIOLATE" and "AGENTS.md" in e
+                  for rid, v, e in plugin_rows),
+              "consumer-core-profile: non-empty plugin_dirs still audits "
+              "idiom vs AGENTS.md")
+        check(any(rid == "symbols" and v == "VIOLATE" and "plugin.json" in e
+                  for rid, v, e in plugin_rows),
+              "consumer-core-profile: non-empty plugin_dirs still audits "
+              "symbols vs manifests")
 
     if fails:
         sys.stderr.write("SELF-TEST FAIL:\n  " + "\n  ".join(fails) + "\n")
@@ -5458,7 +5490,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 381
+    return 387
 
 
 # --- entry -------------------------------------------------------------------
