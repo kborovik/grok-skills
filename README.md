@@ -192,7 +192,8 @@ Work commits on the current branch.
 
 ```text
 /sdd:spec github issue N   # fold; issue-linked branch; SPEC.md commit; gh pr create --draft
-                           # then auto /sdd:build on fold-produced §T ids then bundled review
+                           # then auto /sdd:build on fold-produced §T ids
+                           # then bundled review unless the diff is doc-or-comment
                            # then apply findings; git push; gh pr ready
 # Closes trailer only at merge, after Acceptance gate
 ```
@@ -210,11 +211,20 @@ The spec fold commits `SPEC.md` on that branch, then opens a draft PR (`gh pr cr
 No close trailer at create.
 No review at create.
 After that spec commit and draft PR, the fold runs a write-capable `/sdd:build` sub-agent on fold-produced §T ids only.
-Then it runs the bundled Grok `review` skill as a sub-agent.
-It does not wait for the operator.
+A doc-or-comment diff skips the bundled review.
+A doc-or-comment diff changes only spec text, docs, or comments.
+The doc paths are `SPEC.md`, `SPEC.archive.md`, `.spec/check-extras.md`, `SPEC-FORMAT.md`, `README.md`, `AGENTS.md`, and files under `designs/`.
+A change outside those paths is still doc-or-comment when every changed line is a comment or whitespace.
+Other diffs still run review.
+Skill files under `skills/`, scripts, and any other non-comment line still run review.
+The skip has no findings.
+The ready steps still run: re-run verify, then push and `gh pr ready` on a pass.
+The fold does not wait for the operator.
 The child drops `gh pr ready`.
-The parent applies review findings, pushes, then runs `gh pr ready`.
-Operator-run `/sdd:build` (not that post-spec child) still implements on the same branch, pushes, applies review findings, then runs `gh pr ready`.
+When review ran, the parent applies review findings, pushes, then runs `gh pr ready`.
+Operator-run `/sdd:build` (not that post-spec child) uses the same doc-or-comment skip on that branch.
+When review ran, that path applies review findings, pushes, then runs `gh pr ready`.
+Manual `/review` stays available.
 Close trailers are added only at merge, after the Acceptance gate.
 Merge is squash with branch delete.
 The squash commit subject holds `#<issue>` (the linked issue, not the PR number).
