@@ -38,7 +38,11 @@ Modes:
                 `skills/github/SKILL.md` requires `gh issue develop`,
                 `gh pr create --draft` (no review no Closes at create),
                 `git push` (PUSH), load-and-run review, apply bug +
-                suggestion, then `gh pr ready` (READY); leftover LINEAR /
+                suggestion, then `gh pr ready` (READY); bundled review
+                skips on a doc-or-comment diff (`doc-or-comment` and
+                `other diffs still run review` in github READY and
+                POST-SPEC-CHAIN) and `load-and-run` stays required
+                (review otherwise); leftover LINEAR /
                 no-PR optional-track wording in that body is VIOLATE.
                 No corresponding GitHub issue → no BRANCH, no PR
                 (`gh pr create`) — converse of PR-per-issue.
@@ -76,9 +80,10 @@ Modes:
                 `gh pr ready`, Closes only at merge, no-issue
                 converse (`No corresponding GitHub issue`,
                 `no git branch, no GitHub PR`), squash commit
-                message `#<issue>` (closes §B.36), and
+                message `#<issue>` (closes §B.36),
                 fold-produced §T ids (not post-spec
-                `/sdd:build --all`; closes §B.64). Acceptance-gate
+                `/sdd:build --all`; closes §B.64), and the
+                doc-or-comment review skip. Acceptance-gate
                 detector = issue linkage not planned close trailer;
                 ALLOW @ build = evidence sufficient; close trailer
                 MERGE-only (closes §B.37). Realized once
@@ -1702,6 +1707,75 @@ def audit_github_pr_per_issue(repo_root):
                                         _read_post_spec_chain(repo_root))
 
 
+# --- github-workflow bundled review skip (doc-or-comment) --------------------
+
+# Needles the bundled-review recipe must carry (github-workflow invariant):
+# skip on a doc-or-comment diff, and still load-and-run review otherwise.
+# `doc-or-comment` and `other diffs still run review` must appear in both
+# `skills/github/SKILL.md` and `skills/_fragments/POST-SPEC-CHAIN.md`.
+# `load-and-run` must remain in the combined hay so a skip-only recipe
+# is VIOLATE.
+GITHUB_REVIEW_SKIP_NEEDLE = "doc-or-comment"
+GITHUB_REVIEW_STILL_NEEDLE = "other diffs still run review"
+GITHUB_REVIEW_OTHERWISE_NEEDLE = "load-and-run"
+
+
+def classify_github_review_skip(github_text, frag_text=""):
+    """github-workflow bundled review skip — pure, unit-testable
+    without the filesystem. `github_text` is `skills/github/SKILL.md`;
+    `frag_text` is `skills/_fragments/POST-SPEC-CHAIN.md`.
+    Empty/unreadable github → MISSING. Doc-or-comment skip absent from
+    github or from the fragment → VIOLATE. `other diffs still run review`
+    absent from either → VIOLATE. `load-and-run` absent from the
+    combined hay → VIOLATE (review otherwise). A recipe that names the
+    skip and still load-and-runs review is clean."""
+    if not github_text:
+        return [("github-workflow", "MISSING",
+                 "github-workflow MISSING: skills/github/SKILL.md unreadable")]
+    out = []
+    if GITHUB_REVIEW_SKIP_NEEDLE not in github_text:
+        out.append(("github-workflow", "VIOLATE",
+                    "github-workflow VIOLATE: skills/github/SKILL.md "
+                    "missing doc-or-comment review skip"))
+    if GITHUB_REVIEW_SKIP_NEEDLE not in (frag_text or ""):
+        out.append(("github-workflow", "VIOLATE",
+                    "github-workflow VIOLATE: "
+                    "skills/_fragments/POST-SPEC-CHAIN.md "
+                    "missing doc-or-comment review skip"))
+    if GITHUB_REVIEW_STILL_NEEDLE not in github_text:
+        out.append(("github-workflow", "VIOLATE",
+                    "github-workflow VIOLATE: skills/github/SKILL.md "
+                    "missing other diffs still run review"))
+    if GITHUB_REVIEW_STILL_NEEDLE not in (frag_text or ""):
+        out.append(("github-workflow", "VIOLATE",
+                    "github-workflow VIOLATE: "
+                    "skills/_fragments/POST-SPEC-CHAIN.md "
+                    "missing other diffs still run review"))
+    hay = github_text if not frag_text else github_text + "\n" + frag_text
+    if GITHUB_REVIEW_OTHERWISE_NEEDLE not in hay:
+        out.append(("github-workflow", "VIOLATE",
+                    "github-workflow VIOLATE: skills/github/SKILL.md "
+                    "missing load-and-run review otherwise"))
+    return out
+
+
+def audit_github_review_skip(repo_root):
+    """File-reading wrapper around classify_github_review_skip
+    (github-workflow invariant). Resolves PUBLISHED
+    `skills/github/SKILL.md` via discover_skill_md — realized once here
+    so the drift-detector retires a hand-run review-skip grep."""
+    by_name = {}
+    for path in discover_skill_md(repo_root):
+        by_name[os.path.basename(os.path.dirname(path))] = path
+    github_p = by_name.get("github")
+    try:
+        github_text = read_text(github_p) if github_p else ""
+    except OSError:
+        github_text = ""
+    return classify_github_review_skip(github_text,
+                                       _read_post_spec_chain(repo_root))
+
+
 # --- github-workflow spec FOLD-IN github issue audit -------------------------
 
 # Needles the spec skill FOLD-IN github-issue path must carry (github-workflow
@@ -2167,7 +2241,8 @@ def audit_post_spec_child(repo_root):
 # Needles the README Issue-linked PR section must carry (github-workflow +
 # github-facing-register invariants): branch then spec commit then draft PR;
 # build then review-apply then `gh pr ready`; Closes only at merge after
-# acceptance-gate; squash commit message holds `#<issue>` (closes §B.36).
+# acceptance-gate; squash commit message holds `#<issue>` (closes §B.36);
+# doc-or-comment review skip.
 README_ISSUE_LINKED_NEEDLES = (
     ("gh pr create --draft", "branch then spec commit then draft PR"),
     ("gh pr ready", "review-apply then gh pr ready"),
@@ -2177,6 +2252,7 @@ README_ISSUE_LINKED_NEEDLES = (
     ("no git branch, no GitHub PR", "no git branch, no GitHub PR"),
     ("#<issue>", "squash commit message holds #<issue>"),
     ("fold-produced", "post-spec fold-produced §T ids"),
+    ("doc-or-comment", "doc-or-comment review skip"),
 )
 README_POST_SPEC_ALL_BAN = "/sdd:build --all"
 
@@ -3206,6 +3282,7 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
     if plugin_dirs(repo_root):
         findings += audit_shape_post_approve(repo_root)
         findings += audit_github_pr_per_issue(repo_root)
+        findings += audit_github_review_skip(repo_root)
         findings += audit_github_merge_subject(repo_root)
         findings += audit_github_merge_probe(repo_root)
         findings += audit_github_ready_remainder(repo_root)
@@ -4302,6 +4379,56 @@ def selftest():
     check(any(v == "VIOLATE" and "load-and-run" in e
               for _, v, e in miss_load),
           "github-workflow: missing load-and-run review → VIOLATE")
+
+    # github-workflow bundled review: doc-or-comment skip admitted;
+    # load-and-run still required otherwise.
+    # test_name_hint: doc-or-comment review skip
+    grs_gh = (
+        "Skip when the diff matches the github-workflow review skip "
+        "(doc-or-comment diff).\n"
+        "other diffs still run review\n"
+        "load-and-run bundled review\n"
+    )
+    grs_frag = (
+        "doc-or-comment diff\n"
+        "other diffs still run review\n"
+    )
+    check(classify_github_review_skip(grs_gh, grs_frag) == [],
+          "doc-or-comment review skip: skip plus load-and-run → clean")
+    check(any(v == "VIOLATE" and "load-and-run review otherwise" in e
+              for _, v, e in classify_github_review_skip(
+                  "doc-or-comment\nother diffs still run review\n",
+                  "doc-or-comment\nother diffs still run review\n")),
+          "doc-or-comment review skip: skip without load-and-run → VIOLATE")
+    check(any(v == "VIOLATE" and "skills/github/SKILL.md" in e
+              and "doc-or-comment" in e
+              for _, v, e in classify_github_review_skip(
+                  "load-and-run\nother diffs still run review\n",
+                  "doc-or-comment\nother diffs still run review\n")),
+          "doc-or-comment review skip: github missing doc-or-comment "
+          "→ VIOLATE")
+    check(any(v == "VIOLATE" and "POST-SPEC-CHAIN.md" in e
+              and "doc-or-comment" in e
+              for _, v, e in classify_github_review_skip(
+                  grs_gh, "other diffs still run review\nload-and-run\n")),
+          "doc-or-comment review skip: fragment missing doc-or-comment "
+          "→ VIOLATE")
+    check(any(v == "VIOLATE" and "skills/github/SKILL.md" in e
+              and "other diffs still run review" in e
+              for _, v, e in classify_github_review_skip(
+                  "doc-or-comment\nload-and-run\n",
+                  "doc-or-comment\nother diffs still run review\n")),
+          "doc-or-comment review skip: github missing other diffs "
+          "→ VIOLATE")
+    check(any(v == "VIOLATE" and "POST-SPEC-CHAIN.md" in e
+              and "other diffs still run review" in e
+              for _, v, e in classify_github_review_skip(
+                  grs_gh, "doc-or-comment\n")),
+          "doc-or-comment review skip: fragment missing other diffs "
+          "→ VIOLATE")
+    check(classify_github_review_skip("")[0][1] == "MISSING",
+          "doc-or-comment review skip: empty github body → MISSING")
+
     miss_apply = classify_github_pr_per_issue(
         "gh issue develop\nload-and-run review\ngh pr create\n")
     check(any(v == "VIOLATE" and "bug + suggestion" in e
@@ -4737,6 +4864,7 @@ def selftest():
         "No corresponding GitHub issue: no git branch, no GitHub PR\n"
         "squash commit subject holds #<issue>\n"
         "post-spec /sdd:build on fold-produced §T ids\n"
+        "doc-or-comment diff skips bundled review\n"
     )
     check(classify_readme_issue_linked(rm_good) == [],
           "readme-issue-linked: complete Issue-linked PR → clean")
@@ -4780,6 +4908,12 @@ def selftest():
     check(any(v == "VIOLATE" and "fold-produced" in e
               for _, v, e in miss_rm_fold),
           "readme-issue-linked: missing fold-produced §T ids → VIOLATE")
+    miss_rm_skip = classify_readme_issue_linked(
+        rm_good.replace("doc-or-comment diff skips bundled review\n", ""))
+    check(any(v == "VIOLATE" and "doc-or-comment" in e
+              for _, v, e in miss_rm_skip),
+          "readme-issue-linked: missing doc-or-comment review skip "
+          "→ VIOLATE")
     rm_all = rm_good + "then auto /sdd:build --all sub-agent\n"
     check(any(v == "VIOLATE" and "/sdd:build --all" in e
               for _, v, e in classify_readme_issue_linked(rm_all)),
