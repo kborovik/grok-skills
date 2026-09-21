@@ -41,7 +41,7 @@ Operator must see the governor (auto-fire visibility).
 - open a PR or start a branch w/ no corresponding GitHub issue → no BRANCH, no PR (work stays current branch)
 - issue-linked `git push` w/ open PR → PUSH
 - operator-run issue-linked code complete → READY
-- post-spec-commit remainder (review already ran as sub-agent) → READY remainder
+- post-spec-commit remainder (review already ran as sub-agent, or doc-or-comment skip) → READY remainder
 - merge a PR (operator says "merge the PR" / "merge PR `<pr>`" when review approves) → MERGE
 - close a PR unmerged → CLOSE
 
@@ -106,12 +106,19 @@ Plain git push w/ no issue/PR still out of scope — no fire.
 ## READY — review-apply then `gh pr ready`
 
 Required after issue-linked code complete (once per operator-run build, not per task).
-Never skip.
+Never skip READY.
 Post-spec-commit path already ran `review` as sub-agent → skip review; continue at remainder.
 
 **Review** — load-and-run bundled Grok `review` skill on the issue-linked branch vs default base (not slash-dispatch `/review`; recipe-step-no-dispatch invariant).
 Skip when post-spec-commit already ran `review` as sub-agent.
+Skip when the diff matches the github-workflow review skip (doc-or-comment diff).
+Doc-or-comment: every changed path is in {`SPEC.md`, `SPEC.archive.md`, `.spec/check-extras.md`, `SPEC-FORMAT.md`, `README.md`, `AGENTS.md`, `designs/**`}.
+Or every changed line outside that set is comment or whitespace.
+`skills/**`, any script, or any other non-comment line → other diffs still run review.
+Diff = `git diff <default-base>...HEAD` plus `git diff -U0 <default-base>...HEAD` for lines outside the doc set.
+Skip continues READY remainder (no findings).
 Scratch writes only, no repo edits; spawn omits capability_mode read-only.
+Operator `/review` unchanged.
 
 **Remainder** — parse findings.
 Post-spec: apply open bug + suggestion; list nits; no wait.

@@ -32,7 +32,13 @@ Do not run review after child fail.
 
 ## Remainder
 
-Then load-and-run bundled Grok `review` sub-agent on the issue-linked branch vs default base.
+Skip bundled `review` when the diff matches the github-workflow review skip (doc-or-comment diff).
+Doc-or-comment: every changed path is in {`SPEC.md`, `SPEC.archive.md`, `.spec/check-extras.md`, `SPEC-FORMAT.md`, `README.md`, `AGENTS.md`, `designs/**`}.
+Or every changed line outside that set is comment or whitespace.
+`skills/**`, any script, or any other non-comment line → other diffs still run review.
+Diff = `git diff <default-base>...HEAD` plus `git diff -U0 <default-base>...HEAD` for lines outside the doc set.
+Other diffs: load-and-run bundled Grok `review` sub-agent on the issue-linked branch vs default base.
 Scratch writes only, no repo edits.
 Spawn omits capability_mode read-only.
+Skip continues READY remainder (no findings).
 Then READY remainder.

@@ -192,7 +192,7 @@ T137|x|pointer-only MECHANIZE + PROGRESS + PATH-SCOPED-COMMIT (drop paraphrase a
 T138|x|drop restated fragment/invariant bodies (github ACCEPTANCE-GATE load-only; monitor PROTOCOL/DISPATCHED share WRITE; WRITE-TIME PRUNE + condense prong 4 cite script HR_* names; NON-GOALS unique-boundary only; spec APPLY drop structurally-no-op + Defends-against tails); scope grep `## ACCEPTANCE-GATE|structurally no-op|Defends against|amendment-counter|no hook / runtime`|V72,V28,V40,V69
 T139|x|script: skip plugin-internal audits when plugin_dirs() empty; plugin repo still emits; consumer extras/cite-DAG/history/token/memo stay; self-test empty-skip + non-empty still-audit|V71,V40,V42,B72
 T140|x|script: skip `audit_human_symbols` + `audit_human_idiom` when `plugin_dirs()` empty; consumer SPEC + product README naked `≥` + no `.grok-plugin/` → clean table; plugin repo still emits vs README/AGENTS.md/manifests; extras/cite-DAG/history/token/memo stay; `sembr` ADVISORY stays; self-test empty-skip `≥` + non-empty still-audit|V71,V40,V42,V4,V67,B73
-T141|.|github READY + skills/_fragments/POST-SPEC-CHAIN.md: skip bundled review when the diff matches the github-workflow review skip; other diffs still run review; skip continues READY remainder|V69,V22
+T141|x|github READY + skills/_fragments/POST-SPEC-CHAIN.md: skip bundled review when the diff matches the github-workflow review skip; other diffs still run review; skip continues READY remainder|V69,V22
 T142|.|README Issue-linked PR: state the same skip|V69,V2
 T143|.|script: github-workflow review needle admits the doc-or-comment skip and still requires review otherwise; self-test|V69,V40
 
