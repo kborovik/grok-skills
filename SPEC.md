@@ -81,6 +81,7 @@ V73: backprop-resume-card — → `.spec/check-extras.md §V73`
 V74: micro-amend — → `.spec/check-extras.md §V74`
 V75: auto-fire-engage-log — → `.spec/check-extras.md §V75`
 V76: thin-check — → `.spec/check-extras.md §V76`
+V77: skill-effort — → `.spec/check-extras.md §V77`
 
 ## §T TASKS
 ## archived: §T.1..§T.34 → SPEC.archive.md (34 rows)
@@ -195,6 +196,7 @@ T140|x|script: skip `audit_human_symbols` + `audit_human_idiom` when `plugin_dir
 T141|x|github READY + skills/_fragments/POST-SPEC-CHAIN.md: skip bundled review when the diff matches the github-workflow review skip; other diffs still run review; skip continues READY remainder|V69,V22
 T142|x|README Issue-linked PR: state the same skip|V69,V2
 T143|x|script: github-workflow review needle admits the doc-or-comment skip and still requires review otherwise; self-test|V69,V40
+T144|.|explain+check frontmatter `effort: medium`; README honored-frontmatter sentence names `effort`; script audit skill-effort (model unset, effort pins) + self-test|V77,V40,V71,V2
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)

@@ -201,3 +201,7 @@ V75: auto-fire-engage-log — auto-fire sub-skills (telegraph, steno, monitor, g
 ## §V76 thin-check
 
 V76: thin-check — check SKILL.md is phase + script orchestration only; long recipe detail in `_fragments/CHECK-RECIPE.md`; sub-agent prompt from `emit-check-agent-prompt` / CHECK-AGENT-PROMPT fragment.
+
+## §V77 skill-effort
+
+V77: skill-effort — published `skills/*/SKILL.md` leave frontmatter `model` unset (session model inherits); `explain` + `check` set `effort: medium`; every other skill leaves `effort` unset; script audit VIOLATE on any frontmatter `model:` line, on `explain`/`check` effort other than `medium`, or on any other skill `effort:` line; README honored-frontmatter sentence names `effort`; audit skips when `plugin_dirs()` empty (per consumer-core-profile invariant).
