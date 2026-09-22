@@ -300,7 +300,7 @@ Renumber history persists to `.spec/spec-renumber-map.json` so old citations sti
 ## Skills
 
 Each skill directory surfaces as a slash command (for example `skills/spec/` becomes `/sdd:spec` when the plugin name is `sdd`).
-SKILL.md frontmatter is honored on dispatch: `description`, `when-to-use`, `argument-hint`, `allowed-tools`, optional `metadata.short-description`, and `user-invocable`.
+SKILL.md frontmatter is honored on dispatch: `description`, `when-to-use`, `argument-hint`, `allowed-tools`, optional `metadata.short-description`, `user-invocable`, and `effort`.
 `disallowed-tools` on read-only skills (`check`, `explain`) is a recipe contract (zero writes); treat it as prompt-level unless the host documents skill-level denylists.
 
 **User-invocable**

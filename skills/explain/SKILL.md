@@ -1,5 +1,6 @@
 ---
 name: explain
+effort: medium
 description: |
   Telegraph to prose. Expand one SPEC.md citation into plain English.
   Read-only; inverse of telegraph skill (telegraph encoder). Zero writes.

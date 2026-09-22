@@ -104,7 +104,8 @@ Modes:
                 re-accumulate.
                 Plugin-internal skill-body + plugin-README needle audits
                 (shape-lifecycle, github-workflow, write-serialize,
-                condense-stub token, README Issue-linked PR, linear-no-pr)
+                condense-stub token, README Issue-linked PR, linear-no-pr,
+                skill-effort)
                 plus human-facing `symbols`/`idiom` skip when
                 `plugin_dirs(repo_root)` is empty — empty
                 produces no row, not MISSING/VIOLATE. A plugin repo
@@ -144,6 +145,13 @@ Modes:
                 idiom grep, a fixed-pattern sweep a manual pass forgets to re-run.
                 Skip when `plugin_dirs(repo_root)` is empty (closes §B.73);
                 a plugin repo still emits.
+                Emits `skill-effort|VIOLATE|…` — the skill-effort
+                invariant: published `skills/*/SKILL.md` leave frontmatter
+                `model` unset; `explain` and `check` set `effort: medium`;
+                every other skill leaves `effort` unset; the README
+                honored-frontmatter sentence names `effort`. Skip when
+                `plugin_dirs(repo_root)` is empty (consumer-core-profile
+                invariant); a plugin repo still emits.
                 Emits `sembr|ADVISORY|…` — the sembr invariant's
                 one-sentence-per-line rule: a prose source line in the sembr
                 file set (README, AGENTS.md, designs drafts, skill bodies)
@@ -3242,6 +3250,99 @@ def audit_reorganize_advisory(v_rows):
                  f"consider /sdd:reorganize for cluster + renumber clarity")]
     return []
 
+
+# --- skill-effort ------------------------------------------------------------
+
+# Published skills leave frontmatter `model` unset. `explain` and `check`
+# pin `effort: medium`. Every other skill leaves `effort` unset. The README
+# honored-frontmatter sentence names `effort` (skill-effort invariant).
+SKILL_EFFORT_PIN = {"check": "medium", "explain": "medium"}
+_FM_MODEL_KEY = re.compile(r'(?m)^model\s*:')
+_FM_EFFORT_KEY = re.compile(r'(?m)^effort\s*:\s*(.*?)\s*$')
+_HONORED_FRONTMATTER = "frontmatter is honored"
+
+
+def _effort_scalar(raw):
+    raw = raw.strip()
+    if len(raw) >= 2 and raw[0] == raw[-1] and raw[0] in ("'", '"'):
+        return raw[1:-1]
+    return raw
+
+
+def classify_skill_effort(skill_texts, readme_text):
+    """skill-effort invariant — pure, unit-testable without the filesystem.
+
+    `skill_texts` maps skill directory name → SKILL.md text. A frontmatter
+    `model:` key on any skill is VIOLATE. `explain` and `check` must set
+    `effort: medium`; a missing key or any other value is VIOLATE. Any
+    other skill with an `effort:` key is VIOLATE. A missing `explain` or
+    `check` skill is VIOLATE. The README line that says frontmatter is
+    honored must name `effort`.
+    """
+    out = []
+    seen = set()
+    for name in sorted(skill_texts):
+        fm = parse_frontmatter(skill_texts[name])
+        if _FM_MODEL_KEY.search(fm):
+            out.append(("skill-effort", "VIOLATE",
+                        f"skill-effort VIOLATE: skills/{name}/SKILL.md "
+                        f"frontmatter sets model"))
+        effort_m = _FM_EFFORT_KEY.search(fm)
+        if name in SKILL_EFFORT_PIN:
+            want = SKILL_EFFORT_PIN[name]
+            got = _effort_scalar(effort_m.group(1)) if effort_m else None
+            if got != want:
+                shown = got if got is not None else "unset"
+                out.append(("skill-effort", "VIOLATE",
+                            f"skill-effort VIOLATE: skills/{name}/SKILL.md "
+                            f"effort {shown} (want {want})"))
+        elif effort_m:
+            out.append(("skill-effort", "VIOLATE",
+                        f"skill-effort VIOLATE: skills/{name}/SKILL.md "
+                        f"frontmatter sets effort"))
+        seen.add(name)
+    for name in sorted(SKILL_EFFORT_PIN):
+        if name not in seen:
+            want = SKILL_EFFORT_PIN[name]
+            out.append(("skill-effort", "VIOLATE",
+                        f"skill-effort VIOLATE: skills/{name}/SKILL.md "
+                        f"missing (effort want {want})"))
+    honored = None
+    for line in (readme_text or "").splitlines():
+        if _HONORED_FRONTMATTER in line:
+            honored = line
+            break
+    if honored is None:
+        out.append(("skill-effort", "VIOLATE",
+                    "skill-effort VIOLATE: README honored-frontmatter "
+                    "sentence missing"))
+    elif re.search(r'\beffort\b', honored) is None:
+        out.append(("skill-effort", "VIOLATE",
+                    "skill-effort VIOLATE: README honored-frontmatter "
+                    "sentence does not name effort"))
+    return out
+
+
+def audit_skill_effort(repo_root):
+    """File-reading wrapper around classify_skill_effort (skill-effort
+    invariant). Published `skills/*/SKILL.md` plus repo-root README.md.
+    Caller skips this when `plugin_dirs` is empty (consumer-core-profile
+    invariant)."""
+    texts = {}
+    for path in discover_skill_md(repo_root):
+        name = os.path.basename(os.path.dirname(path))
+        try:
+            texts[name] = read_text(path)
+        except OSError:
+            texts[name] = ""
+    readme_p = os.path.join(repo_root, "README.md")
+    try:
+        readme = read_text(readme_p) if os.path.isfile(readme_p) else ""
+    except OSError:
+        readme = ""
+    return classify_skill_effort(texts, readme)
+
+
 def run_audit(repo_root, spec_path, run_hook=True, full=False):
     text, spec_bytes, arch_text = load_spec(repo_root, spec_path)
     sections, order = parse_sections(text)
@@ -3295,6 +3396,7 @@ def run_audit(repo_root, spec_path, run_hook=True, full=False):
         findings += audit_post_spec_child(repo_root)
         findings += audit_readme_issue_linked(repo_root)
         findings += audit_linear_no_pr(repo_root)
+        findings += audit_skill_effort(repo_root)
         findings += audit_human_symbols(discover_human_facing(repo_root))
         findings += audit_human_idiom(discover_human_facing(repo_root))
     findings += audit_dispatch_targets(skill_md, plugin_names(repo_root))
@@ -5490,8 +5592,80 @@ def selftest():
               and extra_lines.count("backprop-handoff.json") == 1,
               "gitignore-guard: preserves extra lines; appends missing memo")
 
+    # skill-effort invariant: model unset; explain+check pin medium;
+    # other skills leave effort unset; README honored sentence names effort.
+    def _se(name, extra=""):
+        return (f"---\nname: {name}\n{extra}---\n\n# {name}\n\n"
+                "body mentions model: grok and effort: high\n")
+
+    _se_readme = (
+        "SKILL.md frontmatter is honored on dispatch: `description`, "
+        "`user-invocable`, and `effort`.\n"
+    )
+    _se_ok = {
+        "explain": _se("explain", "effort: medium\n"),
+        "check": _se("check", "effort: medium\n"),
+        "build": _se("build"),
+    }
+    check(classify_skill_effort(_se_ok, _se_readme) == [],
+          "skill-effort: pins medium, others unset, README names effort "
+          "→ clean; body model/effort ignored")
+    _se_quoted = dict(_se_ok)
+    _se_quoted["check"] = _se("check", 'effort: "medium"\n')
+    check(classify_skill_effort(_se_quoted, _se_readme) == [],
+          "skill-effort: quoted medium counts as medium")
+    _se_model = dict(_se_ok)
+    _se_model["build"] = _se("build", "model: grok\n")
+    check(any(v == "VIOLATE" and "sets model" in e
+              for _, v, e in classify_skill_effort(_se_model, _se_readme)),
+          "skill-effort: frontmatter model → VIOLATE")
+    _se_high = dict(_se_ok)
+    _se_high["explain"] = _se("explain", "effort: high\n")
+    check(any(v == "VIOLATE" and "explain" in e and "high" in e
+              for _, v, e in classify_skill_effort(_se_high, _se_readme)),
+          "skill-effort: explain effort other than medium → VIOLATE")
+    _se_unset = dict(_se_ok)
+    _se_unset["explain"] = _se("explain")
+    check(any(v == "VIOLATE" and "explain" in e and "unset" in e
+              for _, v, e in classify_skill_effort(_se_unset, _se_readme)),
+          "skill-effort: explain effort unset → VIOLATE")
+    _se_low = dict(_se_ok)
+    _se_low["check"] = _se("check", "effort: low\n")
+    check(any(v == "VIOLATE" and "check" in e and "low" in e
+              for _, v, e in classify_skill_effort(_se_low, _se_readme)),
+          "skill-effort: check effort other than medium → VIOLATE")
+    _se_extra = dict(_se_ok)
+    _se_extra["build"] = _se("build", "effort: medium\n")
+    check(any(v == "VIOLATE" and "build" in e and "sets effort" in e
+              for _, v, e in classify_skill_effort(_se_extra, _se_readme)),
+          "skill-effort: other skill effort line → VIOLATE")
+    check(any(v == "VIOLATE" and "does not name effort" in e
+              for _, v, e in classify_skill_effort(
+                  _se_ok,
+                  "SKILL.md frontmatter is honored on dispatch: "
+                  "`description` and `user-invocable`.\n")),
+          "skill-effort: honored sentence omits effort → VIOLATE")
+    check(any(v == "VIOLATE" and "sentence missing" in e
+              for _, v, e in classify_skill_effort(
+                  _se_ok, "Product readme. No honored sentence.\n")),
+          "skill-effort: honored-frontmatter sentence missing → VIOLATE")
+    _se_gone = dict(_se_ok)
+    del _se_gone["explain"]
+    check(any(v == "VIOLATE" and "explain" in e and "missing" in e
+              for _, v, e in classify_skill_effort(_se_gone, _se_readme)),
+          "skill-effort: missing explain skill → VIOLATE")
+    _se_indent = dict(_se_ok)
+    _se_indent["build"] = (
+        "---\nname: build\ndescription: |\n"
+        "  model: grok-x\n"
+        "  effort: high\n"
+        "---\n\nbody\n"
+    )
+    check(classify_skill_effort(_se_indent, _se_readme) == [],
+          "skill-effort: indented description model/effort ignored")
+
     _pi_ids = ("shape-lifecycle", "github-workflow", "write-serialize",
-               "linear-no-pr", "symbols", "idiom")
+               "linear-no-pr", "symbols", "idiom", "skill-effort")
 
     def _pi_dirty(rows):
         out = []
@@ -5602,6 +5776,10 @@ def selftest():
                   for rid, v, _ in plugin_rows),
               "consumer-core-profile: non-empty plugin_dirs still audits "
               "linear-no-pr")
+        check(any(rid == "skill-effort" and v in DIRTY_VERDICTS
+                  for rid, v, _ in plugin_rows),
+              "consumer-core-profile: non-empty plugin_dirs still audits "
+              "skill-effort")
         check(any(rid == "symbols" and v == "VIOLATE" and "README.md" in e
                   for rid, v, e in plugin_rows),
               "consumer-core-profile: non-empty plugin_dirs still audits "
@@ -5624,7 +5802,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 387
+    return 399
 
 
 # --- entry -------------------------------------------------------------------

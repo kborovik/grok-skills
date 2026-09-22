@@ -1,5 +1,6 @@
 ---
 name: check
+effort: medium
 description: |
   Read-only drift detector. Diffs SPEC.md vs current code, reports violations
   grouped by severity. Writes nothing — suggests remedies via spec or build
