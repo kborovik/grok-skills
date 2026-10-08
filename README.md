@@ -216,9 +216,17 @@ The fold makes one commit ahead of that base with `git commit --allow-empty`.
 That commit is not the spec delta.
 The fold opens the draft with `gh pr create --draft` and a `Related: #<issue>` line.
 A missing `SPEC.md` does not skip the pull request.
+The before-delta steps run once.
+An existing open pull request for that issue is checked out.
+A second draft pull request is not opened.
+The default-branch push names the remote branch (`git push origin <default-base>`).
+A rejected push stops the fold.
+Already up to date is success.
+The fold does not write a spec file when `SPEC.md` is missing.
+The next new-spec or distill command on that branch writes `SPEC.md` and pushes.
 No close trailer at create.
 No review at create.
-Drafting and the spec commit stay on that branch.
+When `SPEC.md` is present, drafting and the spec commit stay on that branch.
 Later commits push the open pull request.
 After the spec commit, the fold runs a write-capable `/sdd:build` sub-agent on fold-produced §T ids only.
 A doc-or-comment diff skips the bundled review.

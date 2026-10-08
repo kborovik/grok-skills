@@ -53,9 +53,10 @@ Modes:
                 the spec delta (missing SPEC.md still opens the PR;
                 no close trailer; no review-at-create). Spec stops
                 before the chain. Chain cite is `/sdd:build` + READY
-                remainder. Before-spec-delta numbered steps ! run
-                `/sdd:build`; POST-APPLY ! `auto-chain run` (chain
-                once; owner = github PR). Non-github-issue APPLY
+                remainder. Before-spec-delta block ! run `/sdd:build`
+                or load POST-SPEC-CHAIN (numbered or not); POST-APPLY
+                ! `auto-chain run` (chain once; owner = github PR).
+                Non-github-issue APPLY
                 requires `no github BRANCH, no github PR`.
                 `skills/github/SKILL.md`
                 requires `chain runs once`. `skills/github/SKILL.md`
@@ -1802,9 +1803,9 @@ def audit_github_review_skip(repo_root):
 # with `Related: #<issue>` (missing SPEC.md still opens the PR; no close
 # trailer; no review-at-create). Spec stops before the chain. Spec-side
 # cites the three-step chain (`/sdd:build` + READY remainder) not a
-# two-step subset (closes §B.33). Before-spec-delta numbered steps must
-# not run `/sdd:build`; POST-APPLY must not `auto-chain run`
-# (closes §B.32, §B.74).
+# two-step subset (closes §B.33). The before-spec-delta block must not
+# run `/sdd:build` or load POST-SPEC-CHAIN (numbered or not);
+# POST-APPLY must not `auto-chain run` (closes §B.32, §B.74).
 SPEC_FOLD_GITHUB_NEEDLES = (
     ("push default", "push default branch"),
     ("gh issue develop", "issue branch via gh issue develop"),
@@ -1821,7 +1822,6 @@ SPEC_FOLD_GITHUB_NEEDLES = (
     ("no github BRANCH, no github PR",
      "non-issue APPLY no BRANCH no PR"),
 )
-SPEC_AFTER_OK_NUMBERED = re.compile(r'^\d+\.\s')
 SPEC_POST_APPLY_AUTOCHAIN = "auto-chain run"
 
 
@@ -1865,8 +1865,9 @@ def classify_spec_fold_github(spec_text):
     unit-testable without the filesystem. `spec_text` is
     `skills/spec/SKILL.md`; empty/unreadable → MISSING. Each required
     needle absent → VIOLATE (one row per miss). Before spec delta
-    numbered `/sdd:build` or POST-APPLY `auto-chain run` → VIOLATE so
-    the chain cannot run twice (closes §B.32, §B.74)."""
+    `/sdd:build` or `POST-SPEC-CHAIN.md` (numbered or not) or
+    POST-APPLY `auto-chain run` → VIOLATE so the chain cannot run
+    twice (closes §B.32, §B.74)."""
     if not spec_text:
         return [("github-workflow", "MISSING",
                  "github-workflow MISSING: skills/spec/SKILL.md unreadable")]
@@ -1883,12 +1884,10 @@ def classify_spec_fold_github(spec_text):
         # name `/sdd:build` without running it (Acceptance fold note).
         before = _md_block_until_h3(spec_text, before_m.start())
         for line in before.splitlines():
-            if (SPEC_AFTER_OK_NUMBERED.match(line)
-                    and "/sdd:build" in line):
+            if "/sdd:build" in line or "POST-SPEC-CHAIN.md" in line:
                 out.append(("github-workflow", "VIOLATE",
                             "github-workflow VIOLATE: skills/spec/SKILL.md "
-                            "Before spec delta numbered step runs "
-                            "/sdd:build "
+                            "Before spec delta runs the post-spec chain "
                             "(spec stops before the chain)"))
                 break
     post_m = re.search(r'(?m)^## POST-APPLY\b', spec_text)
@@ -4700,8 +4699,9 @@ def selftest():
     # one non-delta commit, draft Related before the spec delta; missing
     # SPEC.md still opens the PR; no close trailer; no review-at-create;
     # spec stops before the chain; spec cites three-step chain
-    # (READY remainder). Before-spec-delta numbered steps must not run
-    # /sdd:build; POST-APPLY must not auto-chain run
+    # (READY remainder). The before-spec-delta block must not run
+    # /sdd:build or load POST-SPEC-CHAIN, numbered or not.
+    # POST-APPLY must not auto-chain run
     # (github-workflow invariant; closes §B.32, §B.33, §B.74).
     sf_good = (
         "**Before spec delta**\n"
@@ -4713,10 +4713,10 @@ def selftest():
         "no review-at-create\n"
         "missing SPEC.md does not skip the pull request\n"
         "Spec stops before the chain.\n"
-        "post-spec-commit `/sdd:build` then READY remainder\n"
         "Non-github-issue APPLY: no github BRANCH, no github PR\n"
         "## APPLY\n"
         "## POST-APPLY\n"
+        "post-spec-commit `/sdd:build` then READY remainder\n"
         "FOLD-IN github issue → load chain; Next merge when approved\n"
     )
     check(classify_spec_fold_github(sf_good) == [],
@@ -4785,10 +4785,40 @@ def selftest():
         "READY remainder\n"
         "## APPLY\n"
     )
-    check(any(v == "VIOLATE" and "numbered step runs /sdd:build" in e
+    check(any(v == "VIOLATE" and "runs the post-spec chain" in e
               for _, v, e in classify_spec_fold_github(sf_runs)),
           "post-spec-commit chain once: Before spec delta numbered "
           "/sdd:build → VIOLATE")
+    sf_unn = (
+        "**Before spec delta**\n"
+        "push default\ngh issue develop\n--allow-empty\n"
+        "Related: #<issue>\nbefore the spec delta\nmissing SPEC.md\n"
+        "gh pr create --draft\nno close trailer\nno review-at-create\n"
+        "stops before the chain\n"
+        "no github BRANCH, no github PR\n"
+        "then run /sdd:build\n"
+        "## POST-APPLY\n"
+        "READY remainder\n"
+    )
+    check(any(v == "VIOLATE" and "runs the post-spec chain" in e
+              for _, v, e in classify_spec_fold_github(sf_unn)),
+          "post-spec-commit chain once: Before spec delta unnumbered "
+          "/sdd:build → VIOLATE")
+    sf_load = (
+        "**Before spec delta**\n"
+        "push default\ngh issue develop\n--allow-empty\n"
+        "Related: #<issue>\nbefore the spec delta\nmissing SPEC.md\n"
+        "gh pr create --draft\nno close trailer\nno review-at-create\n"
+        "stops before the chain\n"
+        "no github BRANCH, no github PR\n"
+        "load skills/_fragments/POST-SPEC-CHAIN.md\n"
+        "## POST-APPLY\n"
+        "/sdd:build\nREADY remainder\n"
+    )
+    check(any(v == "VIOLATE" and "runs the post-spec chain" in e
+              for _, v, e in classify_spec_fold_github(sf_load)),
+          "post-spec-commit chain once: Before spec delta "
+          "POST-SPEC-CHAIN load → VIOLATE")
     sf_dup = (
         sf_good.rsplit("## POST-APPLY", 1)[0]
         + "## POST-APPLY\n"
@@ -5910,7 +5940,7 @@ def selftest():
 
 def _selftest_count():
     # informational; kept in sync loosely with the check() calls above
-    return 412
+    return 414
 
 
 # --- entry -------------------------------------------------------------------

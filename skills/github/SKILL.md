@@ -49,18 +49,25 @@ Not: plain git ops (commit, push with no issue/PR), `gh release` (release skill 
 No gh issue/PR op → no fire.
 
 Every worked GitHub issue ! one issue-linked PR.
-`/sdd:spec github issue N` or fold-shape with issue N first opens the draft PR before the spec delta, including when SPEC.md is missing.
-Order: push default branch, then issue branch `gh issue develop <issue> --checkout`, then one non-delta commit `git commit --allow-empty` (not the spec delta), then `gh pr create --draft` with `Related: #<issue>` before the spec delta.
+`/sdd:spec github issue N` or fold-shape with issue N runs the before-delta block once, before any draft.
+An open pull request for that issue → `git switch` its branch and stop.
+Do not run `gh issue develop` again.
+Do not make another empty commit.
+Do not call `gh pr create` again.
+Else: fetch, fast-forward `<default-base>` when behind, then push default branch with `git push origin <default-base>` only when ahead (named refspec; never bare `git push`; rejected → stop and report; already up to date → success; no force), then issue branch `gh issue develop <issue> --checkout`, then one non-delta commit `git commit --allow-empty` on a clean tree (not the spec delta), then `gh pr create --draft` with `Related: #<issue>` before the spec delta.
 No close trailer.
 No review-at-create.
 A missing SPEC.md does not skip the pull request.
-Later spec and build commits PUSH the open PR (`git push`).
+SPEC.md present → draft, commit, and PUSH on that branch.
+SPEC.md missing → do not write a delta and do not invent SPEC.md.
+Later NEW, DISTILL, AMEND, and build commits PUSH the open PR (`git push`).
+Do not open a second pull request.
 No corresponding GitHub issue → no BRANCH, no PR (`gh pr create`).
 Missing issue → bail: no `gh issue develop`, no `git checkout -b`, no `gh pr create`.
 Work stays on current branch; plain git commit still in scope.
-Spec-fold PR → load `skills/_fragments/POST-SPEC-CHAIN.md`.
 chain runs once after the spec commit on the open PR.
 Spec stops before the chain.
+The chain load is the PR section after the spec commit, not this open.
 After operator-run issue-linked code complete → READY once per run.
 Close → MERGE (ACCEPTANCE-GATE then add Closes then squash).
 
@@ -105,11 +112,14 @@ Generic structure: change summary; no close trailer; no fixed template.
 
 **After the spec commit on this open PR:** load `skills/_fragments/POST-SPEC-CHAIN.md`.
 Do not wait to open the PR until the spec commit exists.
+An open pull request for the issue already exists → do not create another.
 
 ## PUSH — `git push` issue-linked branch w/ open PR
 
 Fires on later issue-linked commits while a PR is open.
 Later spec commits and build commits PUSH to the open PR.
+NEW, DISTILL, AMEND, and BACKPROP on a branch that already has an open pull request PUSH after the commit.
+They do not open a pull request.
 `git push` the issue branch.
 Plain git push w/ no issue/PR still out of scope — no fire.
 
