@@ -6,7 +6,7 @@ description: |
   one, open a PR, push an issue-linked branch with an open PR, mark a PR ready,
   merge a PR, or close one unmerged. Shapes the gh workflow:
   generic issue/PR structures, per-PR issue-linked branch,
-  spec-fold draft PR then post-spec-commit chain (`skills/_fragments/POST-SPEC-CHAIN.md`),
+  spec-fold draft PR before the spec delta, then post-spec-commit chain (`skills/_fragments/POST-SPEC-CHAIN.md`),
   operator-run code complete then review-apply then `gh pr ready` once per run,
   squash-merge with branch cleanup, `Closes #<issue>` at merge.
   No corresponding GitHub issue → no git branch, no GitHub PR
@@ -48,13 +48,19 @@ Operator must see the governor (auto-fire visibility).
 Not: plain git ops (commit, push with no issue/PR), `gh release` (release skill owns version tag + notes).
 No gh issue/PR op → no fire.
 
-Every worked GitHub issue ! one issue-linked PR: BRANCH then PR (`--draft`).
+Every worked GitHub issue ! one issue-linked PR.
+`/sdd:spec github issue N` or fold-shape with issue N first opens the draft PR before the spec delta, including when SPEC.md is missing.
+Order: push default branch, then issue branch `gh issue develop <issue> --checkout`, then one non-delta commit `git commit --allow-empty` (not the spec delta), then `gh pr create --draft` with `Related: #<issue>` before the spec delta.
+No close trailer.
+No review-at-create.
+A missing SPEC.md does not skip the pull request.
+Later spec and build commits PUSH the open PR (`git push`).
 No corresponding GitHub issue → no BRANCH, no PR (`gh pr create`).
 Missing issue → bail: no `gh issue develop`, no `git checkout -b`, no `gh pr create`.
 Work stays on current branch; plain git commit still in scope.
 Spec-fold PR → load `skills/_fragments/POST-SPEC-CHAIN.md`.
-Spec After OK stops at draft PR.
-Later issue-linked commits → PUSH.
+chain runs once after the spec commit on the open PR.
+Spec stops before the chain.
 After operator-run issue-linked code complete → READY once per run.
 Close → MERGE (ACCEPTANCE-GATE then add Closes then squash).
 
@@ -82,11 +88,13 @@ No corresponding GitHub issue → no BRANCH.
 
 ## PR — `gh pr create --draft`
 
-Fires when opening a PR (spec fold after SPEC.md commit on issue-linked branch).
+Fires when opening a PR for a worked GitHub issue.
+Spec fold fires before the spec delta, after push default branch, the issue branch, and one `git commit --allow-empty` (not the spec delta), including when SPEC.md is missing.
 Corresponding GitHub issue required (branch from `gh issue develop <issue>`, or explicit `<issue>`).
 Missing → bail; no `gh pr create`.
-Never review-at-create.
+Create has no review-at-create.
 Never `Closes`/`Fixes`/`Resolves` trailer @ create.
+No close trailer.
 
 `gh pr create --draft --title "<summary>" --body <steno>` from the linked branch.
 Body = steno per the github-facing-register invariant.
@@ -95,12 +103,14 @@ No Acceptance copy.
 No secondary Closes @ create.
 Generic structure: change summary; no close trailer; no fixed template.
 
-**After spec APPLY commit + this draft PR:** load `skills/_fragments/POST-SPEC-CHAIN.md`.
+**After the spec commit on this open PR:** load `skills/_fragments/POST-SPEC-CHAIN.md`.
+Do not wait to open the PR until the spec commit exists.
 
 ## PUSH — `git push` issue-linked branch w/ open PR
 
 Fires on later issue-linked commits while a PR is open.
-`git push` the issue-linked branch.
+Later spec commits and build commits PUSH to the open PR.
+`git push` the issue branch.
 Plain git push w/ no issue/PR still out of scope — no fire.
 
 ## READY — review-apply then `gh pr ready`
