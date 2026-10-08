@@ -2,8 +2,10 @@
 
 Loaded by spec After OK / POST-APPLY / NON-GOALS, github WHEN / PR, build LOAD / POST-LOOP / CHAIN / OUTPUT.
 Owner = github PR recipe (github-workflow + write-serialize invariants).
-chain runs once.
-Spec After OK stops at draft PR.
+The pull request opens before the spec delta.
+chain runs once after the spec commit on the open pull request.
+Drafting and build stay on the issue branch and PUSH.
+Spec stops before the chain.
 No operator wait.
 
 ## Fold-produced ids
