@@ -27,10 +27,13 @@ allowed-tools: ask_user_question, read_file, search_replace, write, grep, run_te
 
 **Step 1 (fold-in shortcut):** any of:
 - `$ARGUMENTS` matches `mechanization-candidate <pattern>` / free-form candidate report → engage `sdd:monitor` dispatched mechanization-candidate path; stop.
-- `$ARGUMENTS` is `fold-shape [N]` / `fold the shape plan` / free-form fold of current shape plan → FOLD-IN from approved session plan (shape skill; retains issue N linkage when issue present).
+- `$ARGUMENTS` is `fold-shape [N]` / `fold the shape plan` / free-form fold of current shape plan → FOLD-IN from approved session plan (shape skill; retains issue N linkage when issue present; issue N → **Before spec delta** once, then the fold).
 - `$ARGUMENTS` matches `designs/*.md`, file exists → FOLD-IN from legacy design draft.
-- `$ARGUMENTS` matches `github issue <N>` / free-form "fold issue N" → FOLD-IN from GitHub issue (see FOLD-IN — github issue).
-SPEC.md must exist @ repo root else bail w/ "fold-in needs SPEC.md; init via NEW or DISTILL first".
+- `$ARGUMENTS` matches `github issue <N>` / free-form "fold issue N" → **Before spec delta** once, then FOLD-IN from GitHub issue (see FOLD-IN — github issue).
+`github issue N` or fold-shape with issue N: missing SPEC.md does not skip the pull request.
+**Before spec delta** runs once, before any draft.
+Do not run it again from FOLD-IN.
+Other fold-in: SPEC.md must exist @ repo root else bail w/ "fold-in needs SPEC.md; init via NEW or DISTILL first".
 Else → gate.
 
 Engage `sdd:socratic` gate w/ `$ARGUMENTS` as intent.
@@ -131,6 +134,45 @@ Input (any of):
 No socratic gate — shape/design already enforced Open-Questions-empty (or park) pre-approve; issue fold is operator-named target.
 Multi-target: one shape or issue may propose new §V / §T / §I / §B rows in one apply.
 
+**Before spec delta** (github-workflow invariant; `github issue N` or fold-shape with issue N only; sole call site is DISPATCH; runs once before any draft, including when SPEC.md is missing):
+
+Open pull request for this issue → stop early.
+`gh issue develop <issue> --list` names linked branches.
+`gh pr list --head <branch> --state open --json number` non-empty → `git switch <branch>` and stop.
+Do not run `gh issue develop` again.
+Do not make another empty commit.
+Do not call `gh pr create` again.
+
+Else the tree is clean (`git status --porcelain` empty) or the block bails before any push or commit.
+`git commit --allow-empty` records a non-empty index, so porcelain must still be empty at that commit.
+
+1. Fetch `origin`.
+   Resolve `<default-base>` from `origin/HEAD`.
+2. Local `<default-base>` behind `origin/<default-base>` → fast-forward (`git switch <default-base>` then `git merge --ff-only`).
+   Diverged → stop and report.
+   Do not force-push.
+3. Local `<default-base>` ahead → `git push origin <default-base>` (named refspec; this is the push default branch step; never bare `git push`).
+   Rejected → stop and report.
+   Already up to date → success, not a failure.
+4. Issue branch — `gh issue develop <issue> --checkout` (in-place, one branch per session).
+5. One commit ahead of that base, not the spec delta: `git commit --allow-empty -m "issue <issue>: ahead of base"` only when porcelain is still empty.
+   `gh pr create` rejects zero-ahead.
+   The message has no close trailer.
+6. `gh pr create --draft` with `Related: #<issue>` before the spec delta (generic structure; steno body per github-facing-register invariant; no close trailer; no review-at-create).
+
+Missing SPEC.md does not skip the pull request.
+The pull request is open before the spec delta.
+SPEC.md present → return to the fold on that branch.
+Draft, then on OK write, path-scoped commit, then PUSH.
+Do not run this block again.
+SPEC.md missing → stay on the issue branch.
+Do not write a delta.
+Do not invent SPEC.md from the issue.
+Next `/sdd:spec` NEW or DISTILL on this branch creates SPEC.md and PUSHes.
+Do not open a second pull request.
+Spec stops before the chain.
+No GitHub issue → skip this block.
+
 1. Read plan, draft, or issue; parse proposed amendments.
 2. Draft each in telegraph (target §s + delta text).
 
@@ -139,9 +181,24 @@ Multi-target: one shape or issue may propose new §V / §T / §I / §B rows in o
 Rule: fold-in mutates SPEC.md only.
 Plan file stays in session; legacy design file stays in working tree (no auto `rm`).
 Provenance: slug, "fold-shape", or `github-issue-<N>` in commit msg.
-When `fold-shape` runs with an issue N created during shape (or `$ARGUMENTS` supplies issue N), treat as issue-linked fold: record `github-issue-<N>` in commit body and run After OK branch + PR steps.
+When `fold-shape` runs with an issue N created during shape (or `$ARGUMENTS` supplies issue N), treat as issue-linked fold: record `github-issue-<N>` in commit body.
+Dispatch already ran **Before spec delta** once.
+Do not run it again.
 
 ### FOLD-IN — github issue
+
+Dispatch already ran **Before spec delta** once.
+Do not run it again.
+Missing SPEC.md does not skip the pull request.
+The pull request is already open.
+SPEC.md missing → stop.
+Do not LOAD.
+Do not write a delta.
+Do not invent SPEC.md from the issue.
+Next is NEW or DISTILL on this branch, then PUSH.
+Do not open a second pull request.
+SPEC.md present → ordered steps below.
+Do not defer `gh pr create --draft` until after the spec commit.
 
 Ordered:
 
@@ -150,17 +207,9 @@ Ordered:
 3. **Acceptance** — if body has `## Acceptance` checklist, fold open bullets into §T goals or task notes so `/sdd:build` can prove them; if no `## Acceptance` → surface **ADVISORY** in the preview (not silent-verified; github-workflow invariant) and continue fold without inventing bullets.
 4. **Link** — record issue number in commit body (`github-issue-<N>`); do not auto-close the issue from this fold.
 
-→ APPLY show-user (step 3).
-
-**After OK** (github-workflow invariant; spec-owned prefix; sole order for branch + write):
-
-1. github BRANCH — `gh issue develop <N> --checkout` (in-place, one branch per session; clean tree; delta not yet written).
-2. Write delta to the resolved body file(s) (telegraph).
-3. Path-scoped SPEC.md commit on that branch (spec commit first on PR; no close trailer).
-4. github PR — `gh pr create --draft` (generic structure; steno body per github-facing-register invariant; no close trailer @ create; no review-at-create).
-
-Stops at draft PR.
-Post-spec-commit chain: load `skills/_fragments/POST-SPEC-CHAIN.md` (`/sdd:build`; READY remainder).
+→ APPLY show-user (step 3) on the issue branch, after **Before spec delta**.
+On OK → write delta, path-scoped commit, then PUSH.
+Spec stops before the chain.
 
 ## APPLY (all modes, post-delta)
 
@@ -190,9 +239,17 @@ Table uses named-invariant + placeholder cite form only (`per <named> invariant`
 **Step 3 — show-user**: render diff preview; await user OK.
 
 **Step 4 — write + commit**: on OK → write delta to its resolved body file(s) (telegraph) + auto-commit path-scoped per `skills/_fragments/PATH-SCOPED-COMMIT.md`: `git commit -m <subject> [-m <body>] -- <body-file(s)>`.
-github-issue fold (and fold-shape with issue N): after OK follow **After OK** order only (BRANCH → write delta → path-scoped commit → draft PR); do not write delta before BRANCH.
-Stops at draft PR.
-Non-github-issue APPLY: no github BRANCH, no github PR (work stays on current branch).
+github-issue fold (and fold-shape with issue N): **Before spec delta** already opened the draft PR (push default branch, issue branch, one `git commit --allow-empty` not the spec delta, `gh pr create --draft` with `Related: #<issue>` before the spec delta; no close trailer; no review-at-create).
+On OK → write delta on that branch + path-scoped commit, then PUSH.
+Do not write the spec delta before the issue branch.
+Do not open a second pull request.
+Spec stops before the chain.
+Non-github-issue APPLY: no github BRANCH, no github PR (do not open one).
+Current branch already has an open pull request (`gh pr view --json state` is OPEN) → after the path-scoped commit, PUSH.
+That covers NEW, DISTILL, AMEND, and BACKPROP on the issue branch.
+Do not open a second pull request.
+No open pull request → the commit stays on the current branch.
+No push.
 Body file(s) = SPEC.md every mode + target, except a stub-redirected §V AMEND → `.spec/check-extras.md` per AMEND § resolution + extras-hook invariant (the SPEC.md stub row stays untouched, so check-extras.md is the sole path-scope; mixed delta touching both an inline §V/other § and a stub-redirected §V → path list = the union).
 No commit prompt (uniform every mode).
 NEW / DISTILL / BACKPROP: first `.spec/` write (NEW/DISTILL init or first BACKPROP, whichever first) → grep `^backprop-handoff.json$` in `.spec/.gitignore`; missing → init or append that line (backprop-resume-card invariant); path-scope `.spec/.gitignore` when created or patched.
@@ -209,7 +266,7 @@ FOLD-IN  → fold-in §V.<n>(+) and §T.<n>(+): <slug|fold-shape>  (omit absent 
 
 **Re-entry**: any stage rewriting delta after step 0 — concretely fold-first's fold-into reroute (new §V row → existing-row amend) — re-enters APPLY @ step 0; rewritten delta newly satisfies §V-row prune and prior audits saw a delta that no longer exists.
 
-APPLY ends @ commit (github-issue fold continues: `gh pr create --draft` then POST-APPLY). `## POST-APPLY` fires after.
+APPLY ends @ commit (github-issue fold: PUSH the open pull request, then POST-APPLY). `## POST-APPLY` fires after.
 
 ## SWEEP-§T SCOPE AUDIT
 
@@ -280,7 +337,7 @@ Default: surface `/sdd:check` as Next item #1 (cascade over just-applied delta).
 Exceptions:
 - **BACKPROP** → item #1 = concrete `/sdd:build §T.<n>` (resume card); item #2 = `/sdd:check`.
 - **DISTILL** → item #1 = `/sdd:check`; item #2 = `/sdd:spec` confirm `?`-flagged rows.
-- **FOLD-IN github issue** and **fold-shape with issue N** → load `skills/_fragments/POST-SPEC-CHAIN.md` (`/sdd:build`; READY remainder); Next merge when approved — say "merge the PR".
+- **FOLD-IN github issue** and **fold-shape with issue N** → spec stops before the chain; load `skills/_fragments/POST-SPEC-CHAIN.md` (`/sdd:build`; READY remainder); Next merge when approved — say "merge the PR".
 - Green-path: not default-chained from spec (operator or explicit Next).
 
 Not silent commit-then-done.

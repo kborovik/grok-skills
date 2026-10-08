@@ -17,7 +17,7 @@ LLM writes code faster than humans read → standards + logic drift unchecked; c
 external surface — what operator + consuming repo see.
 
 - shape: `/sdd:shape <topic>` → Grok Plan mode propose-critique → approved plan → hand title/body (Problem + Proposal + Design decisions + Effect + Out of scope + Unresolved when present)/Acceptance/class to github ISSUE + stop; later fold via `/sdd:spec github issue N` or same-session `/sdd:spec fold-shape` (preserves issue N linkage; not bundled `/design`; no default `designs/` write)
-- spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit; fold-shape + micro-AMEND paths; `github issue N` / fold-shape+issue N → BRANCH (clean) then write then commit then draft PR (`Related: #<issue>`; no Closes); post-spec chain builds fold-produced §T ids (new + Acceptance-touched existing `.`) then review then READY; non-issue path: no BRANCH, no PR
+- spec: `/sdd:spec <intent>` → socratic gate → SPEC.md delta preview → apply + auto-commit; fold-shape + micro-AMEND paths; `github issue N` / fold-shape+issue N → push default branch then issue branch then one commit ahead of base (not spec delta) then draft PR (`Related: #<issue>`; no Closes; no review-at-create) before spec delta, including when SPEC.md missing; block runs once (open PR → switch and stop); SPEC.md present → draft + commit + PUSH; SPEC.md missing → no delta write; later NEW/DISTILL/AMEND/build on that branch PUSH; post-spec chain builds fold-produced §T ids (new + Acceptance-touched existing `.`) then review then READY; non-issue path: no BRANCH, no PR
 - build: `/sdd:build [§T.n|§T.a,§T.b,…|--next|--all|--no-chain]` → plan → edit → verify → flip §T `.`→`x` + commit; green-path one hop per operator turn → check; issue-linked → PUSH per task, READY once post-loop (no check hop; Next merge phrasing); post-spec child (`POST-SPEC-CHILD=1`): fold-produced §T ids, implies `--no-chain`, PUSH only; task-scoped acceptance @ build; full acceptance @ MERGE only; MERGE probes checks + reviewDecision + mergeable
 - check: `/sdd:check [--full|--no-chain]` → thin recipe + script; read-only REPORT + Next; clean chain → build --next
 - explain: `/sdd:explain [§-cite|--next]` → prose expansion w/ cited siblings, zero writes
@@ -197,6 +197,11 @@ T141|x|github READY + skills/_fragments/POST-SPEC-CHAIN.md: skip bundled review 
 T142|x|README Issue-linked PR: state the same skip|V69,V2
 T143|x|script: github-workflow review needle admits the doc-or-comment skip and still requires review otherwise; self-test|V69,V40
 T144|x|explain+check frontmatter `effort: medium`; README honored-frontmatter sentence names `effort`; script audit skill-effort (model unset, effort pins) + self-test|V77,V40,V71,V2
+T145|x|spec skill: `github issue N` + fold-shape+issue N first push default branch, checkout issue branch, one `--allow-empty` commit ahead of base (not spec delta), `gh pr create --draft` `Related: #<issue>` before spec delta; missing SPEC.md does not skip PR; no close trailer; no review-at-create; drafting + spec commit stay on branch then PUSH; non-issue APPLY still no BRANCH no PR|V69,I.spec,B74
+T146|x|github skill: same PR-before-delta order (push default, issue branch, one non-delta commit, draft `Related: #<issue>`); missing SPEC.md does not skip; no close trailer; no review-at-create; later spec + build PUSH open PR; no-issue path stays current branch no PR|V69,B74
+T147|x|POST-SPEC-CHAIN: PR opens before spec delta; chain still once after spec commit on open PR; drafting + build stay on issue branch and PUSH; spec stops before chain|V72,V69,B74
+T148|x|script: spec-fold + github-workflow needles assert push-default + issue-branch + one non-delta commit + draft `Related: #<issue>` before spec delta, missing SPEC.md still PR, no close trailer, no review-at-create, no-issue still no PR; retarget `After OK stops at draft PR` needle; self-test|V69,V40,B74
+T149|x|README Issue-linked PR: draft PR before spec delta (push default, issue branch, one commit, `Related: #<issue>`); missing SPEC.md does not skip; later commits push open PR; no-issue path unchanged|V69,V2,B74
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)
@@ -275,3 +280,4 @@ B70|2026-08-23|CLOSE deletes local branch only; remote branch remains|V69
 B71|2026-08-23|post-spec child fail reports to parent session; draft PR has no GitHub comment|V21,V69
 B72|2026-09-04|run_audit plugin-skill + README audits fire when plugin_dirs empty → consumer check always dirty|V71
 B73|2026-09-12|consumer README symbols/idiom still fire when plugin_dirs empty after V71 skip → memo blocked|V71
+B74|2026-10-08|github-issue spec fold defers draft PR until after spec commit; missing SPEC.md skips PR so later modes commit off the issue branch|V69
