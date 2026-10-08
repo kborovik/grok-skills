@@ -201,7 +201,7 @@ T145|x|spec skill: `github issue N` + fold-shape+issue N first push default bran
 T146|x|github skill: same PR-before-delta order (push default, issue branch, one non-delta commit, draft `Related: #<issue>`); missing SPEC.md does not skip; no close trailer; no review-at-create; later spec + build PUSH open PR; no-issue path stays current branch no PR|V69,B74
 T147|x|POST-SPEC-CHAIN: PR opens before spec delta; chain still once after spec commit on open PR; drafting + build stay on issue branch and PUSH; spec stops before chain|V72,V69,B74
 T148|x|script: spec-fold + github-workflow needles assert push-default + issue-branch + one non-delta commit + draft `Related: #<issue>` before spec delta, missing SPEC.md still PR, no close trailer, no review-at-create, no-issue still no PR; retarget `After OK stops at draft PR` needle; self-test|V69,V40,B74
-T149|.|README Issue-linked PR: draft PR before spec delta (push default, issue branch, one commit, `Related: #<issue>`); missing SPEC.md does not skip; later commits push open PR; no-issue path unchanged|V69,V2,B74
+T149|x|README Issue-linked PR: draft PR before spec delta (push default, issue branch, one commit, `Related: #<issue>`); missing SPEC.md does not skip; later commits push open PR; no-issue path unchanged|V69,V2,B74
 
 ## §B BUGS
 ## archived: §B.0..§B.0 → SPEC.archive.md (0 rows)

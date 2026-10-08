@@ -191,7 +191,10 @@ Work commits on the current branch.
 `/sdd:shape` post-approve is one source of that issue: the skill opens it, labels it, and stops.
 
 ```text
-/sdd:spec github issue N   # fold; issue-linked branch; SPEC.md commit; gh pr create --draft
+/sdd:spec github issue N   # push default branch; issue branch; one commit
+                           # gh pr create --draft with Related: #<issue>
+                           # before the spec delta; missing SPEC.md does not skip
+                           # then draft, commit, and push the open pull request
                            # then auto /sdd:build on fold-produced §T ids
                            # then bundled review unless the diff is doc-or-comment
                            # then apply findings; git push; gh pr ready
@@ -206,11 +209,18 @@ When all open bullets pass, close is allowed and an Acceptance-evidence comment 
 If the issue has **no** `## Acceptance` section, that is an **advisory** (not a silent verified close).
 The gate surfaces the gap; it does not pretend the work was acceptance-checked.
 
-Start work with `gh issue develop <n> --checkout`.
-The spec fold commits `SPEC.md` on that branch, then opens a draft PR (`gh pr create --draft`) from that commit.
+The draft pull request opens before the spec delta.
+The fold pushes the default branch first.
+The fold checks out the issue branch with `gh issue develop <n> --checkout`.
+The fold makes one commit ahead of that base with `git commit --allow-empty`.
+That commit is not the spec delta.
+The fold opens the draft with `gh pr create --draft` and a `Related: #<issue>` line.
+A missing `SPEC.md` does not skip the pull request.
 No close trailer at create.
 No review at create.
-After that spec commit and draft PR, the fold runs a write-capable `/sdd:build` sub-agent on fold-produced §T ids only.
+Drafting and the spec commit stay on that branch.
+Later commits push the open pull request.
+After the spec commit, the fold runs a write-capable `/sdd:build` sub-agent on fold-produced §T ids only.
 A doc-or-comment diff skips the bundled review.
 A doc-or-comment diff changes only spec text, docs, or comments.
 The doc paths are `SPEC.md`, `SPEC.archive.md`, `.spec/check-extras.md`, `SPEC-FORMAT.md`, `README.md`, `AGENTS.md`, and files under `designs/`.
