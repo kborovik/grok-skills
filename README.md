@@ -195,7 +195,7 @@ Work commits on the current branch.
                            # gh pr create --draft with Related: #<issue>
                            # before the spec delta; missing SPEC.md does not skip
                            # then draft, commit, and push the open pull request
-                           # then auto /sdd:build on fold-produced §T ids
+                           # that push runs the chain once: /sdd:build on fold-produced §T ids
                            # then bundled review unless the diff is doc-or-comment
                            # then apply findings; git push; gh pr ready
 # Closes trailer only at merge, after Acceptance gate
@@ -228,7 +228,8 @@ No close trailer at create.
 No review at create.
 When `SPEC.md` is present, drafting and the spec commit stay on that branch.
 Later commits push the open pull request.
-After the spec commit, the fold runs a write-capable `/sdd:build` sub-agent on fold-produced §T ids only.
+After the spec commit is pushed, the github workflow runs the chain once.
+That chain starts a write-capable `/sdd:build` sub-agent on fold-produced §T ids only.
 A doc-or-comment diff skips the bundled review.
 A doc-or-comment diff changes only spec text, docs, or comments.
 The doc paths are `SPEC.md`, `SPEC.archive.md`, `.spec/check-extras.md`, `SPEC-FORMAT.md`, `README.md`, `AGENTS.md`, and files under `designs/`.

@@ -67,7 +67,7 @@ Missing issue → bail: no `gh issue develop`, no `git checkout -b`, no `gh pr c
 Work stays on current branch; plain git commit still in scope.
 chain runs once after the spec commit on the open PR.
 Spec stops before the chain.
-The chain load is the PR section after the spec commit, not this open.
+The spec PUSH fires the chain load in the PR section after the spec commit, not this open.
 After operator-run issue-linked code complete → READY once per run.
 Close → MERGE (ACCEPTANCE-GATE then add Closes then squash).
 
@@ -110,7 +110,7 @@ No Acceptance copy.
 No secondary Closes @ create.
 Generic structure: change summary; no close trailer; no fixed template.
 
-**After the spec commit on this open PR:** load `skills/_fragments/POST-SPEC-CHAIN.md`.
+**After the spec commit on this open PR (fired by the spec PUSH):** load `skills/_fragments/POST-SPEC-CHAIN.md`.
 Do not wait to open the PR until the spec commit exists.
 An open pull request for the issue already exists → do not create another.
 

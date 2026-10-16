@@ -55,7 +55,8 @@ Modes:
                 before the chain. Chain cite is `/sdd:build` + READY
                 remainder. Before-spec-delta block ! run `/sdd:build`
                 or load POST-SPEC-CHAIN (numbered or not); POST-APPLY
-                ! `auto-chain run` (chain once; owner = github PR).
+                ! `auto-chain run` and ! load `POST-SPEC-CHAIN.md`
+                (chain once; owner = github PR; fired by the spec PUSH).
                 Non-github-issue APPLY
                 requires `no github BRANCH, no github PR`.
                 `skills/github/SKILL.md`
@@ -1805,7 +1806,10 @@ def audit_github_review_skip(repo_root):
 # cites the three-step chain (`/sdd:build` + READY remainder) not a
 # two-step subset (closes §B.33). The before-spec-delta block must not
 # run `/sdd:build` or load POST-SPEC-CHAIN (numbered or not);
-# POST-APPLY must not `auto-chain run` (closes §B.32, §B.74).
+# POST-APPLY must not `auto-chain run` and must not load
+# `POST-SPEC-CHAIN.md` (closes §B.32, §B.74). The fragment
+# loader line names the spec PUSH as the fire and excludes
+# spec POST-APPLY.
 SPEC_FOLD_GITHUB_NEEDLES = (
     ("push default", "push default branch"),
     ("gh issue develop", "issue branch via gh issue develop"),
@@ -1866,7 +1870,8 @@ def classify_spec_fold_github(spec_text):
     `skills/spec/SKILL.md`; empty/unreadable → MISSING. Each required
     needle absent → VIOLATE (one row per miss). Before spec delta
     `/sdd:build` or `POST-SPEC-CHAIN.md` (numbered or not) or
-    POST-APPLY `auto-chain run` → VIOLATE so the chain cannot run
+    POST-APPLY `auto-chain run` or a POST-APPLY load of
+    `POST-SPEC-CHAIN.md` → VIOLATE so the chain cannot run
     twice (closes §B.32, §B.74)."""
     if not spec_text:
         return [("github-workflow", "MISSING",
@@ -1898,6 +1903,38 @@ def classify_spec_fold_github(spec_text):
                         "github-workflow VIOLATE: skills/spec/SKILL.md "
                         "POST-APPLY auto-chain run "
                         "(chain must run once)"))
+        if "POST-SPEC-CHAIN.md" in post_apply:
+            out.append(("github-workflow", "VIOLATE",
+                        "github-workflow VIOLATE: skills/spec/SKILL.md "
+                        "POST-APPLY loads POST-SPEC-CHAIN "
+                        "(chain must run once; owner = github PR)"))
+    return out
+
+
+def classify_post_spec_chain_owner(frag_text):
+    """POST-SPEC-CHAIN loader line — pure. Empty → MISSING.
+    The fragment names the spec PUSH as the fire and excludes
+    spec POST-APPLY, so spec and github cannot both run the chain."""
+    if not frag_text:
+        return [("github-workflow", "MISSING",
+                 "github-workflow MISSING: "
+                 "skills/_fragments/POST-SPEC-CHAIN.md unreadable")]
+    out = []
+    if "fired by the spec PUSH" not in frag_text:
+        out.append(("github-workflow", "VIOLATE",
+                    "github-workflow VIOLATE: "
+                    "skills/_fragments/POST-SPEC-CHAIN.md "
+                    "missing fired by the spec PUSH"))
+    if "never by spec POST-APPLY" not in frag_text:
+        out.append(("github-workflow", "VIOLATE",
+                    "github-workflow VIOLATE: "
+                    "skills/_fragments/POST-SPEC-CHAIN.md "
+                    "missing never by spec POST-APPLY"))
+    if "Loaded by spec POST-APPLY" in frag_text:
+        out.append(("github-workflow", "VIOLATE",
+                    "github-workflow VIOLATE: "
+                    "skills/_fragments/POST-SPEC-CHAIN.md "
+                    "still loaded by spec POST-APPLY"))
     return out
 
 
@@ -1914,7 +1951,9 @@ def audit_spec_fold_github(repo_root):
         spec_text = read_text(spec_p) if spec_p else ""
     except OSError:
         spec_text = ""
-    return classify_spec_fold_github(spec_text)
+    return (classify_spec_fold_github(spec_text)
+            + classify_post_spec_chain_owner(
+                _read_post_spec_chain(repo_root)))
 
 
 # --- github-workflow build issue-linked pass audit ---------------------------
@@ -4827,6 +4866,41 @@ def selftest():
     check(any(v == "VIOLATE" and "POST-APPLY auto-chain run" in e
               for _, v, e in classify_spec_fold_github(sf_dup)),
           "post-spec-commit chain once: POST-APPLY auto-chain run → VIOLATE")
+    sf_post_load = (
+        sf_good.rsplit("## POST-APPLY", 1)[0]
+        + "## POST-APPLY\n"
+        "- FOLD-IN github issue → load "
+        "`skills/_fragments/POST-SPEC-CHAIN.md`\n"
+    )
+    check(any(v == "VIOLATE" and "POST-APPLY loads POST-SPEC-CHAIN" in e
+              for _, v, e in classify_spec_fold_github(sf_post_load)),
+          "post-spec-commit chain once: POST-APPLY loads "
+          "POST-SPEC-CHAIN → VIOLATE")
+    owner_good = (
+        "Loaded by github PR after the spec commit "
+        "(fired by the spec PUSH) and build LOAD / POST-LOOP / "
+        "CHAIN / OUTPUT; never by spec POST-APPLY.\n"
+    )
+    check(classify_post_spec_chain_owner(owner_good) == [],
+          "post-spec chain owner: spec PUSH fires; spec POST-APPLY "
+          "excluded → clean")
+    check(any(v == "VIOLATE" and "fired by the spec PUSH" in e
+              for _, v, e in classify_post_spec_chain_owner(
+                  "never by spec POST-APPLY\n")),
+          "post-spec chain owner: missing spec PUSH fire → VIOLATE")
+    check(any(v == "VIOLATE" and "never by spec POST-APPLY" in e
+              for _, v, e in classify_post_spec_chain_owner(
+                  "fired by the spec PUSH\n")),
+          "post-spec chain owner: missing POST-APPLY exclusion → VIOLATE")
+    check(any(v == "VIOLATE" and "still loaded by spec POST-APPLY" in e
+              for _, v, e in classify_post_spec_chain_owner(
+                  "Loaded by spec POST-APPLY, github PR after the "
+                  "spec commit\nfired by the spec PUSH\n"
+                  "never by spec POST-APPLY\n")),
+          "post-spec chain owner: spec POST-APPLY still a loader "
+          "→ VIOLATE")
+    check(classify_post_spec_chain_owner("")[0][1] == "MISSING",
+          "post-spec chain owner: empty fragment → MISSING")
     check(any(v == "VIOLATE" and "chain runs once" in e
               for _, v, e in classify_github_pr_per_issue(
                   "gh issue develop\ngh pr create --draft\ngit push\n"
